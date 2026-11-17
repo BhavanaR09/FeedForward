@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block title %}My Certificates - FeedForward{% endblock %}
+
+{% block content %}
+<style>
+    .certificate-toolbar { background: #fff; border: 1px solid #e3ece5; box-shadow: 0 10px 26px rgba(30, 82, 45, .06); }
+    .certificate-search { min-height: 48px; border-color: #d7e5da; padding-left: 2.7rem; }
+    .certificate-search:focus, .certificate-filter:focus { border-color: #2e7d32; box-shadow: 0 0 0 .2rem rgba(46, 125, 50, .12); }
+    .certificate-search-icon { left: 1rem; top: 50%; transform: translateY(-50%); color: #63946a; }
+    .certificate-filter { min-height: 44px; border-color: #d7e5da; }
+    .certificate-empty { border: 1px dashed #bdd7c2; background: #fbfefb; }
+    @media (max-width: 575.98px) { .certificate-toolbar { padding: 1rem !important; } }
+</style>
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="fw-bold">Delivery Certificates</h1>
+            <p class="text-muted mb-0">Certificates issued for completed donations by {{ donor.company_name }}</p>
+        </div>
+        <div>
+            <a href="{{ url_for('donor_dashboard') }}" class="btn btn-outline-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+
+    <div class="card bg-white border-0 shadow-sm p-4 rounded-4">
+        {% if certificates and certificates|length > 0 %}
+            <div class="certificate-toolbar rounded-4 p-3 mb-4">
+                <div class="row g-3 align-items-end">
+                    <div class="col-12 col-lg-7">
+                        <label for="certificateSearch" class="form-label small fw-semibold">Search certificates</label>
+                        <div class="position-relative">
+                            <i class="fa-solid fa-magnifying-glass position-absolute certificate-search-icon"></i>
+                            <input id="certificateSearch" class="form-control rounded-3 certificate-search" type="search" placeholder="Search by donation, type, date or certificate..." autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-lg-2">
+                        <label for="certificateType" class="form-label small fw-semibold">Donation Type</label>
+                        <select id="certificateType" class="form-select rounded-3 certificate-filter">
+                            <option value="">All Types</option><option value="food">Food</option><option value="clothes">Clothes</option><option value="books">Books</option><option value="money">Money</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-sm-6 col-lg-2">
+                        <label for="certificateDate" class="form-label small fw-semibold">Date</label>
+                        <select id="certificateDate" class="form-select rounded-3 certificate-filter">
+                            <option value="">All Dates</option><option value="today">Today</option><option value="week">This Week</option><option value="month">This Month</option><option value="year">This Year</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-lg-1">
+                        <button id="clearCertificateFilters" type="button" class="btn btn-light border rounded-3 w-100" title="Clear filters"><i class="fa-solid fa-rotate-left"></i><span class="d-lg-none ms-1">Clear</span></button>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between mt-3 pt-3 border-top">
+                    <span id="certificateResultCount" class="small text-muted"></span>
+                    <span class="small text-muted"><i class="fa-solid fa-filter me-1 text-success"></i>Filters update instantly</span>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Donation</th>
+                            <th>Donated On</th>
+                            <th>Issued On</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in certificates %}
+                            <tr class="certificate-row" data-search="{{ [c.food_name, c.donation_type, c.donated_at, c.issued_at, c.donated_at|format_datetime, c.issued_at|format_datetime, c.donation_id]|join(' ')|lower|e }}" data-type="{{ c.donation_type|default('', true)|lower }}" data-donated="{{ c.donated_at|default('', true) }}" data-issued="{{ c.issued_at|default('', true) }}">
+                                <td class="align-middle fw-semibold">{{ c.food_name }} <span class="badge bg-light text-dark">{{ c.donation_type|title }}</span></td>
+                                <td class="align-middle">{{ c.donated_at|format_datetime }}</td>
+                                <td class="align-middle">{{ c.issued_at|format_datetime }}</td>
+                                <td class="align-middle text-end">
+                                    {% if c.certificate_path %}
+                                        <a href="{{ url_for('download_certificate', donation_id=c.donation_id, donation_type=c.donation_type) }}" class="btn btn-success btn-sm">Download</a>
+                                    {% else %}
+                                        <span class="text-muted">Pending</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        <tr id="certificateNoResults" class="d-none">
+                            <td colspan="4" class="text-center py-5">
+                                <div class="certificate-empty rounded-4 py-4">
+                                    <i class="fa-solid fa-magnifying-glass text-success fs-3 mb-3 d-block"></i>
+                                    <div class="fw-semibold">No certificates found</div>
+                                    <div class="text-muted small mt-1">Try changing your search or filter.</div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fa-solid fa-certificate fs-1 text-warning mb-3"></i>
+                <p class="text-muted mb-0">No certificates have been issued for your donations yet.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% if certificates and certificates|length > 0 %}
+<script>
+    (() => {
+        const search = document.getElementById('certificateSearch');
+        const type = document.getElementById('certificateType');
+        const date = document.getElementById('certificateDate');
+        const clear = document.getElementById('clearCertificateFilters');
+        const count = document.getElementById('certificateResultCount');
+        const empty = document.getElementById('certificateNoResults');
+        const rows = [...document.querySelectorAll('.certificate-row')];
+
+        const parseDate = value => {
+            if (!value) return null;
+            const parsed = new Date(value.replace(' ', 'T'));
+            return Number.isNaN(parsed.getTime()) ? null : parsed;
+        };
+
+        const matchesDate = (value, selected) => {
+            if (!selected) return true;
+            const recordDate = parseDate(value);
+            if (!recordDate) return false;
+            const now = new Date();
+            if (selected === 'today') return recordDate.toDateString() === now.toDateString();
+            if (selected === 'year') return recordDate.getFullYear() === now.getFullYear();
+            if (selected === 'month') return recordDate.getFullYear() === now.getFullYear() && recordDate.getMonth() === now.getMonth();
+            const startOfWeek = new Date(now);
+            startOfWeek.setHours(0, 0, 0, 0);
+            startOfWeek.setDate(now.getDate() - now.getDay());
+            return recordDate >= startOfWeek;
+        };
+
+        const applyFilters = () => {
+            const query = search.value.trim().toLowerCase();
+            let visible = 0;
+            rows.forEach(row => {
+                const matches = (!query || row.dataset.search.includes(query)) &&
+                    (!type.value || row.dataset.type === type.value) &&
+                    (matchesDate(row.dataset.donated, date.value) || matchesDate(row.dataset.issued, date.value));
+                row.classList.toggle('d-none', !matches);
+                if (matches) visible += 1;
+            });
+            count.textContent = `${visible} certificate${visible === 1 ? '' : 's'} shown`;
+            empty.classList.toggle('d-none', visible !== 0);
+        };
+
+        [search, type, date].forEach(control => {
+            control.addEventListener('input', applyFilters);
+            control.addEventListener('change', applyFilters);
+        });
+        clear.addEventListener('click', () => {
+            search.value = '';
+            type.value = '';
+            date.value = '';
+            applyFilters();
+            search.focus();
+        });
+        applyFilters();
+    })();
+</script>
+{% endif %}
+{% endblock %}

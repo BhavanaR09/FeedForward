@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block title %}Volunteer Handover History - FeedForward{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div>
+            <span class="text-success fw-bold text-uppercase text-xs" style="letter-spacing: 1px;">Volunteer Records</span>
+            <h1 class="fw-bold text-dark mt-1 mb-0">Delivery Handover History</h1>
+        </div>
+        <a href="{{ url_for('volunteer_dashboard') }}" class="btn btn-outline-success rounded-3 btn-sm">
+            &larr; Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Listings list (Accordion) -->
+    <div class="card bg-white border-0 shadow-sm p-4 rounded-4">
+        <div class="accordion" id="volunteerHistoryAccordion">
+            {% if history|length == 0 %}
+                <div class="text-center py-5">
+                    <i class="fa-solid fa-truck-fast fs-2 opacity-30 mb-2 d-block"></i>
+                    <p class="text-muted mb-0">No completed delivery dispatches recorded yet in historical logs.</p>
+                </div>
+            {% else %}
+                {% for item in history %}
+                    <div class="accordion-item mb-3 ff-accordion-item shadow-sm">
+                        <h2 class="accordion-header" id="vhHeading{{ item.donation_id }}">
+                            <button class="accordion-button collapsed ff-accordion-header-btn d-flex align-items-center w-100" type="button" data-bs-toggle="collapse" data-bs-target="#vhCollapse{{ item.donation_id }}" aria-expanded="false" aria-controls="vhCollapse{{ item.donation_id }}">
+                                <div class="d-flex align-items-center gap-3" style="min-width:0;">
+                                    <div class="ff-food-thumb">
+                                        {% if item.image_path %}
+                                            <img src="{{ url_for('static', filename=item.image_path) }}" alt="Food">
+                                        {% else %}
+                                            <div class="d-flex align-items-center justify-content-center text-muted" style="width:56px; height:56px;"><i class="fa-solid fa-bowl-food"></i></div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="text-truncate">
+                                        <div class="fw-semibold text-dark">{{ item.food_name }}</div>
+                                        <div class="ff-timestamp">{{ item.created_at|format_datetime }}</div>
+                                    </div>
+                                </div>
+                                <div class="ms-auto d-flex align-items-center gap-3">
+                                    <div class="text-end">
+                                        <span class="ff-status-badge" style="background-color: {% if item.status in ['Completed','Delivered'] %}#d1fae5; color:#111827;{% elif item.status == 'Picked Up' %}#f3e8ff; color:#111827;{% elif item.status == 'Volunteer Assigned' %}#e0f2fe; color:#111827;{% else %}#fef3c7; color:#111827;{% endif %}">{{ item.status }}</span>
+                                        <div class="ff-timestamp mt-1">{{ (item.delivered_at or item.picked_up_at) | format_datetime }}</div>
+                                    </div>
+                                </div>
+                            </button>
+                        </h2>
+                        <div id="vhCollapse{{ item.donation_id }}" class="accordion-collapse collapse" aria-labelledby="vhHeading{{ item.donation_id }}" data-bs-parent="#volunteerHistoryAccordion">
+                            <div class="accordion-body bg-white p-3">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="card ff-details-card">
+                                            <h6 class="mb-2">Donation Details</h6>
+                                            <p class="mb-1"><strong>Quantity</strong> : {{ item.quantity }}</p>
+                                            <p class="mb-1"><strong>Diet Type</strong> : {{ item.veg_non_veg }}</p>
+                                            <p class="mb-1"><strong>Target Organization</strong> : {{ item.ngo_name or '—' }}</p>
+                                            <p class="mb-1"><strong>Organization Type</strong> : {{ item.organization_type or '—' }}</p>
+                                            <p class="mb-1"><strong>Pickup Location</strong> : {{ item.address }}</p>
+                                            <p class="mb-1"><strong>Donated On</strong> : {{ item.created_at|format_datetime }}</p>
+                                            {% if item.inspection_status %}
+                                                <p class="mb-1"><strong>Inspection</strong> : <span class="badge {% if item.inspection_result == 'Approved' %}bg-success{% elif item.inspection_result == 'Rejected' %}bg-danger{% else %}bg-warning text-dark{% endif %}">{{ item.inspection_status }}{% if item.inspection_result %} - {{ item.inspection_result }}{% endif %}</span></p>
+                                                {% if item.inspection_notes %}
+                                                    <p class="mb-1 text-muted">Notes: {{ item.inspection_notes }}</p>
+                                                {% endif %}
+                                                {% if item.rejection_reason %}
+                                                    <p class="mb-1 text-danger">Rejection Reason: {{ item.rejection_reason }}</p>
+                                                {% endif %}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card ff-details-card">
+                                            <div class="d-flex align-items-center gap-2 mb-3">
+                                                <span class="ff-timeline-header-icon">🚚</span>
+                                                <h6 class="mb-0">Delivery Timeline</h6>
+                                            </div>
+                                            <div class="ff-timeline">
+                                                <div class="ff-timeline-step">
+                                                    <div class="ff-timeline-icon bg-success text-white"><i class="fa-solid fa-map-pin"></i></div>
+                                                    <div>
+                                                        <div class="ff-timeline-label">Assigned</div>
+                                                        <div class="ff-timeline-meta">{{ item.assigned_at|format_datetime or 'Pending' }}</div>
+                                                    </div>
+                                                </div>
+                                                <div class="ff-timeline-step">
+                                                    <div class="ff-timeline-icon bg-primary text-white"><i class="fa-solid fa-box-open"></i></div>
+                                                    <div>
+                                                        <div class="ff-timeline-label">Picked Up</div>
+                                                        <div class="ff-timeline-meta">{{ item.picked_up_at|format_datetime or 'Pending' }}</div>
+                                                    </div>
+                                                </div>
+                                                <div class="ff-timeline-step">
+                                                    <div class="ff-timeline-icon bg-success text-white"><i class="fa-solid fa-bell-concierge"></i></div>
+                                                    <div>
+                                                        <div class="ff-timeline-label">Delivered</div>
+                                                        <div class="ff-timeline-meta">{{ item.delivered_at|format_datetime or 'Pending' }}</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {% if item.rating is defined and item.rating is not none %}
+                                                <div class="mt-3 ff-rating">
+                                                    {% for i in range(1,6) %}
+                                                        {% if i <= item.rating %}
+                                                            <i class="fa-solid fa-star"></i>
+                                                        {% else %}
+                                                            <i class="fa-regular fa-star"></i>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex justify-content-end gap-2 mt-3 flex-wrap">
+                                    {% if item.certificate_path %}
+                                        <a href="{{ url_for('download_certificate', donation_id=item.donation_id) }}" class="btn btn-outline-primary ff-proof-btn">Download Certificate</a>
+                                    {% endif %}
+                                    {% if item.delivery_proof_path %}
+                                        <button class="btn btn-success ff-proof-btn" data-bs-toggle="modal" data-bs-target="#vhProofModal{{ item.donation_id }}">View Delivery Proof</button>
+                                    {% else %}
+                                        <span class="ff-small-muted">No delivery proof uploaded</span>
+                                    {% endif %}
+                                </div>
+
+                                {% if item.delivery_proof_path %}
+                                    <div class="modal fade" id="vhProofModal{{ item.donation_id }}" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered modal-lg">
+                                            <div class="modal-content border-0 shadow rounded-4 text-center">
+                                                <div class="modal-header border-0 justify-content-end">
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body p-0">
+                                                    <img src="{{ url_for('static', filename=item.delivery_proof_path) }}" alt="Delivery Proof" class="img-fluid rounded-3 w-100" style="max-height:560px; object-fit:cover;">
+                                                </div>
+                                                <div class="modal-footer border-0 justify-content-center">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Verified NGOs - FeedForward{% endblock %}
+
+{% block content %}
+<style>
+    .verified-ngos-page { background: #f7faf8; min-height: calc(100vh - 72px); }
+    .verified-ngos-hero { background: linear-gradient(135deg, #effaf1 0%, #ffffff 72%); border: 1px solid #dcefe0; }
+    .verified-ngos-title { color: #183b25; }
+    .verified-ngos-toolbar { background: #fff; border: 1px solid #e3ece5; box-shadow: 0 12px 30px rgba(30, 82, 45, .07); }
+    .verified-ngos-card { border: 1px solid #e2ebe4; box-shadow: 0 8px 22px rgba(30, 82, 45, .06); transition: transform .2s ease, box-shadow .2s ease; }
+    .verified-ngos-card:hover { transform: translateY(-3px); box-shadow: 0 14px 28px rgba(30, 82, 45, .11); }
+    .verified-badge { background: #e6f6e9; color: #23732c; border-radius: 999px; font-size: .75rem; font-weight: 700; padding: .4rem .65rem; white-space: nowrap; }
+    .verified-ngos-empty { background: #fbfefb; border: 1px dashed #bdd7c2; }
+</style>
+
+<div class="verified-ngos-page py-4 py-lg-5">
+    <div class="container">
+        <div class="verified-ngos-hero rounded-4 p-4 p-lg-5 mb-4">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div>
+                    <span class="text-success text-uppercase fw-bold small" style="letter-spacing: .12em;">Trusted partners</span>
+                    <h1 class="verified-ngos-title fw-bold mt-2 mb-2">Verified NGOs</h1>
+                    <p class="text-muted mb-0">Explore verified NGOs participating in FeedForward.</p>
+                </div>
+                <span class="badge bg-success-subtle text-success rounded-pill px-3 py-2"><i class="fa-solid fa-shield-check me-1"></i>Admin verified</span>
+            </div>
+        </div>
+
+        <form class="verified-ngos-toolbar rounded-4 p-3 p-lg-4 mb-4" method="get" action="{{ url_for('donor_verified_ngos') }}">
+            <label for="ngoSearch" class="form-label small fw-semibold">Search by NGO name, location, or cause</label>
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-magnifying-glass text-success"></i></span>
+                <input id="ngoSearch" name="q" value="{{ search_query }}" class="form-control border-start-0" placeholder="Search verified NGOs..." autocomplete="off">
+                <button class="btn btn-success px-4" type="submit">Search</button>
+                {% if search_query %}<a class="btn btn-light border d-flex align-items-center" href="{{ url_for('donor_verified_ngos') }}">Clear</a>{% endif %}
+            </div>
+        </form>
+
+        {% if verified_ngos %}
+            <div class="row g-4">
+                {% for ngo in verified_ngos %}
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <article class="verified-ngos-card bg-white rounded-4 h-100 p-4 d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-start gap-3 mb-4">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="rounded-circle bg-success-subtle text-success d-flex align-items-center justify-content-center" style="width: 46px; height: 46px;"><i class="fa-solid fa-building-ngo fs-5"></i></div>
+                                    <h2 class="h5 mb-0">{{ ngo.ngo_name }}</h2>
+                                </div>
+                                <span class="verified-badge"><i class="fa-solid fa-circle-check me-1"></i>Verified</span>
+                            </div>
+                            <div class="small text-muted mb-2"><i class="fa-solid fa-location-dot text-success me-2"></i>{{ ngo.address }}</div>
+                            <p class="text-muted mb-3">Supporting {{ ngo.organization_type or 'community welfare' }} through FeedForward donations.</p>
+                            <div class="small text-muted mb-4"><i class="fa-solid fa-hand-holding-heart text-success me-2"></i>Donation coordination through FeedForward</div>
+                            <a href="{{ url_for('donor_verified_ngo_details', ngo_id=ngo.id) }}" class="btn btn-outline-success rounded-3 mt-auto">View NGO Details <i class="fa-solid fa-arrow-right ms-2"></i></a>
+                        </article>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="verified-ngos-empty rounded-4 text-center py-5 px-3">
+                <i class="fa-solid fa-building-ngo text-success fs-2 mb-3"></i>
+                <h2 class="h5 fw-bold">No verified NGOs available yet.</h2>
+                <p class="text-muted mb-0">NGOs will appear here after they are reviewed and approved by the FeedForward admin.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}Donate Books - FeedForward{% endblock %}
+
+{% block content %}
+<div class="donation-form-bg donation-books-bg">
+    <div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="text-center mb-4">
+                <div class="rounded-circle bg-success bg-opacity-10 d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 72px; height: 72px;">
+                    <i class="fa-solid fa-book fs-3 text-success"></i>
+                </div>
+                <h1 class="fw-bold mb-2 text-light">{{ 'Edit Book Donation' if edit_mode else 'List Book Donation' }}</h1>
+                <p class="text-light">{{ 'Update the details for your donation below.' if edit_mode else 'Donate school books, storybooks, and learning resources to learners in need.' }}</p>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-4 p-4">
+                <form method="POST" enctype="multipart/form-data">
+                    {{ form.hidden_tag() }}
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Book Title</label>
+                            {{ form.title(class='form-control rounded-3', placeholder='e.g. Mathematics for Class 8') }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Author</label>
+                            {{ form.author(class='form-control rounded-3', placeholder='Optional author name') }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Category</label>
+                            {{ form.category(class='form-select rounded-3', id='booksCategory') }}
+                        </div>
+                        <div class="col-md-6" id="booksCategoryOtherWrap" style="display:none;">
+                            <label class="form-label fw-semibold">Please specify</label>
+                            {{ form.other_category(class='form-control rounded-3', placeholder='e.g. Children story collection') }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Quantity</label>
+                            {{ form.quantity(class='form-control rounded-3', placeholder='e.g. 15 copies') }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Condition</label>
+                            {{ form.condition(class='form-select rounded-3') }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Preferred Pickup Time</label>
+                            {{ form.pickup_time(class='form-control rounded-3', placeholder='e.g. Sunday 11 AM') }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Pickup Address</label>
+                            {{ form.address(class='form-control rounded-3', placeholder='Pickup address') }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Upload Image (optional)</label>
+                            <input type="file" name="book_image" id="bookImage" class="form-control rounded-3" accept="image/*">
+                            <div id="bookImagePreview" class="mt-3" style="display:none;"><img alt="Book preview" class="img-fluid rounded-3" style="max-height:220px;"></div>
+                            {% if edit_mode and donation.image_path %}<img src="{{ url_for('static', filename=donation.image_path) }}" alt="Current book image" class="img-fluid rounded-3 mt-3" style="max-height:220px;">{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-3 mt-4">
+                        <button type="submit" id="bookSubmit" class="btn btn-success flex-grow-1 rounded-3 fw-semibold">{{ 'Update Book Donation' if edit_mode else 'List Book Donation' }}</button>
+                        <a href="{{ url_for('donor_dashboard') }}" class="btn btn-light rounded-3 fw-semibold border">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    </div>
+</div>
+
+<script>
+    function toggleCategoryOther(selectId, wrapId) {
+        const select = document.getElementById(selectId);
+        const wrap = document.getElementById(wrapId);
+        if (!select || !wrap) return;
+
+        const show = select.value === 'Other';
+        wrap.style.display = show ? 'block' : 'none';
+
+        const input = wrap.querySelector('input');
+        if (input) {
+            input.required = show;
+            input.disabled = !show;
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        toggleCategoryOther('booksCategory', 'booksCategoryOtherWrap');
+        const booksSelect = document.getElementById('booksCategory');
+        if (booksSelect) {
+            booksSelect.addEventListener('change', function() {
+                toggleCategoryOther('booksCategory', 'booksCategoryOtherWrap');
+            });
+        }
+    });
+</script>
+<script>
+    const bookImage = document.getElementById('bookImage');
+    const bookPreview = document.querySelector('#bookImagePreview img');
+    bookImage?.addEventListener('change', function () {
+        const file = this.files?.[0];
+        if (!file || !bookPreview) return;
+        bookPreview.src = URL.createObjectURL(file);
+        document.getElementById('bookImagePreview').style.display = 'block';
+    });
+    document.querySelector('form')?.addEventListener('submit', function () {
+        const button = document.getElementById('bookSubmit');
+        if (button) { button.disabled = true; button.textContent = 'Uploading...'; }
+    });
+</script>
+{% endblock %}

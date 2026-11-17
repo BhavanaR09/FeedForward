@@ -1,0 +1,515 @@
+{% extends "base.html" %}
+
+{% block title %}Volunteer Dashboard - FeedForward{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-5">
+    <div class="row gx-4 gy-4">
+        {% include 'volunteer_sidebar.html' %}
+
+        <div class="col-lg-9">
+            <div class="row align-items-center justify-content-between g-4 mb-4">
+                <div class="col-md-8">
+                    <span class="badge bg-success bg-opacity-15 text-#ffffff rounded-pill text-uppercase fw-semibold px-3 py-2">Courier Portal</span>
+                    <h1 class="fw-bold text-dark mt-3 mb-1">Welcome back, {{ volunteer.name }}</h1>
+                    <p class="text-muted mb-0">Manage pickups, deliveries, and dispatch history from one streamlined dashboard.</p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <a href="{{ url_for('profile') }}" class="btn btn-outline-success btn-sm rounded-pill px-4 py-2 mb-2 d-inline-flex align-items-center gap-2">
+                        <i class="fa-solid fa-user-pen"></i> Edit profile
+                    </a>
+                    <a href="{{ url_for('volunteer_history') }}" class="btn btn-success btn-sm rounded-pill px-4 py-2 mb-2 d-inline-flex align-items-center gap-2">
+                        <i class="fa-solid fa-clock-rotate-left"></i> History
+                    </a>
+                </div>
+            </div>
+
+            <div class="row g-4 mb-4">
+                <div class="col-sm-6 col-xl-3">
+                    <div class="card border-0 shadow-sm rounded-4 p-4 h-100 admin-stat-card">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div>
+                                <p class="label-success-light text-uppercase fw-semibold mb-1" style="font-size:0.72rem; letter-spacing:.18em;">Active Pickups</p>
+                                <h2 class="fw-bold mb-0">{{ assigned_pickups|length }}</h2>
+                            </div>
+                            <div class="icon-circle bg-success bg-opacity-10 text-success"><i class="fa-solid fa-truck-fast"></i></div>
+                        </div>
+                        <p class="text-muted mb-0">Dispatches currently in progress.</p>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-xl-3">
+                    <div class="card border-0 shadow-sm rounded-4 p-4 h-100 admin-stat-card">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div>
+                                <p class="label-info-light text-uppercase fw-semibold mb-1" style="font-size:0.72rem; letter-spacing:.18em;">Certificates</p>
+                                <h2 class="fw-bold mb-0">{{ certificates|length }}</h2>
+                            </div>
+                            <div class="icon-circle bg-info bg-opacity-10 text-info"><i class="fa-solid fa-certificate"></i></div>
+                        </div>
+                        <p class="text-muted mb-0">Completed deliveries with proof.</p>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-xl-3">
+                    <div class="card border-0 shadow-sm rounded-4 p-4 h-100 admin-stat-card">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div>
+                                <p class="label-warning-light text-uppercase fw-semibold mb-1" style="font-size:0.72rem; letter-spacing:.18em;">Top Donors</p>
+                                <h2 class="fw-bold mb-0">{{ top_donors|length }}</h2>
+                            </div>
+                            <div class="icon-circle bg-warning bg-opacity-10 text-warning"><i class="fa-solid fa-hand-holding-heart"></i></div>
+                        </div>
+                        <p class="text-muted mb-0">High-impact partners in the network.</p>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-xl-3">
+                    <div class="card border-0 shadow-sm rounded-4 p-4 h-100 admin-stat-card">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div>
+                                <p class="label-danger-light text-uppercase fw-semibold mb-1" style="font-size:0.72rem; letter-spacing:.18em;">Dispatch Status</p>
+                                <h2 class="fw-bold mb-0">{{ assigned_pickups|length > 0 and 'Busy' or 'Ready' }}</h2>
+                            </div>
+                            <div class="icon-circle bg-danger bg-opacity-10 text-danger"><i class="fa-solid fa-circle-check"></i></div>
+                        </div>
+                        <p class="text-muted mb-0">Keep every route moving smoothly.</p>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="row g-4 mb-5">
+                <div class="col-lg-6">
+                    <div class="card bg-white border-0 shadow-sm p-4 rounded-4 h-100 leaderboard-card leaderboard-donors">
+                        <div class="d-flex justify-content-between align-items-start mb-3 gap-2">
+                            <div>
+                                <h5 class="fw-bold mb-1">Top Donors</h5>
+                                <p class="text-muted mb-0" style="font-size: 0.9rem;">High-impact donors helping the rescue effort.</p>
+                            </div>
+                            <span class="badge bg-success bg-opacity-10 text-success">Leaderboard</span>
+                        </div>
+                        {% if top_donors and top_donors|length > 0 %}
+                            <ul class="leaderboard-list mb-0">
+                                {% for donor_item in top_donors %}
+                                    <li>
+                                        <div style="display:flex;align-items:center;min-width:0;">
+                                            <span class="leader-rank donor">{{ loop.index }}</span>
+                                            <div class="leader-name">
+                                                <div class="fw-semibold text-dark text-truncate">{{ donor_item.company_name }}</div>
+                                                <div class="leader-meta">Donor</div>
+                                            </div>
+                                        </div>
+                                        <div class="text-end text-muted">{{ donor_item.delivered_count }} deliveries</div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="text-muted mb-0">No donor deliveries are recorded yet.</p>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card bg-white border-0 shadow-sm p-4 rounded-4 h-100 leaderboard-card leaderboard-volunteers">
+                        <div class="d-flex justify-content-between align-items-start mb-3 gap-2">
+                            <div>
+                                <h5 class="fw-bold mb-1">Volunteer Standings</h5>
+                                <p class="text-muted mb-0" style="font-size: 0.9rem;">Volunteers with the most completed drop-offs.</p>
+                            </div>
+                            <span class="badge bg-success bg-opacity-10 text-success">Hall of Fame</span>
+                        </div>
+                        {% if top_volunteers and top_volunteers|length > 0 %}
+                            <ul class="leaderboard-list mb-0">
+                                {% for volunteer_item in top_volunteers %}
+                                    <li>
+                                        <div style="display:flex;align-items:center;min-width:0;">
+                                            <span class="leader-rank vol">{{ loop.index }}</span>
+                                            <div class="leader-name">
+                                                <div class="fw-semibold text-dark text-truncate">{{ volunteer_item.name }}</div>
+                                                <div class="leader-meta">Volunteer</div>
+                                            </div>
+                                        </div>
+                                        <div class="text-end text-muted">{{ volunteer_item.deliveries }} deliveries</div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="text-muted mb-0">No completed volunteer deliveries yet.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+             <div class="card border-0 shadow-sm rounded-4 p-4 mb-5">
+                <div class="d-flex align-items-start justify-content-between mb-4 flex-wrap gap-3">
+                    <div>
+                        <h4 class="fw-bold mb-1">Search & Filter Assigned Pickups</h4>
+                        <p class="text-muted mb-0">Find active pickups by donation type, beneficiary, or location.</p>
+                    </div>
+                    <span id="volunteerSearchSummary" class="badge bg-success bg-opacity-10 text-success py-2 px-3 rounded-pill">{{ assigned_pickups|length }} active</span>
+                </div>
+                <form id="volunteerSearchForm" class="row g-3 align-items-end">
+                    <div class="col-sm-12 col-md-4">
+                        <label for="volunteerSearchQuery" class="form-label fw-semibold">Search donation, NGO, or donor</label>
+                        <input type="text" class="form-control form-control-sm rounded-4" id="volunteerSearchQuery" placeholder="e.g., rice, shelter, donor name" data-voice-search="true" data-voice-search-callback="filterVolunteerAssignedPickups">
+                    </div>
+                    <div class="col-sm-6 col-md-3">
+                        <label for="volunteerSearchLocation" class="form-label fw-semibold">Pickup Location</label>
+                        <input type="text" class="form-control form-control-sm rounded-4" id="volunteerSearchLocation" placeholder="City, street or neighborhood">
+                    </div>
+                    <div class="col-sm-6 col-md-3">
+                        <label for="volunteerSearchDonor" class="form-label fw-semibold">Donor / NGO Name</label>
+                        <input type="text" class="form-control form-control-sm rounded-4" id="volunteerSearchDonor" placeholder="Search donor or beneficiary">
+                    </div>
+                    <div class="col-sm-12 col-md-2 d-grid gap-2">
+                        <button type="button" class="btn btn-success btn-sm rounded-4" id="volunteerSearchButton">Filter</button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm rounded-4" id="volunteerClearSearchButton">Clear</button>
+                    </div>
+                </form>
+                <div class="mt-3 text-muted" style="font-size:0.95rem;">Tap the microphone icon to search by voice or type a query to narrow results instantly.</div>
+            </div>
+
+
+            <div class="card bg-white border-0 shadow-sm p-4 p-md-5 rounded-4">
+                <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4 flex-wrap gap-2">
+                    <h4 class="fw-bold text-dark mb-0"><i class="fa-solid fa-route me-2 text-success"></i>Active Delivery Dispatches</h4>
+                    <span class="badge rounded-pill bg-success bg-opacity-10 text-success px-3 py-1.5 fw-semibold">{{ assigned_pickups|length }} Active</span>
+                </div>
+
+                {% if assigned_pickups|length == 0 %}
+                    <div class="text-center py-5">
+                        <i class="fa-solid fa-circle-check fs-1 text-success opacity-40 mb-3 d-block"></i>
+                        <h5 class="fw-bold text-dark mb-1">All Deliveries Cleared!</h5>
+                        <p class="text-muted mb-0" style="font-size: 0.95rem;">You have no active food transport assignments. Thank you for your support!</p>
+                    </div>
+                {% else %}
+                    <div class="d-flex flex-column gap-5">
+                        {% for item in assigned_pickups %}
+                            <div class="border-bottom pb-4 {% if loop.last %}border-bottom-0 pb-0{% endif %} volunteer-assigned-item" data-food-name="{{ item.food_name|lower }}" data-donation-type="{{ item.donation_type|lower }}" data-ngo-name="{{ item.ngo_name|lower }}" data-donor-name="{{ item.donor_name|lower if item.donor_name else '' }}" data-address="{{ item.address|lower }}">
+                                <div class="row g-4">
+                                    <div class="col-md-7">
+                                        <div class="d-flex align-items-center gap-2 mb-2">
+                                            <span class="badge text-uppercase px-2.5 py-1 text-xs" style="background-color: {% if item.status == 'Volunteer Assigned' %}#fef3c7; color: #111827;{% else %}#f3e8ff; color: #111827;{% endif %}">
+                                                {{ item.status }}
+                                            </span>
+                                            <span class="text-muted text-xs">ID: #{{ item.donation_id }}</span>
+                                        </div>
+
+                                        <h4 class="fw-bold text-dark mb-2">{{ item.food_name }}</h4>
+                                        <p class="text-muted text-sm mb-2">Quantity: <strong class="text-dark">{{ item.quantity }}</strong> &bull; Best Before: <strong class="text-danger">{{ item.expiry_time }}</strong></p>
+                                        <p class="text-muted text-xs mb-3">Posted: <strong>{{ item.created_at|format_datetime }}</strong></p>
+
+                                        <div class="position-relative ps-4 border-start border-success border-2 ms-2 py-1 flex-column d-flex gap-3">
+                                            <div>
+                                                <i class="fa-solid fa-circle text-success position-absolute start-0 translate-middle mt-1" style="font-size: 0.65rem; left: -1px !important;"></i>
+                                                <small class="text-muted d-block text-xs uppercase fw-bold" style="font-size: 0.7rem;">Step 1: Pickup from Donor</small>
+                                                <strong class="text-dark" style="font-size: 0.9rem;">{{ item.donor_name }}</strong>
+                                                <p class="text-muted mb-1 text-xs"><i class="fa-solid fa-location-dot me-1 text-danger"></i> {{ item.address }}</p>
+                                                <small class="text-muted text-xs"><i class="fa-solid fa-phone me-1 text-success"></i> Phone: {{ item.donor_phone }}</small>
+                                                {% if item.inspection_status %}
+                                                    <div class="mt-2">
+                                                        {% if item.inspection_result == 'Approved' %}
+                                                            <span class="badge bg-success">Inspection Completed - Approved</span>
+                                                        {% elif item.inspection_result == 'Rejected' %}
+                                                            <span class="badge bg-danger">Inspection Completed - Rejected</span>
+                                                            <div class="text-danger text-xs mt-1">Pickup and delivery are blocked for this donation.</div>
+                                                        {% else %}
+                                                            <span class="badge bg-warning text-dark">Pending Inspection</span>
+                                                        {% endif %}
+                                                        {% if item.inspection_notes %}
+                                                            <div class="text-muted text-light mt-1">Notes: {{ item.inspection_notes }}</div>
+                                                        {% endif %}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                            <div>
+                                                <i class="fa-solid fa-circle text-success position-absolute start-0 translate-middle mt-1" style="font-size: 0.65rem; left: -1px !important; bottom: 8px;"></i>
+                                                <small class="text-muted d-block text-xs uppercase fw-bold" style="font-size: 0.7rem;">Step 2: Deliver to Beneficiary Organization</small>
+                                                <strong class="text-dark" style="font-size: 0.9rem;">{{ item.ngo_name }}</strong>
+                                                <p class="text-muted mb-0 text-xs"><i class="fa-solid fa-people-group me-1 text-success"></i> {{ item.organization_type or 'Beneficiary Organization' }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-5 d-flex flex-column justify-content-center align-items-center align-items-md-end">
+                                        {% if item.donation_type in ['clothes', 'books'] and item.status == 'Assigned' %}
+                                            <div class="text-center text-md-end w-100">
+                                                <p class="text-muted text-xs mb-3">Confirm the physical handoff from the donor when you collect this {{ item.donation_type }} donation.</p>
+                                                <form action="{{ url_for('volunteer_non_food_pickup', donation_type=item.donation_type, donation_id=item.donation_id) }}" method="POST">
+                                                    <button type="submit" class="btn btn-outline-success w-100 rounded-3 py-2 fw-semibold">Confirm Pickup</button>
+                                                </form>
+                                            </div>
+                                        {% elif item.status == 'Volunteer Assigned' %}
+                                            <div class="text-center text-md-end w-100">
+                                                {% if item.inspection_status != 'Inspection Completed' %}
+                                                    <p class="text-muted text-xs mb-3">Complete the food-safety inspection before confirming pickup.</p>
+                                                    <a href="{{ url_for('volunteer_inspect', donation_id=item.donation_id) }}" class="btn btn-outline-primary w-100 rounded-3 text-xs py-1.5 fw-medium">
+                                                        Inspect Food
+                                                    </a>
+                                                {% elif item.inspection_result == 'Approved' %}
+                                                    <p class="text-success text-xs mb-3">Inspection approved. Confirm the donor handoff to begin pickup.</p>
+                                                    <div class="d-flex flex-column gap-2">
+                                                        <button class="btn btn-success w-100 rounded-3 py-2 fw-semibold shadow-sm d-flex align-items-center justify-content-center gap-1" data-bs-toggle="modal" data-bs-target="#scanQrModal{{ item.donation_id }}">
+                                                            <i class="fa-solid fa-qrcode"></i> Scan Donor QR Code
+                                                        </button>
+                                                        <form action="{{ url_for('volunteer_pickup', donation_id=item.donation_id) }}" method="POST" class="m-0">
+                                                            <button type="submit" class="btn btn-outline-success w-100 rounded-3 text-xs py-1.5 fw-medium">
+                                                                Manual Verification (No Scanner)
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                {% else %}
+                                                    <div class="alert alert-danger mb-0 w-100">Inspection rejected this food. No pickup or delivery is permitted.</div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="modal fade" id="scanQrModal{{ item.donation_id }}" tabindex="-1" aria-hidden="true">
+                                                <div class="modal-dialog modal-dialog-centered" style="max-width: 400px;">
+                                                    <div class="modal-content border-0 shadow rounded-4 text-center p-4">
+                                                        <div class="modal-header border-0 pb-0 justify-content-end">
+                                                            <button type="button" class="btn-close" id="closeScanModalBtn{{ item.donation_id }}" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <h5 class="fw-bold mb-1">Verify surplus hand-off</h5>
+                                                        <p class="text-muted text-xs mb-4">Simulating terminal-based QR scan scanner interface</p>
+                                                        <div class="bg-dark p-4 rounded-4 position-relative mb-4 text-center mx-auto d-flex align-items-center justify-content-center flex-column" style="width: 280px; height: 200px; border: 2px dashed #198754;">
+                                                            <div class="spinner-grow text-success mb-3" role="status">
+                                                                <span class="visually-hidden">Scanning...</span>
+                                                            </div>
+                                                            <p class="text-success font-mono text-xs mb-0">ALIGN CODE WITHIN FRAME</p>
+                                                        </div>
+                                                        <div class="d-grid gap-2">
+                                                            <button onclick="simulateQrScan({{ item.donation_id }})" class="btn btn-success rounded-3 py-2 fw-semibold">
+                                                                Simulate QR Handshake Detect
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% elif item.donation_type in ['clothes', 'books'] and item.status == 'Picked Up' %}
+                                            <div class="w-100">
+                                                <h6 class="fw-bold text-dark text-center text-md-start mb-2">{{ item.donation_type|title }} picked up</h6>
+                                                <form action="{{ url_for('volunteer_non_food_deliver', donation_type=item.donation_type, donation_id=item.donation_id) }}" method="POST" enctype="multipart/form-data">
+                                                    <input type="file" name="delivery_proof" class="form-control form-control-sm rounded-3 mb-3" accept="image/*" required>
+                                                    <button type="submit" class="btn btn-success w-100 rounded-3 py-2 fw-semibold">Confirm Delivery</button>
+                                                </form>
+                                            </div>
+                                        {% elif item.status == 'Picked Up' %}
+                                            <div class="w-100">
+                                                <h6 class="fw-bold text-dark text-center text-md-start mb-2"><i class="fa-solid fa-circle-check text-success me-1"></i> Food Picked Up</h6>
+                                                <p class="text-muted text-xs mb-3 text-center text-md-start">Deliver the food package safely to the target NGO. Upon arrival, capture a delivery proof photograph (such as food handover) to close the dispatch record.</p>
+                                                <form action="{{ url_for('volunteer_deliver', donation_id=item.donation_id) }}" method="POST" enctype="multipart/form-data">
+                                                    <div class="mb-3">
+                                                        <label class="form-label text-xs fw-bold text-muted text-uppercase mb-1">Upload Handover Photo <span class="text-danger">*</span></label>
+                                                        <input type="file" name="delivery_proof" class="form-control form-control-sm rounded-3" accept="image/*" required>
+                                                    </div>
+                                                    <button type="submit" class="btn btn-success w-100 rounded-3 py-2 fw-semibold shadow-sm">
+                                                        Confirm Delivery
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        {% elif item.status == 'Expired' %}
+                                            <div class="w-100">
+                                                <div class="alert alert-danger mb-0 py-2 px-3 text-xs">
+                                                    This donation has expired. Pickup and delivery are not allowed.
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div id="volunteerNoResults" class="text-center py-5" style="display:none;">
+                        <i class="fa-solid fa-search fs-2 opacity-30 mb-2 d-block"></i>
+                        <p class="text-muted mb-0">No matching pickups found. Try clearing filters.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .admin-sidebar-card { min-height: 720px; }
+    .admin-sidebar-card .list-group-item { border: none; background: transparent; }
+    .admin-sidebar-card .list-group-item:hover { background: rgba(34, 197, 94, 0.08); }
+    .admin-stat-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+    .admin-stat-card:hover { transform: translateY(-2px); }
+    .label-success-light { color: #4ade80; }
+    .label-info-light { color: #7dd3fc; }
+    .label-warning-light { color: #facc15; }
+    .label-danger-light { color: #fca5a5; }
+    .icon-circle { width: 44px; height: 44px; border-radius: 16px; display: inline-flex; align-items: center; justify-content: center; }
+    .chart-card { background: #f8fafc; border: 1px solid #e2e8f0; }
+    .text-xs { font-size: 0.78rem !important; }
+    @media (max-width: 991.98px) {
+        .admin-sidebar-card { min-height: auto; position: static !important; }
+    }
+</style>
+
+<script>
+    (function () {
+        const storageKey = 'volunteerLiveMatrixHistory';
+        const maxItems = 5;
+        const historyList = document.getElementById('volunteerLiveMatrixHistory');
+        const statusEl = document.getElementById('volunteerLiveMatrixStatus');
+        const textEl = document.getElementById('volunteerLiveMatrixText');
+
+        if (!historyList || !statusEl || !textEl) {
+            return;
+        }
+
+        const formatLabel = (path) => {
+            const routes = {
+                '/volunteer/dashboard': 'Dashboard',
+                '/volunteer/history': 'Delivery History',
+                '/volunteer/pickup': 'Pickup flow',
+                '/profile': 'Profile'
+            };
+            return routes[path] || 'Current page';
+        };
+
+        const entry = {
+            label: formatLabel(window.location.pathname),
+            path: window.location.pathname,
+            time: new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+        };
+
+        let history = [];
+        try {
+            history = JSON.parse(sessionStorage.getItem(storageKey) || '[]');
+        } catch (e) {
+            history = [];
+        }
+
+        const hasSamePath = history.some(item => item.path === entry.path);
+        if (!hasSamePath) {
+            history = [entry, ...history].slice(0, maxItems);
+            sessionStorage.setItem(storageKey, JSON.stringify(history));
+        } else {
+            history = history.map(item => item.path === entry.path ? entry : item);
+            sessionStorage.setItem(storageKey, JSON.stringify(history));
+        }
+
+        statusEl.textContent = `Now viewing ${entry.label}`;
+        textEl.textContent = `Last update ${entry.time} • ${history.length} recent pages tracked`;
+        historyList.innerHTML = history.map((item, index) => `
+            <li class="d-flex justify-content-between align-items-center py-1 ${index === 0 ? 'text-success fw-semibold' : ''}">
+                <span>${item.label}</span>
+                <small class="text-muted">${item.time}</small>
+            </li>
+        `).join('');
+    })();
+</script>
+
+<script>
+    function filterVolunteerAssignedPickups() {
+        const queryInput = document.getElementById('volunteerSearchQuery');
+        const locationInput = document.getElementById('volunteerSearchLocation');
+        const donorInput = document.getElementById('volunteerSearchDonor');
+        const summary = document.getElementById('volunteerSearchSummary');
+        if (!queryInput || !locationInput || !donorInput) {
+            return;
+        }
+
+        const query = queryInput.value.trim().toLowerCase();
+        const location = locationInput.value.trim().toLowerCase();
+        const donor = donorInput.value.trim().toLowerCase();
+        const items = document.querySelectorAll('.volunteer-assigned-item');
+        let visibleCount = 0;
+        const hasAnyFilter = Boolean(query || location || donor);
+
+        items.forEach(item => {
+            const food = item.dataset.foodName || '';
+            const donationType = item.dataset.donationType || '';
+            const ngoName = item.dataset.ngoName || '';
+            const donorName = item.dataset.donorName || '';
+            const matchQuery = !query || food.includes(query) || donationType.includes(query) || ngoName.includes(query) || donorName.includes(query) || item.dataset.address.includes(query);
+            const matchLocation = !location || item.dataset.address.includes(location);
+            const matchDonor = !donor || donorName.includes(donor) || ngoName.includes(donor);
+            const shouldShow = hasAnyFilter ? (matchQuery && matchLocation && matchDonor) : true;
+            item.style.display = shouldShow ? 'block' : 'none';
+            if (shouldShow) visibleCount += 1;
+        });
+
+        const noResults = document.getElementById('volunteerNoResults');
+        if (summary) {
+            summary.textContent = `${visibleCount} matching`;
+        }
+        if (noResults) {
+            noResults.style.display = visibleCount === 0 ? 'block' : 'none';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const searchButton = document.getElementById('volunteerSearchButton');
+        const clearButton = document.getElementById('volunteerClearSearchButton');
+        const queryInput = document.getElementById('volunteerSearchQuery');
+        const locationInput = document.getElementById('volunteerSearchLocation');
+        const donorInput = document.getElementById('volunteerSearchDonor');
+
+        if (searchButton) {
+            searchButton.addEventListener('click', filterVolunteerAssignedPickups);
+        }
+        if (clearButton) {
+            clearButton.addEventListener('click', () => {
+                queryInput.value = '';
+                locationInput.value = '';
+                donorInput.value = '';
+                filterVolunteerAssignedPickups();
+            });
+        }
+        if (queryInput) {
+            queryInput.addEventListener('input', filterVolunteerAssignedPickups);
+        }
+        if (locationInput) {
+            locationInput.addEventListener('input', filterVolunteerAssignedPickups);
+        }
+        if (donorInput) {
+            donorInput.addEventListener('input', filterVolunteerAssignedPickups);
+        }
+    });
+</script>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function simulateQrScan(donationId) {
+        const qrContent = `FEEDFORWARD_DONATION_ID:${donationId}`;
+        fetch('/api/scan-qr', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ qr_content: qrContent })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const modalId = `closeScanModalBtn${donationId}`;
+                document.getElementById(modalId).click();
+                window.location.reload();
+            } else {
+                if (window.Swal) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Scan Error',
+                        text: data.error || 'Verification failed',
+                        confirmButtonText: 'OK'
+                    });
+                } else {
+                    alert("Scan Error: " + (data.error || "Verification failed"));
+                }
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            if (window.Swal) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Verification Error',
+                    text: 'An unexpected error occurred. Please try again.',
+                    confirmButtonText: 'OK'
+                });
+            } else {
+                alert("Verification error occurred. Please try again.");
+            }
+        });
+    }
+</script>
+{% endblock %}

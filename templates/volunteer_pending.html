@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Volunteer Registration Pending - FeedForward{% endblock %}
+
+{% block content %}
+<div class="container py-5 my-auto">
+    <div class="row justify-content-center text-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg border-0 p-5 rounded-4">
+                <div class="rounded-circle bg-warning bg-opacity-10 d-flex align-items-center justify-content-center mx-auto mb-4" style="width: 80px; height: 80px;">
+                    <i class="fa-solid fa-hourglass-half fs-2 text-warning"></i>
+                </div>
+                <h3 class="fw-bold text-dark mb-2">Volunteer Approval Pending</h3>
+                <p class="text-muted mb-4">Hello <strong>{{ volunteer.name }}</strong>, thank you for stepping up to help! All volunteer registrations are reviewed by our administration before active duty is enabled to keep food logistics safe and coordinated.</p>
+                
+                <div class="bg-light p-3.5 rounded-3 mb-4 text-start" style="font-size: 0.9rem;">
+                    <p class="mb-1 text-dark fw-medium"><strong>Volunteer Name:</strong> {{ volunteer.name }}</p>
+                    <p class="mb-1 text-dark"><strong>Phone Number:</strong> {{ volunteer.phone }}</p>
+                    <p class="mb-0 text-dark"><strong>Assigned Base Address:</strong> {{ volunteer.address }}</p>
+                </div>
+                
+                <p class="text-xs text-muted">You will get a notification as soon as your courier account is activated. Thank you for your commitment to reducing hunger in our local community!</p>
+                
+                <div class="mt-4 pt-3 border-top">
+                    <a href="{{ url_for('logout') }}" class="btn btn-outline-danger px-4 rounded-3"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

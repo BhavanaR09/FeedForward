@@ -1,0 +1,266 @@
+{% extends "base.html" %}
+
+{% block title %}Register as NGO - FeedForward{% endblock %}
+
+{% block content %}
+<div class="position-relative py-5 overflow-hidden animate-fade-in flex-grow-1 d-flex align-items-center" style="background: linear-gradient(135deg, rgba(46, 125, 50, 0.05) 0%, rgba(255, 255, 255, 0) 100%); min-height: calc(100vh - 75px);">
+    <!-- Glowing ambient background orbs for design hierarchy -->
+    <div class="position-absolute rounded-circle opacity-5 layout-orb-1" style="width: 250px; height: 250px; background: #22c55e; filter: blur(70px); top: 10%; left: 10%; pointer-events: none;"></div>
+    <div class="position-absolute rounded-circle opacity-5 layout-orb-2" style="width: 350px; height: 350px; background: #3b82f6; filter: blur(90px); bottom: 10%; right: 10%; pointer-events: none;"></div>
+
+    <div class="container position-relative z-1 py-3">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow-premium border-0 p-4 p-md-5 rounded-4 hover-lift-static" style="transition: transform var(--transition-speed), box-shadow var(--transition-speed);">
+                    <div class="text-center mb-4">
+                        <div class="rounded-circle bg-success bg-opacity-10 d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 65px; height: 65px;">
+                            <i class="fa-solid fa-building-ngo fs-3 text-success"></i>
+                        </div>
+                        <h3 class="fw-bold mb-1">Join as NGO Partner</h3>
+                        <p class="text-muted text-sm">Verified beneficiary organizations such as NGOs, orphanages, shelters, kitchens, and relief centers</p>
+                        <div class="alert alert-info mt-3 py-2 px-3 text-start d-flex align-items-start gap-2 rounded-3" style="font-size: 0.85rem;">
+                            <i class="fa-solid fa-circle-info mt-1 text-primary"></i>
+                            <div>
+                                <strong>Verification Required:</strong> To maintain safety, all registered beneficiary organizations must provide registration details and undergo manual approval by our platform admin.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <form method="POST" action="{{ url_for('register_ngo') }}">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="username" class="form-label fw-semibold text-xs text-uppercase tracking-wider opacity-75">Username <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0 rounded-start-3 text-muted" style="border-color: rgba(0,0,0,0.08);"><i class="fa-regular fa-user"></i></span>
+                                    {{ form.username(class="form-control border-start-0 rounded-end-3 py-2", placeholder="Pick a unique username") }}
+                                </div>
+                                {% for error in form.username.errors %}
+                                    <div class="text-danger text-xs mt-1"><i class="fa-solid fa-circle-exclamation me-1"></i>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label fw-semibold text-xs text-uppercase tracking-wider opacity-75">Email address <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0 rounded-start-3 text-muted" style="border-color: rgba(0,0,0,0.08);"><i class="fa-regular fa-envelope"></i></span>
+                                    {{ form.email(class="form-control border-start-0 rounded-end-3 py-2", placeholder="name@ngo-domain.org") }}
+                                </div>
+                                <div class="mt-2">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <label for="verification_code" class="form-label text-xs opacity-75 mb-0">Email Verification</label>
+                                        <div>
+                                            <button type="button" id="btnSendOtp" class="btn btn-outline-success btn-sm rounded-pill">Send OTP</button>
+                                        </div>
+                                    </div>
+                                    <div id="otpArea" class="d-flex gap-2">
+                                        <input type="text" id="verification_code" name="verification_code" class="form-control py-2" placeholder="6-digit code" maxlength="6">
+                                        <button type="button" id="btnVerifyOtp" class="btn btn-success">Verify</button>
+                                    </div>
+                                    <div id="otpAlert" class="mt-2" style="display:none;"></div>
+                                    <small class="text-muted">You must verify your email before registering.</small>
+                                </div>
+                                {% for error in form.email.errors %}
+                                    <div class="text-danger text-xs mt-1"><i class="fa-solid fa-circle-exclamation me-1"></i>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="register_password" class="form-label fw-semibold text-xs text-uppercase tracking-wider opacity-75">Password <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0 rounded-start-3 text-muted" style="border-color: rgba(0,0,0,0.08);"><i class="fa-solid fa-key"></i></span>
+                                    {{ form.password(id="register_password", class="form-control border-start-0 border-end-0 py-2", placeholder="At least 6 characters") }}
+                                    <button class="btn btn-outline-secondary border-start-0 rounded-end-3 bg-light text-muted toggle-password" type="button" data-target="register_password" style="border-color: rgba(0,0,0,0.08);">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </button>
+                                </div>
+                                {% for error in form.password.errors %}
+                                    <div class="text-danger text-xs mt-1"><i class="fa-solid fa-circle-exclamation me-1"></i>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="register_confirm_password" class="form-label fw-semibold text-xs text-uppercase tracking-wider opacity-75">Confirm Password <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0 rounded-start-3 text-muted" style="border-color: rgba(0,0,0,0.08);"><i class="fa-solid fa-key"></i></span>
+                                    {{ form.confirm_password(id="register_confirm_password", class="form-control border-start-0 border-end-0 py-2", placeholder="Repeat password") }}
+                                    <button class="btn btn-outline-secondary border-start-0 rounded-end-3 bg-light text-muted toggle-password" type="button" data-target="register_confirm_password" style="border-color: rgba(0,0,0,0.08);">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </button>
+                                </div>
+                                {% for error in form.confirm_password.errors %}
+                                    <div class="text-danger text-xs mt-1"><i class="fa-solid fa-circle-exclamation me-1"></i>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="ngo_name" class="form-label fw-semibold text-xs text-uppercase tracking-wider opacity-75">Organization Name <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0 rounded-start-3 text-muted" style="border-color: rgba(0,0,0,0.08);"><i class="fa-solid fa-building"></i></span>
+                                {{ form.ngo_name(class="form-control border-start-0 rounded-end-3 py-2", placeholder="e.g. Hope Food Distribution Trust") }}
+                            </div>
+                            {% for error in form.ngo_name.errors %}
+                                <div class="text-danger text-xs mt-1"><i class="fa-solid fa-circle-exclamation me-1"></i>{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="organization_type" class="form-label fw-semibold text-xs text-uppercase tracking-wider opacity-75">Organization Type <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0 rounded-start-3 text-muted" style="border-color: rgba(0,0,0,0.08);"><i class="fa-solid fa-people-group"></i></span>
+                                    {{ form.organization_type(id="organization_type", class="form-select border-start-0 rounded-end-3 py-2") }}
+                                </div>
+                                {% for error in form.organization_type.errors %}
+                                    <div class="text-danger text-xs mt-1"><i class="fa-solid fa-circle-exclamation me-1"></i>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-6 mb-3 d-none" id="other_org_type_container">
+                                <label for="organization_type_other" class="form-label fw-semibold text-xs text-uppercase tracking-wider opacity-75">Specify Other Type</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0 rounded-start-3 text-muted" style="border-color: rgba(0,0,0,0.08);"><i class="fa-solid fa-pen"></i></span>
+                                    {{ form.organization_type_other(id="organization_type_other", class="form-control border-start-0 rounded-end-3 py-2", placeholder="e.g. Children Home") }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="contact_person" class="form-label fw-semibold text-xs text-uppercase tracking-wider opacity-75">Contact Person <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0 rounded-start-3 text-muted" style="border-color: rgba(0,0,0,0.08);"><i class="fa-regular fa-id-card"></i></span>
+                                    {{ form.contact_person(class="form-control border-start-0 rounded-end-3 py-2", placeholder="e.g. Jane Smith") }}
+                                </div>
+                                {% for error in form.contact_person.errors %}
+                                    <div class="text-danger text-xs mt-1"><i class="fa-solid fa-circle-exclamation me-1"></i>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="phone" class="form-label fw-semibold text-xs text-uppercase tracking-wider opacity-75">Phone Number <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0 rounded-start-3 text-muted" style="border-color: rgba(0,0,0,0.08);"><i class="fa-solid fa-phone"></i></span>
+                                    {{ form.phone(class="form-control border-start-0 rounded-end-3 py-2", placeholder="e.g. +1234567890") }}
+                                </div>
+                                {% for error in form.phone.errors %}
+                                    <div class="text-danger text-xs mt-1"><i class="fa-solid fa-circle-exclamation me-1"></i>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="address" class="form-label fw-semibold text-xs text-uppercase tracking-wider opacity-75">Office Address <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0 rounded-start-3 text-muted" style="border-color: rgba(0,0,0,0.08);"><i class="fa-solid fa-location-dot"></i></span>
+                                {{ form.address(class="form-control border-start-0 rounded-end-3 py-2", placeholder="Full physical address") }}
+                            </div>
+                            {% for error in form.address.errors %}
+                                <div class="text-danger text-xs mt-1"><i class="fa-solid fa-circle-exclamation me-1"></i>{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="registration_number" class="form-label fw-semibold text-xs text-uppercase tracking-wider opacity-75">NGO Registration / Tax Number <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0 rounded-start-3 text-muted" style="border-color: rgba(0,0,0,0.08);"><i class="fa-solid fa-passport"></i></span>
+                                {{ form.registration_number(class="form-control border-start-0 rounded-end-3 py-2", placeholder="e.g. NGO-12345-REG") }}
+                            </div>
+                            {% for error in form.registration_number.errors %}
+                                <div class="text-danger text-xs mt-1"><i class="fa-solid fa-circle-exclamation me-1"></i>{{ error }}</div>
+                            {% endfor %}
+                            <small class="text-muted d-block mt-1.5" style="font-size: 0.75rem;"><i class="fa-solid fa-shield-halved me-1 text-success"></i>Provide the official registration or identity number for validation purposes.</small>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-success w-100 py-2.5 rounded-3 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2">
+                            Submit Application <i class="fa-solid fa-file-signature"></i>
+                        </button>
+                    </form>
+                    
+                    <div class="text-center mt-4 pt-3 border-top border-light">
+                        <p class="text-muted text-sm mb-0">Already have an account? <a href="{{ url_for('login') }}" class="text-success text-decoration-none fw-bold">Sign In</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const btnSendOtp = document.getElementById('btnSendOtp');
+    const btnVerifyOtp = document.getElementById('btnVerifyOtp');
+    const otpAlert = document.getElementById('otpAlert');
+    const form = document.querySelector('form');
+    const orgSelect = document.getElementById('organization_type');
+    const otherContainer = document.getElementById('other_org_type_container');
+    const otherInput = document.getElementById('organization_type_other');
+    let otpVerified = false;
+
+    function toggleOtherField() {
+        if (!orgSelect || !otherContainer) return;
+
+        if (orgSelect.value === 'Other') {
+            otherContainer.classList.remove('d-none');
+            otherContainer.style.display = 'block';
+            if (otherInput) {
+                otherInput.removeAttribute('disabled');
+                otherInput.setAttribute('required', 'required');
+            }
+        } else {
+            otherContainer.classList.add('d-none');
+            otherContainer.style.display = 'none';
+            if (otherInput) {
+                otherInput.removeAttribute('required');
+                otherInput.setAttribute('disabled', 'disabled');
+            }
+        }
+    }
+
+    orgSelect?.addEventListener('change', toggleOtherField);
+    toggleOtherField();
+
+    function findName() {
+        return document.querySelector('input[name="contact_person"]')?.value || document.querySelector('input[name="username"]')?.value || '';
+    }
+
+    btnSendOtp?.addEventListener('click', async function() {
+        otpAlert.style.display = 'none';
+        const email = document.querySelector('input[name="email"]').value.trim().toLowerCase();
+        const phone = document.querySelector('input[name="phone"]').value.trim();
+        const payload = { full_name: findName(), email: email, phone: phone, role: 'ngo' };
+        btnSendOtp.disabled = true;
+        try {
+            const res = await fetch('/api/register/send-otp', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+            const data = await res.json();
+            otpAlert.style.display = 'block';
+            otpAlert.innerHTML = data.success ? `<div class="alert alert-success small">${data.message}</div>` : `<div class="alert alert-danger small">${data.error}</div>`;
+        } catch (e) {
+            otpAlert.style.display = 'block'; otpAlert.innerHTML = `<div class="alert alert-danger small">Failed to send OTP.</div>`;
+        } finally { btnSendOtp.disabled = false; }
+    });
+
+    btnVerifyOtp?.addEventListener('click', async function() {
+        const email = document.querySelector('input[name="email"]').value.trim().toLowerCase();
+        const code = document.getElementById('verification_code').value.trim();
+        if (!email || !code) { otpAlert.style.display = 'block'; otpAlert.innerHTML = `<div class="alert alert-danger small">Provide email and code.</div>`; return; }
+        btnVerifyOtp.disabled = true;
+        try {
+            const res = await fetch('/api/register/verify-otp', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ email: email, otp_code: code, verification_code: code }) });
+            const data = await res.json();
+            otpAlert.style.display = 'block';
+            if (data.success) { otpVerified = true; otpAlert.innerHTML = `<div class="alert alert-success small">${data.message}</div>`; }
+            else { otpVerified = false; otpAlert.innerHTML = `<div class="alert alert-danger small">${data.error}</div>`; }
+        } catch (e) {
+            otpAlert.style.display = 'block'; otpAlert.innerHTML = `<div class="alert alert-danger small">Verification failed.</div>`;
+        } finally { btnVerifyOtp.disabled = false; }
+    });
+
+    form?.addEventListener('submit', function(e) {
+        if (!otpVerified) { e.preventDefault(); otpAlert.style.display = 'block'; otpAlert.innerHTML = `<div class="alert alert-danger small">Please verify your email OTP before registering.</div>`; }
+    });
+});
+</script>
+{% endblock %}

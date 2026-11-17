@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}NGO Volunteers - FeedForward{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-5">
+    <div class="row gx-4 gy-4">
+        <div class="col-lg-9">
+            <div class="d-flex align-items-start justify-content-between flex-wrap gap-3 mb-4">
+                <div>
+                    <span class="badge bg-warning bg-opacity-15 text-warning rounded-pill text-uppercase fw-semibold px-3 py-2">Volunteer Roster</span>
+                    <h1 class="fw-bold text-dark mt-3 mb-1">Approved Volunteers</h1>
+                    <p class="text-muted mb-0">See approved helpers available for pickup assignments.</p>
+                </div>
+                <a href="{{ url_for('ngo_dashboard') }}" class="btn btn-outline-success btn-sm rounded-pill px-4 py-2 d-inline-flex align-items-center gap-2">
+                    <i class="fa-solid fa-arrow-left"></i> Dashboard
+                </a>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-4 p-4">
+                <div class="d-flex align-items-start justify-content-between mb-4">
+                    <div>
+                        <h4 class="fw-bold mb-1">Volunteer Roster</h4>
+                        <p class="text-muted mb-0">Top approved volunteers ready for assignment.</p>
+                    </div>
+                    <span class="badge bg-warning bg-opacity-15 text-light py-2 px-3 rounded-pill">{{ volunteers|length }}</span>
+                </div>
+             
+
+    {% if volunteers and volunteers|length > 0 %}
+    <div class="row">
+        {% for volunteer in volunteers %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-start mb-3">
+                        <div class="rounded-circle bg-success-light d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px;">
+                            <i class="fas fa-user-tie text-success" style="font-size: 24px;"></i>
+                        </div>
+                        <div>
+                            <h5 class="card-title mb-1">{{ volunteer.name }}</h5>
+                            <small class="text-muted">Volunteer</small>
+                        </div>
+                    </div>
+
+                    <div class="volunteer-info mb-3">
+                        {% if volunteer.phone %}
+                        <div class="mb-2">
+                            <small class="text-muted d-block">Phone</small>
+                            <a href="tel:{{ volunteer.phone }}" class="text-decoration-none">{{ volunteer.phone }}</a>
+                        </div>
+                        {% endif %}
+                        
+                        {% if volunteer.address %}
+                        <div class="mb-2">
+                            <small class="text-muted d-block">Address</small>
+                            <span class="text-decoration-none">{{ volunteer.address }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <hr>
+
+                    <div class="volunteer-stats">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Total Assignments</span>
+                            <strong class="text-primary">{{ volunteer.total_assignments }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted">Completed</span>
+                            <strong class="text-success">{{ volunteer.deliveries_completed }}</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info" role="alert">
+        <i class="fas fa-info-circle me-2"></i>
+        No volunteers have been assigned to your donations yet. When volunteers pick up your donations, they will appear here.
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .bg-success-light {
+        background-color: rgba(34, 197, 94, 0.12) !important;
+    }
+</style>
+{% endblock %}

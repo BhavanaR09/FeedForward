@@ -1,0 +1,338 @@
+{% extends "base.html" %}
+
+{% block title %}List Surplus Food - FeedForward{% endblock %}
+
+{% block content %}
+<div class="donor-donate-page" style="background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10" style="max-width: 900px;">
+                <!-- Page Header -->
+                <div class="text-center mb-5">
+                    <div class="rounded-circle bg-success bg-opacity-10 d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 70px; height: 70px;">
+                        <i class="fa-solid fa-bowl-food fs-3 text-success"></i>
+                    </div>
+                    <h1 class="fw-bold mb-2 text-dark">{{ 'Edit Donation' if edit_mode else 'List Surplus Food' }}</h1>
+                    <p class="text-muted">{{ 'Update the details for your donation below.' if edit_mode else 'Share fresh food surplus with NGOs & volunteers in your area instantly.' }}</p>
+                </div>
+
+                <form method="POST" action="{{ form_action if form_action is defined else url_for('donor_donate') }}" enctype="multipart/form-data" id="donationForm">
+                    {{ form.hidden_tag() }}
+
+                    <!-- SECTION 1: FOOD INFORMATION -->
+                    <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
+                        <div class="card-header bg-light border-0 p-4" style="border-left: 4px solid #28a745;">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="fa-solid fa-bowl-food fs-5 text-success"></i>
+                                <h5 class="fw-bold mb-0 text-dark">Food Information</h5>
+                            </div>
+                            <p class="text-muted mb-0 mt-2" style="font-size: 0.85rem;">What are you sharing?</p>
+                        </div>
+                        <div class="card-body p-4">
+                            <!-- Food Name -->
+                            <div class="mb-4">
+                                <label for="food_name" class="form-label fw-semibold mb-2">Food Item Name(s) <span class="text-danger">*</span></label>
+                                {{ form.food_name(class="form-control form-control-lg rounded-3", placeholder="e.g., Veg Biryani (2 Handis), Paneer Butter Masala (3 Liters)") }}
+                                {% for error in form.food_name.errors %}
+                                    <div class="text-danger text-xs mt-2"><i class="fa-solid fa-circle-exclamation me-1"></i>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Category & Diet Type -->
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="category" class="form-label fw-semibold mb-2">Category <span class="text-danger">*</span></label>
+                                    {{ form.category(class="form-select form-select-lg rounded-3") }}
+                                    {% for error in form.category.errors %}
+                                        <div class="text-danger text-xs mt-2"><i class="fa-solid fa-circle-exclamation me-1"></i>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="veg_non_veg" class="form-label fw-semibold mb-2">Diet Type <span class="text-danger">*</span></label>
+                                    {{ form.veg_non_veg(class="form-select form-select-lg rounded-3") }}
+                                    {% for error in form.veg_non_veg.errors %}
+                                        <div class="text-danger text-xs mt-2"><i class="fa-solid fa-circle-exclamation me-1"></i>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 2: QUANTITY & SCHEDULE -->
+                    <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
+                        <div class="card-header bg-light border-0 p-4" style="border-left: 4px solid #28a745;">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="fa-solid fa-box fs-5 text-success"></i>
+                                <h5 class="fw-bold mb-0 text-dark">Quantity & Schedule</h5>
+                            </div>
+                            <p class="text-muted mb-0 mt-2" style="font-size: 0.85rem;">How much & when can they pick it up?</p>
+                        </div>
+                        <div class="card-body p-4">
+                            <!-- Quantity -->
+                            <div class="mb-4">
+                                <label for="quantity" class="form-label fw-semibold mb-2">Quantity / Serving Estimation <span class="text-danger">*</span></label>
+                                {{ form.quantity(class="form-control form-control-lg rounded-3", placeholder="e.g., 15 kg (Sufficient for 60-70 people)") }}
+                                {% for error in form.quantity.errors %}
+                                    <div class="text-danger text-xs mt-2"><i class="fa-solid fa-circle-exclamation me-1"></i>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Expiry Time & Pickup Window -->
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="expiry_time" class="form-label fw-semibold mb-2">Expiry Time / Best Before <span class="text-danger">*</span></label>
+                                    {{ form.expiry_time(class="form-control form-control-lg rounded-3", placeholder="e.g., Today before 10 PM") }}
+                                    {% for error in form.expiry_time.errors %}
+                                        <div class="text-danger text-xs mt-2"><i class="fa-solid fa-circle-exclamation me-1"></i>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="pickup_time" class="form-label fw-semibold mb-2">Pickup Window <span class="text-danger">*</span></label>
+                                    {{ form.pickup_time(class="form-control form-control-lg rounded-3", placeholder="e.g., 4 PM – 6 PM") }}
+                                    {% for error in form.pickup_time.errors %}
+                                        <div class="text-danger text-xs mt-2"><i class="fa-solid fa-circle-exclamation me-1"></i>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 3: PICKUP LOCATION -->
+                    <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
+                        <div class="card-header bg-light border-0 p-4" style="border-left: 4px solid #28a745;">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="fa-solid fa-location-dot fs-5 text-success"></i>
+                                <h5 class="fw-bold mb-0 text-dark">Pickup Location</h5>
+                            </div>
+                            <p class="text-muted mb-0 mt-2" style="font-size: 0.85rem;">Where should they come to pick up?</p>
+                        </div>
+                        <div class="card-body p-4">
+                            <!-- Address -->
+                            <div class="mb-4">
+                                <label for="address" class="form-label fw-semibold mb-2">Pickup Address <span class="text-danger">*</span></label>
+                                {{ form.address(class="form-control form-control-lg rounded-3", placeholder="Full pickup address including street, landmark, and building details") }}
+                                {% for error in form.address.errors %}
+                                    <div class="text-danger text-xs mt-2"><i class="fa-solid fa-circle-exclamation me-1"></i>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Location Detection Button -->
+                            <button type="button" class="btn btn-outline-success rounded-3 w-100" onclick="detectLocation()" style="padding: 0.75rem;">
+                                <i class="fa-solid fa-location-crosshairs me-2"></i> Use Current Location
+                            </button>
+                            <p class="text-muted text-xs mt-3 mb-0"><i class="fa-solid fa-circle-info me-1"></i> We'll use your device's location to help volunteers find you faster.</p>
+
+                            <!-- Hidden Geolocation inputs -->
+                            {{ form.latitude(style="display:none;") }}
+                            {{ form.longitude(style="display:none;") }}
+                        </div>
+                    </div>
+
+                    <!-- SECTION 4: FOOD PHOTO -->
+                    <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
+                        <div class="card-header bg-light border-0 p-4" style="border-left: 4px solid #28a745;">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="fa-solid fa-image fs-5 text-success"></i>
+                                <h5 class="fw-bold mb-0 text-dark">Food Photo</h5>
+                            </div>
+                            <p class="text-muted mb-0 mt-2" style="font-size: 0.85rem;">Show NGOs what you're sharing</p>
+                        </div>
+                        <div class="card-body p-4">
+                            <!-- Custom File Upload Button -->
+                            <div class="mb-4">
+                                <label for="food_image" class="form-label fw-semibold mb-2">
+                                    Upload Food Photo {% if not edit_mode %}<span class="text-danger">*</span>{% endif %}
+                                </label>
+                                
+                                <div class="position-relative">
+                                    <input type="file" name="food_image" id="food_image" class="form-control" accept="image/*" 
+                                        {% if not edit_mode %}required{% endif %} onchange="previewImage(event)" style="display:none;">
+                                    
+                                    <!-- Custom Upload Button -->
+                                    <label for="food_image" class="btn btn-outline-success btn-lg w-100 rounded-3 mb-0" style="cursor: pointer; padding: 1rem;">
+                                        <i class="fa-solid fa-cloud-arrow-up me-2"></i> Click to Upload or Drag Photo Here
+                                    </label>
+                                </div>
+
+                                <!-- Drag & Drop Zone -->
+                                <div id="dropZone" class="border-2 border-dashed rounded-3 p-4 text-center bg-light mt-3" style="border-color: #dee2e6; cursor: pointer; transition: all 0.3s ease;">
+                                    <i class="fa-solid fa-image fs-3 text-muted mb-2 d-block"></i>
+                                    <p class="text-muted mb-1">Drag your food photo here</p>
+                                    <small class="text-muted">or use the button above</small>
+                                </div>
+
+                                <!-- Image Preview -->
+                                <div id="imagePreview" class="mt-4" style="display:none;">
+                                    <div class="position-relative d-inline-block">
+                                        <img id="previewImg" src="" alt="Food Preview" class="img-fluid rounded-3" style="max-height: 300px; max-width: 100%;">
+                                        <button type="button" class="btn btn-sm btn-danger rounded-circle position-absolute" style="top: -10px; right: -10px;" onclick="removeImage()">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Edit Mode: Show existing image -->
+                                {% if edit_mode and donation.image_path %}
+                                    <div id="existingImageContainer" class="mt-4">
+                                        <p class="fw-semibold text-dark mb-2">Current Image:</p>
+                                        <img src="{{ url_for('static', filename=donation.image_path) }}" alt="Current Food Photo" class="img-fluid rounded-3" style="max-height: 300px; max-width: 100%;">
+                                        <p class="text-muted text-xs mt-2"><i class="fa-solid fa-circle-info me-1"></i> Leave the upload field empty to keep this image. Upload a new file to replace it.</p>
+                                    </div>
+                                {% endif %}
+
+                                <!-- File size info -->
+                                <p class="text-muted text-xs mt-3 mb-0"><i class="fa-solid fa-circle-info me-1"></i> Maximum file size: 5MB. Supported formats: JPG, PNG, GIF, WebP</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 5: ACTION BUTTONS -->
+                    <div class="d-flex gap-3 mt-5 mb-4">
+                        <button type="submit" class="btn btn-success btn-lg rounded-3 flex-grow-1 fw-semibold" style="padding: 0.9rem;">
+                            <i class="fa-solid fa-check-circle me-2"></i> {{ submit_label if submit_label is defined else 'List Surplus Food' }}
+                        </button>
+                        <a href="{{ url_for('donor_dashboard') }}" class="btn btn-outline-secondary btn-lg rounded-3 fw-semibold" style="padding: 0.9rem;">
+                            <i class="fa-solid fa-times me-2"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Drag & Drop Script + Image Preview Script -->
+<script>
+// Drag & Drop Setup
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('food_image');
+
+if (dropZone && fileInput) {
+    // Prevent default drag behaviors
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, preventDefaults, false);
+        document.body.addEventListener(eventName, preventDefaults, false);
+    });
+
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    // Highlight drop zone when items are dragged over it
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, () => {
+            dropZone.style.borderColor = '#28a745';
+            dropZone.style.backgroundColor = '#d4edda';
+        }, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, () => {
+            dropZone.style.borderColor = '#dee2e6';
+            dropZone.style.backgroundColor = '#f8f9fa';
+        }, false);
+    });
+
+    // Handle dropped files
+    dropZone.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        fileInput.files = files;
+        previewImage({ target: { files: files } });
+    }, false);
+
+    // Click on drop zone also triggers file picker
+    dropZone.addEventListener('click', () => fileInput.click(), false);
+}
+
+// Image Preview Function
+function previewImage(event) {
+    const files = event.target.files;
+    const preview = document.getElementById('imagePreview');
+    const previewImg = document.getElementById('previewImg');
+    const existingContainer = document.getElementById('existingImageContainer');
+
+    if (files && files[0]) {
+        const file = files[0];
+        
+        // Validate file size (5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            alert('File size must be less than 5MB');
+            fileInput.value = '';
+            if (preview) preview.style.display = 'none';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            if (previewImg) previewImg.src = e.target.result;
+            if (preview) preview.style.display = 'block';
+            if (existingContainer) existingContainer.style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+// Remove Image Function
+function removeImage() {
+    const fileInput = document.getElementById('food_image');
+    const preview = document.getElementById('imagePreview');
+    const existingContainer = document.getElementById('existingImageContainer');
+
+    fileInput.value = '';
+    if (preview) preview.style.display = 'none';
+    if (existingContainer) existingContainer.style.display = 'block';
+}
+
+// Detect Location Function
+function detectLocation() {
+    const latInput = document.querySelector('input[name="latitude"]');
+    const lonInput = document.querySelector('input[name="longitude"]');
+    const addressInput = document.querySelector('input[name="address"]');
+
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((position) => {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+
+            if (latInput) latInput.value = lat;
+            if (lonInput) lonInput.value = lon;
+
+            // Fetch address from coordinates using reverse geocoding
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (addressInput && data.address) {
+                        const address = data.address.road || data.address.building || data.address.suburb || data.address.city || 'Location detected';
+                        addressInput.value = address;
+                        addressInput.focus();
+                    }
+                })
+                .catch(error => {
+                    console.log('Location detected but address lookup failed:', error);
+                    if (addressInput) {
+                        addressInput.value = `Coordinates: ${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+                    }
+                });
+
+            // Show success feedback
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-check-circle me-2"></i> Location Detected!';
+            btn.classList.add('btn-success');
+            btn.classList.remove('btn-outline-success');
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.classList.remove('btn-success');
+                btn.classList.add('btn-outline-success');
+            }, 2000);
+        }, (error) => {
+            alert('Unable to detect location. Please enter address manually. Error: ' + error.message);
+        });
+    } else {
+        alert('Geolocation is not supported by your browser.');
+    }
+}
+</script>
+{% endblock %}

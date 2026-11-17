@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Report Emergency - FeedForward{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="mb-4">
+                <div class="card border-0 shadow-sm rounded-4 p-4">
+
+                <form method="POST" action="{{ url_for('report_emergency') }}">
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Emergency Title</label>
+                        {{ form.title(class="form-control rounded-3 py-2") }}
+                        {% for error in form.title.errors %}
+                            <div class="text-danger text-xs mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Disaster Type</label>
+                            {{ form.disaster_type(class="form-select rounded-3 py-2") }}
+                            {% for error in form.disaster_type.errors %}
+                                <div class="text-danger text-xs mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Severity Level</label>
+                            {{ form.severity(class="form-select rounded-3 py-2") }}
+                            {% for error in form.severity.errors %}
+                                <div class="text-danger text-xs mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <style>
+.emergency-bg {
+    background: linear-gradient(
+        rgba(0, 0, 0, 0.5),
+        rgba(0, 0, 0, 0.5)
+    ),
+    url("{{ url_for('static', filename='images/emergencymode.jpeg') }}");
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    min-height: 100vh;
+}
+</style>
+
+<body class="emergency-bg">
+    <!-- Your page content here -->
+</body>
+
+                    <div class="row g-3 mt-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Start Date / Period</label>
+                            {{ form.start_date(class="form-control rounded-3 py-2", placeholder="e.g. 03-07-2023") }}
+                            {% for error in form.start_date.errors %}
+                                <div class="text-danger text-xs mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">End Date / Resolution</label>
+                            {{ form.end_date(class="form-control rounded-3 py-2", placeholder="e.g. 10-07-2026") }}
+                            {% for error in form.end_date.errors %}
+                                <div class="text-danger text-xs mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {{ form.is_active(class="form-select rounded-3 py-2 d-none") }}
+
+                    <div class="mb-3 mt-3">
+                        <label class="form-label fw-semibold">Affected Location</label>
+                        {{ form.location(class="form-control rounded-3 py-2") }}
+                        {% for error in form.location.errors %}
+                            <div class="text-danger text-xs mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                     
+
+                    <div class="mb-3 mt-3">
+                        <label class="form-label fw-semibold">Emergency Description</label>
+                        {{ form.details(class="form-control rounded-3 py-2", rows="6") }}
+                        {% for error in form.details.errors %}
+                            <div class="text-danger text-xs mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-danger rounded-3 px-4 py-2 fw-semibold">
+                            <i class="fa-solid fa-triangle-exclamation me-2"></i> Submit Report
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

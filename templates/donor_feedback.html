@@ -1,0 +1,476 @@
+{% extends "base.html" %}
+
+{% block title %}Donor Feedback - FeedForward{% endblock %}
+
+{% block extra_css %}
+<style>
+    .feedback-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem 1.5rem;
+    }
+
+    .back-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #667085;
+        text-decoration: none;
+        font-weight: 500;
+        margin-bottom: 2rem;
+        transition: all 0.2s ease;
+    }
+
+    .back-button:hover {
+        color: #087A3D;
+    }
+
+    .page-header {
+        margin-bottom: 2.5rem;
+    }
+
+    .page-header h1 {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: #172033;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-header p {
+        color: #667085;
+        font-size: 1rem;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        transition: all 0.2s ease;
+    }
+
+    .stat-card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    }
+
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        flex-shrink: 0;
+    }
+
+    .stat-icon.green {
+        background-color: #EAF7EE;
+        color: #087A3D;
+    }
+
+    .stat-icon.yellow {
+        background-color: #FEF3E2;
+        color: #F5A623;
+    }
+
+    .stat-value {
+        flex: 1;
+    }
+
+    .stat-label {
+        display: block;
+        font-size: 0.85rem;
+        color: #667085;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-number {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #172033;
+    }
+
+    .star-display {
+        display: flex;
+        gap: 0.3rem;
+        margin-top: 0.5rem;
+    }
+
+    .star-display i {
+        font-size: 1.1rem;
+        color: #F5A623;
+    }
+
+    .main-content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+    }
+
+    .feedback-column {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .feedback-table-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    .feedback-table-card h3 {
+        padding: 1.5rem;
+        border-bottom: 1px solid #E5E7EB;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #172033;
+    }
+
+    .feedback-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .feedback-table thead {
+        background-color: #F7F9F8;
+    }
+
+    .feedback-table th {
+        padding: 1rem 1.5rem;
+        text-align: left;
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #667085;
+        border-bottom: 1px solid #E5E7EB;
+    }
+
+    .feedback-table td {
+        padding: 1.2rem 1.5rem;
+        border-bottom: 1px solid #E5E7EB;
+        color: #172033;
+    }
+
+    .feedback-table tbody tr:hover {
+        background-color: #F9FAFB;
+    }
+
+    .reviewer-cell {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .reviewer-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #087A3D, #16a34a);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+    }
+
+    .rating-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background-color: #EAF7EE;
+        color: #087A3D;
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+
+    .rating-badge i {
+        font-size: 0.9rem;
+    }
+
+    .empty-state {
+        padding: 3rem 1.5rem;
+        text-align: center;
+        color: #667085;
+    }
+
+    .sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .sidebar-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    .sidebar-card h4 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #172033;
+        margin-bottom: 1rem;
+    }
+
+    .btn-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .sidebar-card .btn {
+        padding: 0.8rem 1.2rem;
+        font-size: 0.95rem;
+        font-weight: 500;
+        border-radius: 8px;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.6rem;
+        transition: all 0.2s ease;
+    }
+
+    .btn-outline {
+        border: 2px solid #E5E7EB;
+        color: #667085;
+        background: white;
+    }
+
+    .btn-outline:hover {
+        border-color: #087A3D;
+        color: #087A3D;
+        background-color: #F9FAFB;
+    }
+
+    .btn-primary-solid {
+        background-color: #087A3D;
+        color: white;
+    }
+
+    .btn-primary-solid:hover {
+        background-color: #065a2e;
+    }
+
+    .tips-section {
+        background: linear-gradient(135deg, rgba(8, 122, 61, 0.08), rgba(8, 122, 61, 0.04));
+        border-radius: 12px;
+        padding: 1.5rem;
+    }
+
+    .tips-section h4 {
+        color: #087A3D;
+        margin-bottom: 1rem;
+    }
+
+    .tips-text {
+        color: #667085;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        margin-bottom: 1rem;
+    }
+
+    .tips-icon {
+        text-align: center;
+        margin-top: 1.5rem;
+    }
+
+    .tips-icon i {
+        font-size: 4rem;
+        color: #087A3D;
+        opacity: 0.3;
+    }
+
+    .stars-small {
+        display: flex;
+        gap: 0.2rem;
+        justify-content: center;
+    }
+
+    .stars-small i {
+        font-size: 1.2rem;
+        color: #F5A623;
+    }
+
+    @media (max-width: 768px) {
+        .main-content {
+            grid-template-columns: 1fr;
+        }
+
+        .page-header h1 {
+            font-size: 1.8rem;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .feedback-table th,
+        .feedback-table td {
+            padding: 0.8rem 1rem;
+            font-size: 0.85rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="feedback-container">
+    
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1>Feedback Received on Your Donations</h1>
+        <p>Explore ratings and comments shared by beneficiaries and volunteers to help you see the impact of your contributions.</p>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon green">
+                <i class="fas fa-comments"></i>
+            </div>
+            <div class="stat-value">
+                <span class="stat-label">Total Feedback Entries</span>
+                <span class="stat-number">{{ feedback_entries|length }}</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon yellow">
+                <i class="fas fa-star"></i>
+            </div>
+            <div class="stat-value">
+                <span class="stat-label">Average Rating</span>
+                <div>
+                    <span class="stat-number">{% if feedback_avg_rating is not none %}{{ feedback_avg_rating }}/5{% else %}N/A{% endif %}</span>
+                    <div class="star-display">
+                        {% if feedback_avg_rating %}
+                            {% for i in range(5) %}
+                                {% if i < feedback_avg_rating %}
+                                    <i class="fas fa-star"></i>
+                                {% else %}
+                                    <i class="fas fa-star" style="color: #E5E7EB;"></i>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Left Column - Feedback Table -->
+        <div class="feedback-column">
+        <!-- Feedback Table -->
+        <div class="feedback-table-card">
+            <h3>Feedback Entries</h3>
+            {% if feedback_entries and feedback_entries|length > 0 %}
+            <div style="overflow-x: auto;">
+                <table class="feedback-table">
+                    <thead>
+                        <tr>
+                            <th>Reviewer</th>
+                            <th>Donation</th>
+                            <th>Rating</th>
+                            <th>Comments</th>
+                            <th>Submitted On</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entry in feedback_entries %}
+                        <tr>
+                            <td>
+                                <div class="reviewer-cell">
+                                    <div class="reviewer-avatar">
+                                        {{ (entry.reviewer_name or 'User')[0].upper() }}
+                                    </div>
+                                    <span>{{ entry.reviewer_name or 'Anonymous' }}</span>
+                                </div>
+                            </td>
+                            <td><strong>{{ entry.food_name }}</strong></td>
+                            <td>
+                                <div class="rating-badge">
+                                    {{ entry.rating }}/5
+                                    <i class="fas fa-star"></i>
+                                </div>
+                            </td>
+                            <td>{{ entry.comments or '-' }}</td>
+                            <td>{{ entry.created_at|format_datetime('%Y-%m-%d %H:%M:%S') }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">
+                    <i class="fas fa-inbox" style="color: #E5E7EB;"></i>
+                </div>
+                <p>No feedback available yet. Your feedback will appear here once beneficiaries and volunteers review your donations.</p>
+            </div>
+            {% endif %}
+        </div>
+        </div>
+
+        <!-- Right Column - Sidebar with Quick Actions & Tips -->
+        <div class="sidebar">
+            <!-- Quick Actions -->
+            <div class="sidebar-card">
+                <h4>Quick Actions</h4>
+                <div class="btn-group">
+                    <a href="{{ url_for('donor_dashboard') }}" class="btn btn-outline">
+                        <i class="fas fa-arrow-left"></i>
+                        Back to Dashboard
+                    </a>
+                    <a href="{{ url_for('donor_history') }}" class="btn btn-primary-solid">
+                        <i class="fas fa-history"></i>
+                        View Donation History
+                    </a>
+                </div>
+            </div>
+
+            <!-- Tips Section -->
+            <div class="tips-section">
+                <h4>
+                    <i class="fas fa-chart-line me-2"></i>
+                    How to improve ratings
+                </h4>
+                <p class="tips-text">
+                    Keep packaging consistent, add photos, and communicate pickup windows to volunteers for better experience.
+                </p>
+                <div class="tips-icon">
+                    <i class="fas fa-gift"></i>
+                    <div class="stars-small" style="margin-top: 1rem;">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

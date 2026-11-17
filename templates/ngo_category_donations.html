@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+
+{% block title %}{{ category_label }} - NGO Donations{% endblock %}
+
+{% block content %}
+<div class="app-layout-category">
+    <aside class="category-sidebar">
+    </aside>
+    <main class="category-main-content">
+            <div class="d-flex align-items-start justify-content-between flex-wrap gap-3 mb-4">
+                <div>
+                    <span class="badge bg-success bg-opacity-15 text-success rounded-pill text-uppercase fw-semibold px-3 py-2">NGO Donations</span>
+                    <h1 class="fw-bold text-dark mt-3 mb-1">{{ category_label }}</h1>
+                    <p class="text-muted mb-0">View all pending {{ category }} donations available for your organization.</p>
+                </div>
+                <a href="{{ url_for('ngo_dashboard') }}" class="btn btn-outline-success btn-sm rounded-pill px-4 py-2 d-inline-flex align-items-center gap-2">
+                    <i class="fa-solid fa-arrow-left"></i> Dashboard
+                </a>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-4 p-4">
+                <div class="d-flex align-items-start justify-content-between mb-3 flex-wrap gap-3">
+                    <div>
+                        <h4 class="fw-bold mb-1">Available {{ category_label }}</h4>
+                        <p class="text-muted mb-0">{{ donations|length }} listing{% if donations|length != 1 %}s{% endif %} pending</p>
+                    </div>
+                    <a href="{{ url_for('ngo_donations') }}" class="btn btn-outline-secondary btn-sm rounded-pill">Back to all donations</a>
+                </div>
+
+                {% if not donations %}
+                    <div class="text-center py-5">
+                        <i class="fa-solid fa-box-open fs-1 text-muted opacity-30 mb-3"></i>
+                        <p class="text-muted mb-0">No pending {{ category }} donations are available right now.</p>
+                    </div>
+                {% else %}
+                    <div class="table-responsive border rounded-4 overflow-hidden">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light text-muted text-uppercase text-xs">
+                                <tr>
+                                    <th>Photo</th>
+                                    <th>Donor</th>
+                                    <th>Item</th>
+                                    <th>Quantity</th>
+                                    <th>Location</th>
+                                    <th>Posted</th>
+                                    <th class="text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in donations %}
+                                    <tr>
+                                        <td>
+                                            {% if item.image_path %}
+                                                <img src="{{ url_for('static', filename=item.image_path|replace('static/', '', 1)) }}" alt="{{ item.title or category_label }}" class="rounded-3" style="width: 72px; height: 72px; object-fit: cover;" loading="lazy">
+                                            {% else %}
+                                                <div class="bg-light rounded-3 d-flex align-items-center justify-content-center text-muted" style="width: 72px; height: 72px;">
+                                                    <i class="fa-solid fa-bowl-food fs-4"></i>
+                                                </div>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="fw-semibold text-dark">{{ item.donor_name or 'Donor' }}</div>
+                                            <small class="text-muted">{{ item.category or category_label }}</small>
+                                        </td>
+                                        <td>
+                                            <div class="fw-semibold text-dark">{{ item.title or 'Donation' }}</div>
+                                            <small class="text-muted">{{ item.description or 'No note provided' }}</small>
+                                        </td>
+                                        <td>{{ item.quantity or '—' }}</td>
+                                        <td>{{ item.address or 'Location not provided' }}</td>
+                                        <td>{{ item.created_at|format_datetime('%d %b %Y') if item.created_at else '—' }}</td>
+                                        <td class="text-end">
+                                            {% if category == 'food' and item.inspection_status %}
+                                                <div class="mb-2">
+                                                    <span class="badge {% if item.inspection_result == 'Approved' %}bg-success{% elif item.inspection_result == 'Rejected' %}bg-danger{% else %}bg-warning text-dark{% endif %}">
+                                                        {{ item.inspection_status }}{% if item.inspection_result %} - {{ item.inspection_result }}{% endif %}
+                                                    </span>
+                                                </div>
+                                            {% endif %}
+                                            {% if category != 'money' %}
+                                                <form action="{{ url_for('ngo_accept_donation', donation_id=item.id, donation_type=category) }}" method="POST" class="d-inline">
+                                                    <button type="submit" class="btn btn-sm btn-success rounded-pill px-3">Claim</button>
+                                                </form>
+                                            {% else %}
+                                                <span class="text-muted small">Payment workflow</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            </div>
+        </main>
+</div>
+
+<style>
+    /* Category Donations Page Layout */
+    .app-layout-category {
+        display: flex;
+        min-height: calc(100vh - 74px);
+        width: 100%;
+        background: #f9fafb;
+        overflow-x: hidden;
+    }
+
+    .category-sidebar {
+        width: 280px;
+        flex-shrink: 0;
+        overflow-y: auto;
+        padding: 20px 14px;
+        background: #ffffff;
+        border-right: 1px solid #e5e7eb;
+    }
+
+    .category-main-content {
+        flex: 1;
+        min-width: 0;
+        min-height: calc(100vh - 74px);
+        padding: 24px;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1024px) {
+        .app-layout-category {
+            flex-direction: column;
+        }
+
+        .category-sidebar {
+            width: 100%;
+            border-right: none;
+            border-bottom: 1px solid #e5e7eb;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .category-main-content {
+            padding: 16px;
+            min-height: auto;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .category-sidebar {
+            max-height: 250px;
+            padding: 12px;
+        }
+
+        .category-main-content {
+            padding: 12px;
+        }
+    }
+
+    /* Ensure cards don't escape container */
+    .category-main-content .card {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* Make content responsive */
+    .category-main-content .container-fluid,
+    .category-main-content .row {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .category-main-content [class*="col-"] {
+        box-sizing: border-box;
+    }
+</style>
+{% endblock %}

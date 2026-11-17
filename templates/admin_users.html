@@ -1,0 +1,313 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Users - Admin Panel{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar Navigation -->
+        <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse collapse-horizontal">
+            <div class="position-sticky pt-3">
+                <div class="px-3 mb-4">
+                    <h6 class="text-uppercase text-xs text-muted fw-bold" style="font-size: 0.75rem; letter-spacing: 1px;">Admin Controls</h6>
+                </div>
+                <ul class="nav flex-column gap-1">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_dashboard') }}">
+                            <i class="fa-solid fa-gauge me-2 text-success"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('admin_users') }}">
+                            <i class="fa-solid fa-users me-2 text-success"></i> Manage Users
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_donations') }}">
+                            <i class="fa-solid fa-bowl-food me-2 text-success"></i> Food Postings
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_orphanages') }}">
+                            <i class="fa-solid fa-children me-2 text-success"></i> Orphanage Approvals
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_emergencies') }}">
+                            <i class="fa-solid fa-triangle-exclamation me-2 text-success"></i> Emergency Alerts
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_settings') }}">
+                            <i class="fa-solid fa-sliders me-2 text-success"></i> App Settings
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Content Panel -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
+                <div>
+                    <h1 class="h2 fw-bold mb-1">User Management</h1>
+                    <p class="text-muted text-sm">Verify pending beneficiary organizations, approve volunteers, and manage platform participants.</p>
+                </div>
+            </div>
+
+            <div class="card bg-white border border-light shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="row g-2 align-items-end">
+                        <div class="col-lg-5">
+                            <label for="userManagementSearch" class="form-label fw-semibold mb-1" style="font-size:0.92rem;">Search users</label>
+                            <input id="userManagementSearch" type="text" class="form-control form-control-sm voice-search-input" placeholder="Search by name, email, phone, role, or status" data-voice-search="true" autocomplete="off">
+                        </div>
+                        <div class="col-lg-3">
+                            <p id="userSearchMessage" class="text-muted small mb-0">Filtering users in real time.</p>
+                        </div>
+                        <div class="col-lg-2">
+                            <button type="button" class="btn btn-outline-secondary btn-sm w-100" onclick="clearUserManagementSearch()">Clear</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="adminUserSearchResults" class="card bg-white border border-light shadow-sm mb-4" style="display:none;">
+                <div class="card-body px-4 py-3">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold mb-0 text-dark">Search Results <span id="adminUserSearchCount" class="text-muted fs-6"></span></h5>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="clearUserManagementSearch()">Clear</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0" style="font-size: 0.9rem;">
+                            <thead class="bg-light text-muted">
+                                <tr>
+                                    <th class="ps-4">Username</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Role</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminUserSearchResultsBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pending Review Panels if any -->
+            {% set pending_ngos = users | selectattr('role', 'equalto', 'ngo') | selectattr('status', 'equalto', 'pending') | list %}
+            {% set pending_volunteers = users | selectattr('role', 'equalto', 'volunteer') | selectattr('status', 'equalto', 'pending') | list %}
+
+            {% if pending_ngos|length > 0 or pending_volunteers|length > 0 %}
+                <div class="row g-4 mb-4">
+                    {% if pending_ngos|length > 0 %}
+                        <div class="col-md-6">
+                            <div class="card border-warning bg-warning bg-opacity-5 p-4 rounded-4">
+                                <h5 class="fw-bold mb-3 text-warning-emphasis"><i class="fa-solid fa-building-ngo me-2"></i>Beneficiary Verification Queue ({{ pending_ngos|length }})</h5>
+                                <div class="list-group list-group-flush">
+                                    {% for user in pending_ngos %}
+                                        <div class="list-group-item bg-transparent px-0 py-3 border-light d-flex justify-content-between align-items-start flex-wrap gap-2">
+                                            <div>
+                                                <h6 class="fw-bold mb-1">{{ user.display_name }}</h6>
+                                                <p class="mb-1 text-xs text-muted">Username: <strong>{{ user.username }}</strong> &bull; Email: {{ user.email }}</p>
+                                                <p class="mb-0 text-xs text-muted">Phone: {{ user.phone or 'N/A' }}</p>
+                                                {% if user.role == 'ngo' and user.organization_type %}
+                                                    <p class="mb-0 text-xs text-muted">Type: <strong>{{ user.organization_type }}</strong></p>
+                                                {% endif %}
+                                            </div>
+                                            <!-- Since we only have the user list, we need the NGO profile id. But in users list query, is ngo_id available? No, wait!
+                                                 In verify_ngo endpoint, it takes ngo_id (which is primary key of ngos table).
+                                                 But let's see: user query has u.* and displays the user data. Let's look at verify_ngo function:
+                                                 Wait, verify_ngo checks `SELECT * FROM ngos WHERE id = ngo_id`.
+                                                 Ah! How do we get ngo_id? Let's verify if NGO model has a user_id. Yes, `ngo['user_id']`.
+                                                 Wait, is there an NGO id or volunteer id mapped or can we verify by user_id or something?
+                                                 Let's check the verify_ngo endpoint again in app.py.
+                                                 Lines 306-320: `@app.route('/admin/verify-ngo/<int:ngo_id>', methods=['POST'])`
+                                                 It says `ngo = conn.execute("SELECT * FROM ngos WHERE id = ?", (ngo_id,)).fetchone()`.
+                                                 Wait, does the `users` query return the ngo_id? Let's check lines 293-302:
+                                                 "SELECT u.*, COALESCE(a.name, d.company_name, n.ngo_name, v.name) as display_name, COALESCE(a.phone, d.phone, n.phone, v.phone) as phone FROM users u ..."
+                                                 Wait! The query doesn't select `n.id` as `ngo_id`. Ah!
+                                                 Wait, let's see. If the query does not select `n.id`, how can we approve them?
+                                                 Let's look at `app.py` line 293-302 again. Can we modify that query to also select `n.id as ngo_id` and `v.id as volunteer_id`?
+                                                 Yes! Let's do that, but wait, let's look at the database schema first to confirm. Or wait, can we check if the query can be modified? Let's modify it in `app.py` so we have `n.id as ngo_id` and `v.id as volunteer_id` in the results of `admin_users`!
+                                                 Let's view `app.py` around line 286-305 first.
+                                            -->
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            <!-- All Users Table -->
+            <div id="adminUsersTableCard" class="card bg-white border border-light shadow-sm">
+                <div class="card-header bg-transparent border-0 px-4 pt-4 pb-0">
+                    <h5 class="fw-bold mb-0 text-dark"><i class="fa-solid fa-users me-2 text-success"></i>System Users</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table id="adminUsersTable" class="table table-hover align-middle mb-0" style="font-size: 0.9rem;">
+                            <thead class="bg-light text-muted">
+                                <tr>
+                                    <th class="ps-4">Username</th>
+                                    <th>Display/Company Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Role</th>
+                                    <th>Status</th>
+                                    <th class="text-end pe-4">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in users %}
+                                    <tr>
+                                        <td class="ps-4 fw-semibold">{{ user.username }}</td>
+                                        <td>{{ user.display_name or 'System Administrator' }}</td>
+                                        <td>{{ user.email }}</td>
+                                        <td>{{ user.phone or 'N/A' }}</td>
+                                        <td>
+                                            <span class="badge text-uppercase px-2.5 py-1" style="font-size: 0.75rem; background-color: {% if user.role == 'admin' %}#e0f2fe; color: #111827;{% elif user.role == 'donor' %}#fef3c7; color: #111827;{% elif user.role == 'ngo' %}#f3e8ff; color: #111827;{% else %}#d1fae5; color: #111827;{% endif %}">
+                                                {{ user.role }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="badge text-uppercase px-2.5 py-1" style="font-size: 0.75rem; background-color: {% if user.status == 'active' %}#d1fae5; color: #111827;{% elif user.status == 'pending' %}#ffedd5; color: #111827;{% else %}#fee2e2; color: #111827;{% endif %}">
+                                                {{ user.status }}
+                                            </span>
+                                        </td>
+                                        <td class="text-end pe-4">
+                                            <div class="d-flex justify-content-end gap-2">
+                                                {% if user.role == 'ngo' and user.status == 'pending' and user.ngo_id %}
+                                                    <form action="{{ url_for('verify_ngo', ngo_id=user.ngo_id) }}" method="POST" class="m-0">
+                                                        <button type="submit" class="btn btn-sm btn-success rounded-2 px-2.5 py-1" title="Verify NGO">
+                                                            <i class="fa-solid fa-circle-check"></i> Verify
+                                                        </button>
+                                                    </form>
+                                                {% elif user.role == 'volunteer' and user.status == 'pending' and user.volunteer_id %}
+                                                    <form action="{{ url_for('approve_volunteer', volunteer_id=user.volunteer_id) }}" method="POST" class="m-0">
+                                                        <button type="submit" class="btn btn-sm btn-success rounded-2 px-2.5 py-1" title="Approve Volunteer">
+                                                            <i class="fa-solid fa-circle-check"></i> Approve
+                                                        </button>
+                                                    </form>
+                                                {% endif %}
+
+                                                {% if user.id != current_user.id %}
+                                                    <form action="{{ url_for('delete_user', user_id=user.id) }}" method="POST" class="m-0" data-confirm="Are you sure you want to delete this user? This cannot be undone.">
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-2 px-2.5 py-1" title="Delete User">
+                                                            <i class="fa-regular fa-trash-can"></i>
+                                                        </button>
+                                                    </form>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td colspan="7" class="text-center py-5 text-muted">No users registered yet.</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+    function clearUserManagementSearch() {
+        const queryInput = document.getElementById('userManagementSearch');
+        const table = document.querySelector('#adminUsersTable tbody');
+        const resultsPanel = document.getElementById('adminUserSearchResults');
+        const resultsBody = document.getElementById('adminUserSearchResultsBody');
+        const resultsCount = document.getElementById('adminUserSearchCount');
+        const tableCard = document.getElementById('adminUsersTableCard');
+
+        if (queryInput) queryInput.value = '';
+        if (table) {
+            Array.from(table.rows).forEach(row => row.style.display = '');
+        }
+        if (resultsPanel) resultsPanel.style.display = 'none';
+        if (resultsBody) resultsBody.innerHTML = '';
+        if (resultsCount) resultsCount.textContent = '';
+
+        const message = document.getElementById('userSearchMessage');
+        if (message) {
+            message.className = 'text-muted small mb-0';
+            message.innerHTML = 'Filtering users in real time.';
+        }
+    }
+
+    function filterAdminUsers() {
+        const query = document.getElementById('userManagementSearch')?.value.trim().toLowerCase();
+        const table = document.querySelector('#adminUsersTable tbody');
+        const message = document.getElementById('userSearchMessage');
+        const resultsPanel = document.getElementById('adminUserSearchResults');
+        const resultsBody = document.getElementById('adminUserSearchResultsBody');
+        const resultsCount = document.getElementById('adminUserSearchCount');
+        const tableCard = document.getElementById('adminUsersTableCard');
+        if (!table) return;
+
+        if (!query) {
+            clearUserManagementSearch();
+            return;
+        }
+
+        let visibleCount = 0;
+        const rowsHtml = [];
+        Array.from(table.rows).forEach(row => {
+            const rowText = row.textContent.toLowerCase();
+            const matches = rowText.includes(query);
+            row.style.display = matches ? '' : 'none';
+            if (matches) {
+                visibleCount += 1;
+                const username = row.cells[0]?.textContent.trim();
+                const displayName = row.cells[1]?.textContent.trim();
+                const email = row.cells[2]?.textContent.trim();
+                const phone = row.cells[3]?.textContent.trim();
+                const role = row.cells[4]?.textContent.trim();
+                const status = row.cells[5]?.textContent.trim();
+                rowsHtml.push(`
+                    <tr>
+                        <td class="ps-4 fw-semibold">${username}</td>
+                        <td>${displayName}</td>
+                        <td>${email}</td>
+                        <td>${phone}</td>
+                        <td>${role}</td>
+                        <td>${status}</td>
+                    </tr>
+                `);
+            }
+        });
+
+        if (message) {
+            if (visibleCount === 0) {
+                message.className = 'text-danger small mb-0';
+                message.innerHTML = '<i class="fa-solid fa-circle-exclamation me-1"></i> No users match your search.';
+            } else {
+                message.className = 'text-muted small mb-0';
+                message.innerHTML = `<i class="fa-solid fa-check-circle me-1"></i> ${visibleCount} user${visibleCount === 1 ? '' : 's'} found.`;
+            }
+        }
+
+        if (resultsPanel && resultsBody && resultsCount) {
+            resultsPanel.style.display = 'block';
+            resultsPanel.classList.remove('d-none');
+            resultsCount.textContent = `(${visibleCount})`;
+            resultsBody.innerHTML = rowsHtml.length > 0 ? rowsHtml.join('') : '<tr><td colspan="6" class="text-center text-muted py-3">No matching users found.</td></tr>';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('userManagementSearch');
+        if (searchInput) {
+            searchInput.addEventListener('input', filterAdminUsers);
+        }
+    });
+</script>
+{% endblock %}

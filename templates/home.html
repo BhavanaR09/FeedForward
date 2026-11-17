@@ -1,0 +1,1248 @@
+{% extends "base.html" %}
+
+{% block title %}FeedForward - Innovative Food Rescue Sandbox & Eco-Impact{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Premium innovative page enhancements */
+    :root {
+        --glow-green: rgba(34, 197, 94, 0.4);
+        --glow-blue: rgba(59, 130, 246, 0.4);
+    }
+
+    /* Hero section style override with futuristic mesh gradients */
+    .hero-container {
+        background: radial-gradient(circle at 10% 20%, rgba(3, 45, 24, 0.8) 0%, rgba(11, 21, 40, 1) 90%);
+        min-height: 220px;
+        display: flex;
+        align-items: center;
+        position: relative;
+        padding: 1rem 0;
+        overflow: hidden;
+    }
+
+    .hero-container .container {
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+
+    .hero-container .row {
+        min-height: auto;
+        margin-top: 0;
+    }
+
+    .hero-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.7rem;
+        background: rgba(34, 197, 94, 0.22);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 999px;
+        padding: 0.55rem 1.2rem 0.6rem;
+        box-shadow: 0 8px 24px rgba(16, 185, 129, 0.1);
+        margin: 0 0 1rem;
+    }
+
+    .hero-pill .flow-node-pulse {
+        width: 12px !important;
+        height: 12px !important;
+        min-width: 12px;
+        min-height: 12px;
+        display: inline-block;
+        border-radius: 50%;
+        background-color: #22c55e !important;
+        box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.16);
+    }
+
+    .hero-pill-label {
+        font-size: 0.94rem;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        line-height: 1.2;
+        text-transform: uppercase;
+        white-space: nowrap;
+        color: #ffffff !important;
+    }
+
+    .hero-container .hero-copy {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-height: auto;
+    }
+
+    .hero-glow-1 {
+        position: absolute;
+        width: 450px;
+        height: 450px;
+        background: radial-gradient(circle, rgba(34, 197, 94, 0.15) 0%, rgba(34, 197, 94, 0) 70%);
+        top: -10%;
+        right: 10%;
+        filter: blur(50px);
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    .hero-glow-2 {
+        position: absolute;
+        width: 550px;
+        height: 550px;
+        background: radial-gradient(circle, rgba(59, 130, 246, 0.12) 0%, rgba(59, 130, 246, 0) 70%);
+        bottom: -20%;
+        left: -10%;
+        filter: blur(60px);
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    /* Live simulator grid styles */
+    .sandbox-card {
+        background: rgba(15, 23, 42, 0.65);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.5);
+    }
+
+    .node {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: rgba(30, 41, 59, 0.9);
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 1.5rem;
+        position: relative;
+        transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        z-index: 2;
+    }
+
+    .node.active {
+        border-color: #22c55e;
+        box-shadow: 0 0 20px rgba(34, 197, 94, 0.6);
+        background: rgba(3, 45, 24, 0.9);
+    }
+
+    .node-pulse {
+        position: absolute;
+        top: -4px;
+        left: -4px;
+        right: -4px;
+        bottom: -4px;
+        border-radius: 50%;
+        border: 2px solid #22c55e;
+        animation: pinPulse 2s infinite ease-out;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    @keyframes pinPulse {
+        0% { transform: scale(0.9); opacity: 0.8; }
+        50% { opacity: 0.5; }
+        100% { transform: scale(1.4); opacity: 0; }
+    }
+
+    /* SVG Connector lines for the simulator flow */
+    .connector-path {
+        fill: none;
+        stroke: rgba(255, 255, 255, 0.1);
+        stroke-width: 3;
+        stroke-dasharray: 8 4;
+        transition: stroke 0.5s, stroke-width 0.5s;
+    }
+
+    .connector-path.active {
+        stroke: #22c55e;
+        stroke-width: 4;
+        animation: dashMove 20s linear infinite;
+    }
+
+    @keyframes dashMove {
+        to { stroke-dashoffset: -400; }
+    }
+
+    /* Delivery bike package animation */
+    .package-cargo {
+        width: 16px;
+        height: 16px;
+        background: #eab308;
+        border-radius: 50%;
+        position: absolute;
+        border: 2px solid #fff;
+        box-shadow: 0 0 10px #eab308;
+        opacity: 0;
+        z-index: 3;
+    }
+
+    /* Slider styling */
+    .custom-range::-webkit-slider-runnable-track {
+        background: #e2e8f0;
+        height: 8px;
+        border-radius: 4px;
+    }
+
+    body.dark-theme .custom-range::-webkit-slider-runnable-track {
+        background: #334155;
+    }
+
+    .custom-range::-webkit-slider-thumb {
+        background: #22c55e;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        -webkit-appearance: none;
+        margin-top: -6px;
+        cursor: pointer;
+        box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+        transition: background-color 0.2s, transform 0.1s;
+    }
+
+    .custom-range::-webkit-slider-thumb:hover {
+        background: #16a34a;
+        transform: scale(1.15);
+    }
+
+    /* Grid layout bento components */
+    .bento-card {
+        border-radius: 20px;
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        border: 1px solid rgba(0,0,0,0.05);
+        background: #fff;
+    }
+
+    body.dark-theme .bento-card {
+        background: rgba(22, 28, 45, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .bento-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 20px 30px -5px rgba(0,0,0,0.08);
+        border-color: rgba(34, 197, 94, 0.3);
+    }
+
+    body.dark-theme .bento-card:hover {
+        box-shadow: 0 20px 35px -5px rgba(0,0,0,0.4);
+    }
+
+    /* Live Feed Ticker */
+    .ticker-wrapper {
+        background: rgba(15, 23, 42, 0.9);
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        overflow: hidden;
+        white-space: nowrap;
+        padding: 10px 0;
+        z-index: 5;
+    }
+
+    .ticker-content {
+        display: inline-block;
+        animation: tickerRun 35s linear infinite;
+    }
+
+    @keyframes tickerRun {
+        0% { transform: translate3d(0, 0, 0); }
+        100% { transform: translate3d(-50%, 0, 0); }
+    }
+
+    .ticker-item {
+        display: inline-flex;
+        align-items: center;
+        color: rgba(255, 255, 255, 0.85);
+        margin-right: 4rem;
+        font-size: 0.85rem;
+    }
+
+    .ticker-bullet {
+        width: 6px;
+        height: 6px;
+        background: #22c55e;
+        border-radius: 50%;
+        margin-right: 10px;
+        box-shadow: 0 0 8px #22c55e;
+    }
+
+    /* Clean progress-handshake illustration */
+    .flow-connector-line {
+        flex: 1;
+        height: 2px;
+        background: linear-gradient(90deg, rgba(34,197,94,0.1) 0%, rgba(34,197,94,0.8) 50%, rgba(34,197,94,0.1) 100%);
+        position: relative;
+    }
+
+    /* Card Badge colors */
+    .badge-veg {
+        background-color: rgba(34, 197, 94, 0.15);
+        color: #22c55e;
+        border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .badge-nonveg {
+        background-color: rgba(239, 68, 68, 0.15);
+        color: #ef4444;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    /* Quick leaderboard button */
+    html { scroll-behavior: smooth; }
+    .leaderboard-quick-btn {
+        position: fixed;
+        right: 18px;
+        top: 76px; /* place below navbar to avoid overlap */
+        z-index: 1050;
+        border-radius: 999px;
+        padding: 10px 14px;
+        box-shadow: 0 10px 30px rgba(2,6,23,0.15);
+        backdrop-filter: blur(6px);
+        transition: transform .15s ease, opacity .15s ease;
+        color: #facc15 !important;
+        background-color: rgba(15, 23, 42, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+    }
+    .leaderboard-quick-btn:hover { transform: translateY(-4px) scale(1.02); }
+    .how-it-works { padding: 5rem 0; background: #f8fafc; }
+    .how-it-works .section-heading { max-width: 720px; margin: 0 auto 3rem; text-align: center; }
+    .how-it-works .section-label { color: #16a34a; font-size: .8rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+    .how-it-works .section-heading h2 { margin: .75rem 0 1rem; font-weight: 700; }
+    .how-it-works .section-heading p { color: #64748b; margin-bottom: 0; }
+    .workflow-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem; }
+    .workflow-card { height: 100%; padding: 2rem 1.5rem; text-align: center; background: #fff; border: 1px solid rgba(15, 23, 42, .08); border-radius: 1.25rem; box-shadow: 0 12px 28px rgba(15, 23, 42, .06); }
+    .workflow-icon { width: 4.5rem; height: 4.5rem; margin: 0 auto 1.25rem; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 1.8rem; }
+    .donation-icon { color: #15803d; background: #dcfce7; }
+    .verification-icon { color: #2563eb; background: #dbeafe; }
+    .volunteer-icon { color: #9333ea; background: #f3e8ff; }
+    .pickup-icon { color: #ea580c; background: #ffedd5; }
+    .distribution-icon { color: #0891b2; background: #cffafe; }
+    .impact-icon { color: #db2777; background: #fce7f3; }
+    .workflow-card h3 { margin-bottom: .85rem; font-size: 1.15rem; font-weight: 700; }
+    .workflow-card p { margin-bottom: 0; color: #64748b; line-height: 1.7; }
+    @media (max-width: 992px) {
+        .leaderboard-quick-btn { top: 68px; }
+        .hero-container {
+            min-height: 180px;
+            padding: 1rem 0;
+        }
+        .hero-pill {
+            gap: 0.6rem;
+            padding: 0.6rem 1.1rem 0.65rem;
+        }
+        .hero-container .hero-copy {
+            align-items: center;
+            text-align: center;
+        }
+        .workflow-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 576px) {
+        .leaderboard-quick-btn { display: none; }
+        .hero-container {
+            min-height: 150px;
+            padding: 0.9rem 0;
+        }
+        .hero-pill {
+            gap: 0.45rem;
+            padding: 0.5rem 0.9rem 0.55rem;
+        }
+        .hero-pill-label {
+            font-size: 0.82rem;
+            letter-spacing: 0.05em;
+        }
+        .hero-container .display-3 {
+            font-size: clamp(2.35rem, 9vw, 3.25rem);
+        }
+        .workflow-cards { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Innovative Hero Banner -->
+<section class="hero-container position-relative" id="about">
+    <div class="hero-glow-1"></div>
+    <div class="hero-glow-2"></div>
+    <!-- Leaderboard quick access button -->
+    <a href="#leaderboard" class="btn btn-outline-light leaderboard-quick-btn d-flex align-items-center gap-2" title="View Community Leaderboard">
+        <i class="fa-solid fa-trophy text-warning"></i>
+        <span class="d-none d-sm-inline">Leaderboard</span>
+    </a>
+    
+    <div class="container py-5 position-relative z-3">
+        <div class="row align-items-center g-5">
+            <!-- Left Narrative & CTA -->
+            <div class="col-lg-6 animate-fade-up hero-copy">
+                <div class="hero-pill mx-auto mx-lg-0">
+                    <span class="flow-node-pulse"></span>
+                    <span class="hero-pill-label">Interactive Logistics Hub</span>
+                </div>
+                
+                <h1 class="display-3 fw-extrabold text-white tracking-tight mb-4 lh-sm text-center text-lg-start">
+                    <span class="d-block" style="background: linear-gradient(135deg, #4ade80 0%, #93c5fd 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">FeedForward</span>
+                    <span class="d-block mt-2">Feed the Needy,</span>
+                    <span class="d-block" style="background: linear-gradient(135deg, #4ade80 0%, #3b82f6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Zero Out Food Waste.</span>
+                </h1>
+                
+                <p class="lead mb-4 text-white-50 text-center text-lg-start mx-auto mx-lg-0" style="max-width: 550px; font-size: 1.1rem; line-height: 1.4;">
+                    Explore FeedForward's dynamic verification ecosystem. Run the real-time sandbox simulation to see how commercial dining and NGO kitchens coordinate safe surplus transit.
+                </p>
+
+                {% if emergency_mode_active %}
+                <div class="alert alert-danger border-0 rounded-4 shadow-sm d-flex align-items-center gap-3 mb-4" role="alert" style="background: rgba(220,53,69,0.12); color: #f8d7da;">
+                    <div class="text-danger fs-4"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                    <div>
+                        <strong class="d-block mb-1">Emergency Disaster Mode Enabled</strong>
+                        Active alerts are now published by admins and visible publicly below. Please review urgent relief needs and support recovery operations.
+                    </div>
+                </div>
+                {% else %}
+                <div class="alert alert-secondary border-0 rounded-4 shadow-sm d-flex align-items-center gap-3 mb-4" role="alert" style="background: rgba(56,65,81,0.12); color: #e2e8f0;">
+                    <div class="text-secondary fs-4"><i class="fa-solid fa-circle-xmark"></i></div>
+                    <div>
+                        <strong class="d-block mb-1">Emergency Disaster Mode Disabled</strong>
+                        Administrators have currently turned off disaster alerts. When enabled, urgent relief notices will appear on this page.
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start">
+                    {% if not current_user.is_authenticated %}
+                        <a href="{{ url_for('login') }}" class="btn btn-success btn-lg px-5 py-3 rounded-4 shadow-sm fw-bold hover-lift d-inline-flex align-items-center gap-2" style="background-color: #22c55e; border-color: #22c55e;">
+                            <i class="fa-solid fa-rocket"></i> Get Started
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('dashboard_router') }}" class="btn btn-success btn-lg px-5 py-3 rounded-4 shadow-sm fw-bold hover-lift d-inline-flex align-items-center gap-2" style="background-color: #22c55e; border-color: #22c55e;">
+                            <i class="fa-solid fa-gauge"></i> Enter Your Dashboard <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Right: Interactive Graphic Sandbox / Real-Time Simulator -->
+            <div class="col-lg-6 position-relative text-center">
+                <div class="sandbox-card p-4 p-md-5 text-start animate-fade-in delay-200">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h5 class="fw-bold text-white mb-1"><i class="fa-solid fa-wand-magic-sparkles text-success me-2"></i>Ecosystem Sandbox</h5>
+                            <p class="text-white-50 text-xs mb-0">Interact with our simulated logistics run</p>
+                        </div>
+                        <span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-30">Active Live</span>
+                    </div>
+
+                    <!-- Simulator Grid Stage -->
+                    <div class="position-relative bg-dark bg-opacity-50 rounded-4 p-4 border border-secondary border-opacity-10 mb-4" id="sandbox" style="height: 240px; overflow: hidden;">
+                        <!-- SVG paths connecting nodes -->
+                        <svg class="w-100 h-100 position-absolute top-0 start-0" style="pointer-events: none;">
+                            <path id="pathDonorToCourier" class="connector-path" d="M 50,60 C 130,10 170,110 210,60" />
+                            <path id="pathCourierToNGO" class="connector-path" d="M 210,60 C 260,10 320,110 400,60" />
+                        </svg>
+
+                        <!-- Floating animated cargo package -->
+                        <div id="simPackage" class="package-cargo"></div>
+
+                        <!-- Hub Nodes -->
+                        <!-- Donor Hub (Left side) -->
+                        <div class="position-absolute d-flex flex-column align-items-center" style="left: 20px; top: 30px; width: 80px;">
+                            <div id="donorNode" class="node active">
+                                <i class="fa-solid fa-store"></i>
+                                <span class="node-pulse"></span>
+                            </div>
+                            <span class="text-white text-xs fw-bold mt-2">Donor Node</span>
+                            <span class="text-white-50 text-xxs" style="font-size: 0.65rem;">Hilton Canteen</span>
+                        </div>
+
+                        <!-- Courier Driver Hub (Middle) -->
+                        <div class="position-absolute d-flex flex-column align-items-center" style="left: calc(50% - 40px); top: 30px; width: 80px;">
+                            <div id="courierNode" class="node">
+                                <i class="fa-solid fa-truck-fast"></i>
+                                <span class="node-pulse"></span>
+                            </div>
+                            <span class="text-white text-xs fw-bold mt-2">Courier</span>
+                            <span class="text-white-50 text-xxs" style="font-size: 0.65rem;">Active Driver</span>
+                        </div>
+
+                        <!-- NGO Hub (Right side) -->
+                        <div class="position-absolute d-flex flex-column align-items-center" style="right: 20px; top: 30px; width: 80px;">
+                            <div id="ngoNode" class="node">
+                                <i class="fa-solid fa-building-ngo"></i>
+                                <span class="node-pulse"></span>
+                            </div>
+                            <span class="text-white text-xs fw-bold mt-2">NGO Hub</span>
+                            <span class="text-white-50 text-xxs" style="font-size: 0.65rem;">Hope Kitchen</span>
+                        </div>
+
+                        <!-- Action Feedback Overlay log -->
+                        <div class="position-absolute bottom-0 start-0 end-0 bg-dark bg-opacity-80 p-2.5 text-center border-top border-secondary border-opacity-20">
+                            <span id="simLog" class="text-success text-xs font-mono"><i class="fa-solid fa-circle-play me-2"></i>Click 'Trigger Simulated Rescue Run' below!</span>
+                        </div>
+                    </div>
+
+                    <!-- Simulator Trigger button -->
+                    <button type="button" class="btn btn-success w-100 py-3 rounded-3 fw-bold shadow hover-lift d-flex align-items-center justify-content-center gap-2" id="btnRunSimulation">
+                        <i class="fa-solid fa-bolt-lightning"></i> Trigger Simulated Rescue Run
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Active Live Ticker Feed -->
+<div class="ticker-wrapper">
+    <div class="ticker-content">
+        <div class="ticker-item"><span class="ticker-bullet"></span><strong>MGM Grand</strong> saved 45kg Rice & Gravy (Claimed by Robin Hood Army)</div>
+        <div class="ticker-item"><span class="ticker-bullet"></span><strong>Sheraton Canteen</strong> listed 25kg Fresh Veg Biryani (Awaiting NGO Claim)</div>
+        <div class="ticker-item"><span class="ticker-bullet"></span><strong>NGO FeedCare</strong> accepted 15kg Bakery surplus from DailyBreads</div>
+        <div class="ticker-item"><span class="ticker-bullet"></span><strong>Courier Rahul</strong> generated Pickup Handshake QR Code for Ritz Dining</div>
+        <div class="ticker-item"><span class="ticker-bullet"></span><strong>Grace NGO</strong> updated logs: 120 meals successfully distributed</div>
+        
+        <!-- Double for smooth seamless infinite scroll -->
+        <div class="ticker-item"><span class="ticker-bullet"></span><strong>MGM Grand</strong> saved 45kg Rice & Gravy (Claimed by Robin Hood Army)</div>
+        <div class="ticker-item"><span class="ticker-bullet"></span><strong>Sheraton Canteen</strong> listed 25kg Fresh Veg Biryani (Awaiting NGO Claim)</div>
+        <div class="ticker-item"><span class="ticker-bullet"></span><strong>NGO FeedCare</strong> accepted 15kg Bakery surplus from DailyBreads</div>
+        <div class="ticker-item"><span class="ticker-bullet"></span><strong>Courier Rahul</strong> generated Pickup Handshake QR Code for Ritz Dining</div>
+        <div class="ticker-item"><span class="ticker-bullet"></span><strong>Grace NGO</strong> updated logs: 120 meals successfully distributed</div>
+    </div>
+</div>
+
+<!-- ================= HOW IT WORKS ================= -->
+<section class="how-it-works" id="how-it-works">
+    <div class="container">
+        <div class="section-heading">
+            <div class="section-label">HOW FEEDFORWARD WORKS</div>
+            <h2>Innovative Handshake Workflow</h2>
+            <p>Our secure and transparent donation platform makes it easy to donate, verify, collect and deliver help to the people who need it most.</p>
+        </div>
+        <div class="workflow-cards">
+            <div class="workflow-card"><div class="workflow-icon donation-icon"><i class="fa-solid fa-hand-holding-heart"></i></div><h3>1. Create a Donation</h3><p>Donors can choose what they want to contribute - food, clothes, books or money - and provide the required donation details.</p></div>
+            <div class="workflow-card"><div class="workflow-icon verification-icon"><i class="fa-solid fa-circle-check"></i></div><h3>2. NGO Verification</h3><p>NGOs review the donation details, verify the contribution and approve suitable donations for people and communities in need.</p></div>
+            <div class="workflow-card"><div class="workflow-icon volunteer-icon"><i class="fa-solid fa-person-running"></i></div><h3>3. Volunteer Assigned</h3><p>For physical donations, available volunteers are notified and assigned to collect the donation from the donor.</p></div>
+            <div class="workflow-card"><div class="workflow-icon pickup-icon"><i class="fa-solid fa-truck"></i></div><h3>4. Pickup &amp; Delivery</h3><p>Volunteers safely collect physical donations and deliver them to the concerned NGO or distribution location.</p></div>
+            <div class="workflow-card"><div class="workflow-icon distribution-icon"><i class="fa-solid fa-people-group"></i></div><h3>5. Distribution</h3><p>NGOs coordinate the distribution of food, clothes and books to the appropriate beneficiaries and communities.</p></div>
+            <div class="workflow-card"><div class="workflow-icon impact-icon"><i class="fa-solid fa-heart-circle-check"></i></div><h3>6. Impact Created</h3><p>Every completed donation contributes to reducing waste, supporting communities and creating a positive social impact.</p></div>
+        </div>
+    </div>
+</section>
+
+<!-- Benefits Banner (Promote FeedForward perks) -->
+<section class="py-5 bg-white benefits-banner">
+    <div class="container py-3">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-column flex-md-row gap-3">
+            <div>
+                <span class="text-success fw-bold text-xs text-uppercase tracking-wider">Why FeedForward</span>
+                <h2 class="fw-bold text-dark mt-1 mb-0">Interactive Benefit Banners for Every Partner</h2>
+            </div>
+            <div class="d-none d-md-flex benefits-controls" id="benefitsControls"></div>
+        </div>
+
+        <div class="benefits-track" id="benefitsTrack">
+            <div class="benefit-banner-card" style="background-image: url('{{ url_for('static', filename='images/community food recue.jpg') }}');">
+                <div class="banner-overlay"></div>
+                <div class="banner-content">
+                    <span class="banner-tag banner-tag-green mb-3">Give Hope</span>
+                    <h3>Community Food Rescue</h3>
+                    <p>See how surplus meals are redirected from restaurants to food banks in real time with verified delivery updates.</p>
+                    <small class="banner-caption">Trusted partners, efficient pickup, and meaningful meals delivered daily.</small>
+                </div>
+            </div>
+
+            <div class="benefit-banner-card" style="background-image: url('{{ url_for('static', filename='images/food waste.jpg') }}');">
+                <div class="banner-overlay"></div>
+                <div class="banner-content">
+                    <span class="banner-tag banner-tag-orange mb-3">Act Now</span>
+                    <h3>Waste Reduction</h3>
+                    <p>Convert excess inventory into meals, reduce landfill waste and cut disposal costs for donor kitchens.</p>
+                    <small class="banner-caption">Turn surplus into social good with streamlined donor-to-NGO handoffs.</small>
+                </div>
+            </div>
+
+            <div class="benefit-banner-card" style="background-image: url('{{ url_for('static', filename='images/certificaton.jpg') }}');">
+                <div class="banner-overlay"></div>
+                <div class="banner-content">
+                    <span class="banner-tag banner-tag-blue mb-3">Your Impact, Recognized</span>
+                    <h3>Certificates</h3>
+                    <p>Earn certificates for delivered donations and feature leaders on our public leaderboard.</p>
+                    <small class="banner-caption">Celebrate every act of service with branded certificates and public recognition.</small>
+                </div>
+            </div>
+
+            <div class="benefit-banner-card" style="background-image: url('{{ url_for('static', filename='images/emergencymode.jpeg') }}');">
+                <div class="banner-overlay"></div>
+                <div class="banner-content">
+                    <span class="banner-tag banner-tag-teal mb-3">Stay Verified</span>
+                    <h3>Safe Courier Tracking</h3>
+                    <p>Trusted courier handshakes and NGO acceptance confirm every pickup and drop-off.</p>
+                    <small class="banner-caption">Built-in verification keeps every meal traceable and every transfer accountable.</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-center mt-3 d-md-none">
+            <div class="benefits-controls" id="benefitsControlsMobile"></div>
+        </div>
+    </div>
+</section>
+
+<!-- Dynamic Bento Metrics & Real-Time Stats -->
+<section class="py-5 bg-light">
+    <div class="container py-3">
+        <div class="row g-4 align-items-stretch">
+            <!-- Metric 1: Food Saved -->
+            <div class="col-md-3">
+                <div class="card h-100 border-0 shadow-sm p-4 text-center bento-card d-flex flex-column justify-content-center">
+                    <div class="rounded-circle bg-success bg-opacity-10 d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                        <i class="fa-solid fa-bowl-food fs-4 text-success"></i>
+                    </div>
+                    <span class="text-muted text-xs fw-bold text-uppercase tracking-wider mb-1">Surplus Reclaimed</span>
+                    <h2 class="fw-extrabold text-dark mb-0 fs-3">{{ stats.total_food_saved_kg }} kg</h2>
+                    <small class="text-success text-xs mt-2 fw-medium"><i class="fa-solid fa-arrow-trend-up me-1"></i>Optimized Feed</small>
+                </div>
+            </div>
+            <!-- Metric 2: Active Donors -->
+            <div class="col-md-3">
+                <div class="card h-100 border-0 shadow-sm p-4 text-center bento-card d-flex flex-column justify-content-center">
+                    <div class="rounded-circle bg-success bg-opacity-10 d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                        <i class="fa-solid fa-hotel fs-4 text-success"></i>
+                    </div>
+                    <span class="text-muted text-xs fw-bold text-uppercase tracking-wider mb-1">Donor Outlets</span>
+                    <h2 class="fw-extrabold text-dark mb-0 fs-3">{{ stats.total_donors }}</h2>
+                    <small class="text-muted text-xs mt-2">Canteens & Hotels</small>
+                </div>
+            </div>
+            <!-- Metric 3: NGO Partners -->
+            <div class="col-md-3">
+                <div class="card h-100 border-0 shadow-sm p-4 text-center bento-card d-flex flex-column justify-content-center">
+                    <div class="rounded-circle bg-success bg-opacity-10 d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                        <i class="fa-solid fa-circle-nodes fs-4 text-success"></i>
+                    </div>
+                    <span class="text-muted text-xs fw-bold text-uppercase tracking-wider mb-1">Non-Profit Partners</span>
+                    <h2 class="fw-extrabold text-dark mb-0 fs-3">{{ stats.total_ngos }} NGO Networks</h2>
+                    <small class="text-success text-xs mt-2 fw-medium"><i class="fa-solid fa-shield-check me-1"></i>Fully Verified</small>
+                </div>
+            </div>
+            <!-- Metric 4: Logistics Couriers -->
+            <div class="col-md-3">
+                <div class="card h-100 border-0 shadow-sm p-4 text-center bento-card d-flex flex-column justify-content-center">
+                    <div class="rounded-circle bg-success bg-opacity-10 d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                        <i class="fa-solid fa-truck-ramp-box fs-4 text-success"></i>
+                    </div>
+                    <span class="text-muted text-xs fw-bold text-uppercase tracking-wider mb-1">Rescue Couriers</span>
+                    <h2 class="fw-extrabold text-dark mb-0 fs-3">{{ stats.total_volunteers }} Verified</h2>
+                    <small class="text-muted text-xs mt-2">On-Demand Dispatch</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Innovative Ecological Impact Sandbox -->
+<section class="py-5 bg-white">
+    <div class="container py-4">
+        <div class="row align-items-center g-5">
+            <!-- Left Sandbox Sliders -->
+            <div class="col-lg-6">
+                <span class="text-success fw-bold text-xs text-uppercase tracking-wider" style="letter-spacing: 1px;">Eco-Impact Sandbox</span>
+                <h2 class="fw-bold text-dark mt-2 mb-4">Calculate Your Sustainable Contribution</h2>
+                <p class="text-muted mb-4">
+                    Landfill food decay generates immense methane greenhouse gases. Rescue food with FeedForward to feed hunger and prevent environmental degradation instantly. Play with the sandbox below to calculate savings:
+                </p>
+
+                <!-- Slider Form Card -->
+                <div class="p-4 bg-light rounded-4 border border-light">
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label for="foodWeightSlider" class="form-label fw-bold text-dark mb-0">Weekly Surplus Food Batches</label>
+                            <span class="badge bg-success text-white py-1.5 px-3 rounded-pill fw-bold" id="sliderValueText">50 kg</span>
+                        </div>
+                        <input type="range" class="form-range custom-range" min="10" max="500" step="10" value="50" id="foodWeightSlider">
+                        <div class="d-flex justify-content-between text-muted text-xs mt-1">
+                            <span>10 kg</span>
+                            <span>250 kg</span>
+                            <span>500 kg</span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between text-sm text-muted">
+                        <span><i class="fa-solid fa-info-circle text-success me-1"></i> Based on UN Food & Carbon Index</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Visual Offset Cards -->
+            <div class="col-lg-6">
+                <div class="row g-3">
+                    <!-- Meals Saved Card -->
+                    <div class="col-md-6">
+                        <div class="card p-4 border-0 shadow-sm bento-card text-center h-100">
+                            <div class="text-success mb-2" style="font-size: 2.25rem;">
+                                <i class="fa-solid fa-plate-wheat"></i>
+                            </div>
+                            <h3 class="fw-extrabold text-dark mb-1" id="calcMeals">100</h3>
+                            <span class="text-muted text-xs fw-semibold text-uppercase tracking-wider">Nutritious Meals Saved</span>
+                            <small class="text-muted text-xs d-block mt-2">Feeding families in need</small>
+                        </div>
+                    </div>
+
+                    <!-- Carbon Saved Card -->
+                    <div class="col-md-6">
+                        <div class="card p-4 border-0 shadow-sm bento-card text-center h-100">
+                            <div class="text-danger mb-2" style="font-size: 2.25rem;">
+                                <i class="fa-solid fa-cloud-arrow-down"></i>
+                            </div>
+                            <h3 class="fw-extrabold text-dark mb-1" id="calcCO2">125 kg</h3>
+                            <span class="text-muted text-xs fw-semibold text-uppercase tracking-wider">CO2 Emissions Prevented</span>
+                            <small class="text-muted text-xs d-block mt-2">Diverting methane from landfills</small>
+                        </div>
+                    </div>
+
+                    <!-- Water Saved Card -->
+                    <div class="col-md-6">
+                        <div class="card p-4 border-0 shadow-sm bento-card text-center h-100">
+                            <div class="text-primary mb-2" style="font-size: 2.25rem;">
+                                <i class="fa-solid fa-droplet"></i>
+                            </div>
+                            <h3 class="fw-extrabold text-dark mb-1" id="calcWater">45,000 L</h3>
+                            <span class="text-muted text-xs fw-semibold text-uppercase tracking-wider">Water Supply Conserved</span>
+                            <small class="text-muted text-xs d-block mt-2">Preventing wasted crop water</small>
+                        </div>
+                    </div>
+
+                    <!-- Equivalence Badge Card -->
+                    <div class="col-md-6">
+                        <div class="card p-4 border-0 bg-success bg-opacity-10 border border-success border-opacity-20 shadow-sm rounded-4 text-center h-100 d-flex flex-column justify-content-center">
+                            <div class="text-success mb-2" style="font-size: 2rem;">
+                                <i class="fa-solid fa-tree"></i>
+                            </div>
+                            <h5 class="fw-bold text-success mb-1" id="calcEquiv">Planting 6 Trees</h5>
+                            <span class="text-muted text-xs fw-semibold text-uppercase tracking-wider">Equivalent Eco Offset</span>
+                            <small class="text-muted text-xs d-block mt-1">In direct forest preservation</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Active Listings Live Marketplace -->
+<section class="py-5 bg-light">
+    <div class="container py-3">
+        <div class="d-flex justify-content-between align-items-center mb-5 flex-wrap gap-3">
+            <div>
+                <span class="text-success fw-bold text-xs text-uppercase tracking-wider" style="letter-spacing: 1.2px;">Interactive Grid</span>
+                <h2 class="fw-bold text-dark mt-1 mb-1">Surplus Open Marketplace</h2>
+                <p class="text-muted mb-0">Active postings listed live by canteens, dining halls, and kitchens.</p>
+            </div>
+            {% if not current_user.is_authenticated %}
+                <a href="{{ url_for('login') }}" class="btn btn-outline-success px-4 rounded-3 hover-lift shadow-xs fw-bold">
+                    Access Marketplace Portal <i class="fa-solid fa-arrow-right ms-1"></i>
+                </a>
+            {% endif %}
+        </div>
+        
+        <div class="row g-4">
+            {% if recent_listings|length == 0 %}
+                <div class="col-12 text-center py-5 bg-white rounded-4 border border-light shadow-sm">
+                    <i class="fa-solid fa-circle-check fs-1 text-success mb-3 d-block animate-float"></i>
+                    <h5 class="fw-bold text-dark">Ecosystem is Cleared!</h5>
+                    <p class="text-muted mb-0">All surplus food offerings have been claimed and are currently being delivered. Stay tuned!</p>
+                </div>
+            {% else %}
+                {% for item in recent_listings %}
+                    <div class="col-lg-4 col-md-6">
+                        <div class="card h-100 hover-lift bg-white border-0 shadow-sm overflow-hidden" style="border-radius: 18px;">
+                            <!-- Image banner with status tag -->
+                            <div style="height: 200px; background-color: #f1f5f9; position: relative; overflow: hidden;" class="d-flex align-items-center justify-content-center">
+                                {% if item.image_path %}
+                                    <img src="{{ url_for('static', filename=item.image_path) }}" alt="{{ item.food_name }}" class="w-100 h-100" style="object-fit: cover;" referrerPolicy="no-referrer">
+                                {% else %}
+                                    <div class="text-center text-muted">
+                                        <i class="fa-solid fa-bowl-food fs-1 opacity-25 mb-2 d-block"></i>
+                                        <small class="text-xs text-uppercase tracking-wider">Fresh Surplus food</small>
+                                    </div>
+                                {% endif %}
+                                <span class="position-absolute top-0 end-0 m-3 badge {% if item.veg_non_veg == 'Veg' %}badge-veg{% else %}badge-nonveg{% endif %} shadow-sm">
+                                    {{ item.veg_non_veg }}
+                                </span>
+                            </div>
+                            
+                            <!-- Body details -->
+                            <div class="card-body p-4">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <span class="badge bg-success bg-opacity-10 text-success text-xs px-2.5 py-1 fw-bold">{{ item.category }}</span>
+                                    <small class="text-muted text-xs"><i class="fa-regular fa-clock me-1"></i> {{ item.created_at|format_datetime }}</small>
+                                </div>
+                                <h5 class="card-title fw-bold text-dark mb-2">{{ item.food_name }}</h5>
+                                <p class="text-muted text-sm mb-4" style="font-size: 0.85rem;"><i class="fa-solid fa-location-dot me-1.5 text-danger"></i> {{ item.address }}</p>
+                                
+                                <div class="row border-top pt-3 g-2 text-center" style="font-size: 0.85rem;">
+                                    <div class="col-6 border-end border-light">
+                                        <span class="text-muted d-block text-xs uppercase mb-1">Serving Batch</span>
+                                        <strong class="text-dark">{{ item.quantity }}</strong>
+                                    </div>
+                                    <div class="col-6">
+                                        <span class="text-muted d-block text-xs uppercase mb-1">Expiry Window</span>
+                                        <strong class="text-danger">{{ item.expiry_time }}</strong>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Footer Claim actions -->
+                            <div class="card-footer bg-white border-0 px-4 pb-4 pt-0">
+                                {% if item.status == 'Expired' %}
+                                    <div class="text-center bg-danger bg-opacity-10 text-danger rounded-3 py-2 px-3 border border-danger-subtle fw-semibold">
+                                        EXPIRED
+                                    </div>
+                                {% elif current_user.is_authenticated and current_user.role == 'ngo' %}
+                                    <form action="{{ url_for('ngo_accept_donation', donation_id=item.id) }}" method="POST" class="m-0">
+                                        <button type="submit" class="btn btn-success w-100 rounded-3 py-2.5 fw-bold shadow-sm hover-lift">
+                                            Claim and Reserve Food
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <div class="text-center bg-light rounded-3 py-2 px-3 border border-light">
+                                        <span class="text-muted text-xs d-block">NGO Account can claim and dispatch drivers.</span>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- Platform Feedback Section -->
+<section id="platformFeedbackSection" class="py-5 bg-white">
+    <div class="container py-4">
+        <div class="row g-4 align-items-start">
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bento-card">
+                    <span class="text-success fw-bold text-xs text-uppercase tracking-wider" style="letter-spacing: 1px;">Community Voice</span>
+                    <h2 class="fw-bold text-dark mt-3 mb-3">Share Your FeedForward Experience</h2>
+                    <p class="text-muted mb-4">Help us improve the platform by rating usability, reliability, and impact. Your feedback is visible to the whole community and helps shape future food rescue operations.</p>
+
+                    {% if current_user.is_authenticated %}
+                        <form method="POST" action="{{ url_for('home_feedback') }}" class="row g-3">
+                            {{ feedback_form.csrf_token }}
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Platform Rating</label>
+                                {{ feedback_form.rating(class_='form-select') }}
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Comments</label>
+                                {{ feedback_form.comments(class_='form-control', rows='4', placeholder='What did you like or what can we improve?') }}
+                            </div>
+                            <div class="col-12">
+                                {{ feedback_form.submit(class_='btn btn-success px-4 py-2 rounded-3 fw-bold') }}
+                            </div>
+                        </form>
+                    {% else %}
+                        <div class="alert alert-info mb-0">
+                            <strong>Login to submit feedback.</strong> You can still read all community feedback below without signing in.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bento-card">
+                    <h3 class="fw-bold text-dark mb-3">Recent Platform Feedback</h3>
+                    {% if feedback_entries %}
+                        <div class="list-group list-group-flush">
+                            {% for entry in feedback_entries %}
+                                <div class="list-group-item bg-transparent border-0 p-3 rounded-4 mb-3 shadow-sm" style="background: rgba(245, 255, 244, 0.8);">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="fw-bold text-dark">{{ entry.username or 'Guest User' }}</span>
+                                        <div class="text-end">
+                                            <span class="badge bg-success bg-opacity-15 text-light py-1 px-2 rounded-pill">Rating</span>
+                                            <div class="mt-1 fw-semibold text-success">{{ entry.rating }}/5</div>
+                                            <div class="text-warning" style="font-size: 0.9rem;">{{ '★' * (entry.rating | int) }}{{ '☆' * (5 - (entry.rating | int)) }}</div>
+                                        </div>
+                                    </div>
+                                    <p class="text-muted mb-2" style="font-size: 0.95rem;">{{ entry.comments }}</p>
+                                    <small class="text-muted">{{ entry.created_at }}</small>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fa-solid fa-comments fs-1 text-success mb-3"></i>
+                            <p class="text-muted mb-0">No platform feedback has been added yet. Be the first to share your thoughts!</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Emergency Disaster Support Section -->
+<section class="py-5 bg-light">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <span class="text-danger fw-bold text-xs text-uppercase tracking-wider" style="letter-spacing: 1px;">Emergency Response</span>
+            <h2 class="fw-bold text-dark mt-3">Disaster Relief & Flood Response</h2>
+            <p class="text-muted mx-auto" style="max-width: 720px;">FeedForward supports urgent community needs during disasters like floods, cyclones, and storms. Rapidly share surplus food, coordinate volunteers, and help NGOs act faster in crisis situations.</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white">
+                    <div class="d-flex align-items-center justify-content-center mb-4 rounded-circle bg-danger bg-opacity-10" style="width: 64px; height: 64px;">
+                        <i class="fa-solid fa-water fs-3 text-danger"></i>
+                    </div>
+                    <h5 class="fw-bold mb-3">Flood Relief Coordination</h5>
+                    <p class="text-muted">Enable donors and volunteers to mark flood-affected zones and supply hot meals directly to evacuation centers and rescue teams.</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white">
+                    <div class="d-flex align-items-center justify-content-center mb-4 rounded-circle bg-success bg-opacity-10" style="width: 64px; height: 64px;">
+                        <i class="fa-solid fa-hands-holding-child fs-3 text-success"></i>
+                    </div>
+                    <h5 class="fw-bold mb-3">Rapid NGO Activation</h5>
+                    <p class="text-muted">NGO partners can quickly claim emergency food requests, assign volunteers, and track delivery status for critical relief missions.</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white">
+                    <div class="d-flex align-items-center justify-content-center mb-4 rounded-circle bg-primary bg-opacity-10" style="width: 64px; height: 64px;">
+                        <i class="fa-solid fa-clock-rotate-left fs-3 text-primary"></i>
+                    </div>
+                    <h5 class="fw-bold mb-3">Fast Emergency Dispatch</h5>
+                    <p class="text-muted">Volunteer couriers can be mobilized immediately for urgent pickup and delivery, ensuring fragile donations reach survivors on time.</p>
+                </div>
+            </div>
+        </div>
+        <div class="text-center mt-5">
+            <a href="{{ url_for('report_emergency') }}" class="btn btn-danger btn-lg px-5 py-3 rounded-4 shadow-sm fw-bold">
+                Report a Disaster Need
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Active Emergency Alerts -->
+<section class="py-5 bg-white">
+    <div class="container py-5">
+        <!-- Public Leaderboard -->
+        <div id="leaderboard" class="card bg-white border-0 shadow-lg p-4 rounded-4 mb-5 leaderboard-public">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <div>
+                    <h3 class="fw-bold mb-0">Community Leaderboard</h3>
+                    <p class="text-muted mb-0">Recognising our top donors & volunteers — publicly visible to celebrate impact.</p>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="badge bg-success bg-opacity-10 text-success">Community</span>
+                </div>
+            </div>
+
+            <div class="row g-3 align-items-stretch">
+                <div class="col-md-6">
+                    <div class="bento-card p-4 h-100 leaderboard-card" id="leaderboard-donors">
+                        <h6 class="text-uppercase text-muted mb-3">Top Donors</h6>
+                        <ul class="list-unstyled mb-0" id="donorsList">
+                            <li class="text-muted">Loading...</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="bento-card p-4 h-100 leaderboard-card" id="leaderboard-volunteers">
+                        <h6 class="text-uppercase text-muted mb-3">Top Volunteers</h6>
+                        <ul class="list-unstyled mb-0" id="volunteersList">
+                            <li class="text-muted">Loading...</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <style>
+                .leaderboard-public { overflow: hidden; }
+                .leaderboard-card { position: relative; transition: transform .35s ease; }
+                .leaderboard-card:hover { transform: translateY(-8px) scale(1.01); box-shadow: 0 18px 40px rgba(16, 185, 129, 0.06); }
+                .leaderboard-card li { padding: 10px 0; border-bottom: 1px dashed rgba(0,0,0,0.04); display:flex; justify-content:space-between; align-items:center; }
+                .leader-rank { width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg,#22c55e,#06b6d4); color:white; display:inline-flex; align-items:center; justify-content:center; font-weight:700; margin-right:12px; box-shadow:0 6px 18px rgba(6,182,212,0.12); }
+                .sparkle { position:absolute; width:220px; height:220px; right:-40px; top:-40px; background: radial-gradient(circle at 30% 20%, rgba(34,197,94,0.06), transparent 25%), radial-gradient(circle at 70% 80%, rgba(59,130,246,0.05), transparent 25%); pointer-events:none; transform: rotate(12deg); }
+                .pulse-pop { animation: popIn 700ms cubic-bezier(.2,.9,.3,1); }
+                @keyframes popIn { 0% { transform: scale(.92); opacity:0 } 60% { transform: scale(1.02); opacity:1 } 100% { transform: scale(1); } }
+            </style>
+
+            <div class="sparkle" aria-hidden="true"></div>
+
+            <script>
+                async function loadLeaderboard() {
+                    try {
+                        const res = await fetch('/api/leaderboard');
+                        const data = await res.json();
+                        if (!data.success) throw new Error('Leaderboard fetch failed');
+
+                        const donors = data.top_donors || [];
+                        const volunteers = data.top_volunteers || [];
+
+                        const donorsList = document.getElementById('donorsList');
+                        const volunteersList = document.getElementById('volunteersList');
+                        donorsList.innerHTML = '';
+                        volunteersList.innerHTML = '';
+
+                        donors.forEach((d, i) => {
+                            const li = document.createElement('li');
+                            li.className = 'fade-item';
+                            li.innerHTML = `<div style="display:flex;align-items:center"><span class=\"leader-rank\">${i+1}</span><div><div class=\"fw-semibold\">${escapeHtml(d.name)}</div><small class=\"text-muted\">${d.delivered_count} deliveries</small></div></div>`;
+                            donorsList.appendChild(li);
+                            setTimeout(()=> li.classList.add('pulse-pop'), 80*i);
+                        });
+
+                        volunteers.forEach((v, i) => {
+                            const li = document.createElement('li');
+                            li.className = 'fade-item';
+                            li.innerHTML = `<div style="display:flex;align-items:center"><span class=\"leader-rank\">${i+1}</span><div><div class=\"fw-semibold\">${escapeHtml(v.name)}</div><small class=\"text-muted\">${v.deliveries} deliveries</small></div></div>`;
+                            volunteersList.appendChild(li);
+                            setTimeout(()=> li.classList.add('pulse-pop'), 90*i);
+                        });
+
+                        if (donors.length === 0) donorsList.innerHTML = '<li class="text-muted">No donor deliveries yet.</li>';
+                        if (volunteers.length === 0) volunteersList.innerHTML = '<li class="text-muted">No volunteer deliveries yet.</li>';
+                    } catch (err) {
+                        console.error(err);
+                    }
+                }
+
+                function escapeHtml(s) { return String(s).replace(/[&<>\"']/g, function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];}); }
+
+                document.addEventListener('DOMContentLoaded', () => loadLeaderboard());
+            </script>
+        </div>
+        <div class="text-center mb-5">
+            <span class="text-danger fw-bold text-xs text-uppercase tracking-wider" style="letter-spacing: 1px;">Live Disaster Updates</span>
+            <h2 class="fw-bold text-dark mt-3">Currently Active Emergency Alerts</h2>
+            <p class="text-muted mx-auto" style="max-width: 720px;">Community members can view emergency alerts without logging in. These alerts are managed by the admin and updated in real time for all donors, NGOs, and volunteers.</p>
+        </div>
+
+        {% if emergency_mode_active %}
+            {% if active_emergencies %}
+                <div class="row g-4">
+                {% for alert in active_emergencies %}
+                    <div class="col-lg-4 col-md-6">
+                        <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <div>
+                                    <h5 class="fw-bold mb-1">{{ alert.title }}</h5>
+                                    <small class="text-muted">{{ alert.disaster_type }} in {{ alert.location }}</small>
+                                </div>
+                                <span class="badge rounded-pill px-3 py-2 {% if alert.severity == 'Critical' %}bg-danger{% elif alert.severity == 'High' %}bg-warning text-dark{% elif alert.severity == 'Medium' %}bg-info text-dark{% else %}bg-success text-white{% endif %}">
+                                    {{ alert.severity }}
+                                </span>
+                            </div>
+                            <p class="text-muted mb-3">{{ alert.details }}</p>
+                            <p class="mb-0 text-xs text-muted">Published by {{ alert.created_by_username or 'Admin' }} • {{ alert.created_at }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fa-solid fa-circle-check fs-1 text-success mb-3"></i>
+                    <p class="text-muted mb-0">There are no active emergency alerts right now. The platform remains ready to support urgent needs.</p>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fa-solid fa-circle-xmark fs-1 text-secondary mb-3"></i>
+                <p class="text-muted mb-2">Emergency Disaster Mode is currently turned off by the admin.</p>
+                <p class="text-muted mb-0">When enabled, public emergency alerts will appear here immediately.</p>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Beautiful Call-To-Action "Join the Movement" -->
+<section class="py-5 bg-light overflow-hidden">
+    <div class="container">
+        <div class="card border-0 bg-white shadow-premium p-4 p-md-5 rounded-4 overflow-hidden position-relative">
+            <!-- Background Orbs -->
+            <div class="position-absolute bg-success bg-opacity-5 rounded-circle" style="width: 450px; height: 450px; top: -120px; right: -120px; z-index: 0; pointer-events: none;"></div>
+            <div class="position-absolute bg-success bg-opacity-5 rounded-circle" style="width: 300px; height: 300px; bottom: -100px; left: -100px; z-index: 0; pointer-events: none;"></div>
+            
+            <div class="row align-items-center position-relative z-3 g-5">
+                <div class="col-lg-6 mb-4 mb-lg-0 text-center animate-float-delayed">
+                    <div class="illustration-frame mx-auto" style="max-height: 350px; max-width: 450px;">
+                        <img src="/static/images/join_movement_hands.jpg" alt="Join Hands" class="img-fluid w-100 h-100" style="object-fit: cover; max-height: 350px;" referrerPolicy="no-referrer">
+                    </div>
+                </div>
+                
+                <div class="col-lg-6">
+                    <span class="text-success fw-bold text-xs text-uppercase tracking-wider" style="letter-spacing: 1.2px;">Be the Catalyst</span>
+                    <h2 class="fw-bold text-dark mt-2 mb-3 h1">Let's build a zero-waste neighborhood together</h2>
+                    <p class="text-muted mb-4">
+                        FeedForward is completely free to use. Join as a registered donor (canteen, venue, restaurant), a recipient NGO, or a volunteer logistics courier to begin rescuing meals today.
+                    </p>
+                    
+                    <div class="d-flex flex-wrap gap-3">
+                        {% if not current_user.is_authenticated %}
+                            <a href="{{ url_for('register_donor') }}" class="btn btn-success px-4 py-2.5 rounded-3 fw-bold shadow-sm hover-lift" style="background-color: #22c55e; border-color: #22c55e;">
+                                <i class="fa-solid fa-store me-1"></i> Register as Donor
+                            </a>
+                            <a href="{{ url_for('register_ngo') }}" class="btn btn-outline-success px-4 py-2.5 rounded-3 fw-bold hover-lift">
+                                <i class="fa-solid fa-building-ngo me-1"></i> Partner NGO
+                            </a>
+                            <a href="{{ url_for('login') }}" class="btn btn-outline-success px-4 py-2.5 rounded-3 fw-bold hover-lift">
+                                <i class="fa-solid fa-right-to-bracket me-1"></i> Login
+                            </a>
+                        {% else %}
+                            <a href="{{ url_for('dashboard_router') }}" class="btn btn-success px-5 py-3 rounded-3 fw-bold shadow-sm hover-lift" style="background-color: #22c55e; border-color: #22c55e;">
+                                Go to Your Portal Hub &rarr;
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Dynamic Scripts for Interactive Simulator and Calculator -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // ----------------------------------------------------
+    // 1. ECO-IMPACT CALCULATOR LOGIC
+    // ----------------------------------------------------
+    const weightSlider = document.getElementById('foodWeightSlider');
+    const sliderValueText = document.getElementById('sliderValueText');
+    
+    const calcMeals = document.getElementById('calcMeals');
+    const calcCO2 = document.getElementById('calcCO2');
+    const calcWater = document.getElementById('calcWater');
+    const calcEquiv = document.getElementById('calcEquiv');
+
+    function updateEcoImpact() {
+        const weight = parseInt(weightSlider.value, 10);
+        sliderValueText.textContent = `${weight} kg`;
+
+        // Mathematical Conversions:
+        // 1 kg of food is approx 2.0 nutritious plates/meals
+        const meals = Math.round(weight * 2.0);
+        
+        // Preventing 1 kg food landfill decay saves ~2.5 kg CO2 equivalent greenhouse gases
+        const co2 = (weight * 2.5).toFixed(1);
+
+        // Standard water footprint saved: 1 kg food production takes ~900 Liters of water throughout farming/packaging
+        const water = (weight * 900).toLocaleString();
+
+        // Equivalence calculation (1 tree absorbs ~22kg of CO2 per year)
+        const trees = Math.round((weight * 2.5) / 22) || 1;
+
+        // Update elements with animations or text
+        calcMeals.textContent = meals.toLocaleString();
+        calcCO2.textContent = `${parseFloat(co2).toLocaleString()} kg`;
+        calcWater.textContent = `${water} L`;
+        calcEquiv.textContent = `Planting ${trees} Trees`;
+    }
+
+    if (weightSlider) {
+        weightSlider.addEventListener('input', updateEcoImpact);
+        // Initial call
+        updateEcoImpact();
+    }
+
+
+    // ----------------------------------------------------
+    // 2. SURPLUS FLOW SIMULATOR LOGIC
+    // ----------------------------------------------------
+    const btnRunSim = document.getElementById('btnRunSimulation');
+    const simLog = document.getElementById('simLog');
+    const donorNode = document.getElementById('donorNode');
+    const courierNode = document.getElementById('courierNode');
+    const ngoNode = document.getElementById('ngoNode');
+    const pathDonorToCourier = document.getElementById('pathDonorToCourier');
+    const pathCourierToNGO = document.getElementById('pathCourierToNGO');
+    const simPackage = document.getElementById('simPackage');
+
+    let isSimulating = false;
+
+    function resetNodes() {
+        donorNode.className = 'node';
+        courierNode.className = 'node';
+        ngoNode.className = 'node';
+        pathDonorToCourier.setAttribute('class', 'connector-path');
+        pathCourierToNGO.setAttribute('class', 'connector-path');
+        simPackage.style.opacity = '0';
+    }
+
+    function animateAlongPath(pathElement, startNodeElement, endNodeElement, callback) {
+        let startTime = null;
+        const duration = 2200; // ms
+        const pathLength = pathElement.getTotalLength();
+
+        simPackage.style.opacity = '1';
+
+        function step(timestamp) {
+            if (!startTime) startTime = timestamp;
+            const progress = (timestamp - startTime) / duration;
+
+            if (progress < 1) {
+                const currentLength = progress * pathLength;
+                const point = pathElement.getPointAtLength(currentLength);
+                
+                // Position package correctly relative to the stage container
+                const stageRect = document.getElementById('simulationStage').getBoundingClientRect();
+                simPackage.style.left = `${point.x - 8}px`;
+                simPackage.style.top = `${point.y - 8}px`;
+
+                requestAnimationFrame(step);
+            } else {
+                simPackage.style.opacity = '0';
+                callback();
+            }
+        }
+        requestAnimationFrame(step);
+    }
+
+    if (btnRunSim) {
+        btnRunSim.addEventListener('click', function() {
+            if (isSimulating) return;
+            isSimulating = true;
+            btnRunSim.disabled = true;
+            btnRunSim.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Simulation Running...`;
+
+            resetNodes();
+
+            // 1. Initial State: Donor listings food
+            donorNode.className = 'node active';
+            simLog.innerHTML = `<span class="text-warning font-mono"><i class="fa-solid fa-cloud-arrow-up animate-pulse"></i> STEP 1: Canteen logs 40kg surplus Curry & Rice...</span>`;
+
+            // Timeout to simulate NGO claiming and Dispatching Courier
+            setTimeout(() => {
+                pathDonorToCourier.setAttribute('class', 'connector-path active');
+                simLog.innerHTML = `<span class="text-primary font-mono"><i class="fa-solid fa-truck-fast animate-pulse"></i> STEP 2: NGO reserves food! Courier Rahul dispatched...</span>`;
+
+                // Start package flight from Donor to Courier
+                animateAlongPath(pathDonorToCourier, donorNode, courierNode, () => {
+                    courierNode.className = 'node active';
+                    simLog.innerHTML = `<span class="text-warning font-mono"><i class="fa-solid fa-qrcode animate-pulse"></i> STEP 3: QR Code scanned! Handover complete at Canteen...</span>`;
+
+                    setTimeout(() => {
+                        pathCourierToNGO.setAttribute('class', 'connector-path active');
+                        simLog.innerHTML = `<span class="text-info font-mono"><i class="fa-solid fa-location-arrow"></i> STEP 4: Courier in transit to Hope Kitchen NGO...</span>`;
+
+                        // Start package flight from Courier to NGO
+                        animateAlongPath(pathCourierToNGO, courierNode, ngoNode, () => {
+                            ngoNode.className = 'node active';
+                            simLog.innerHTML = `<span class="text-success font-mono"><i class="fa-solid fa-circle-check"></i> SUCCESS: Food arrived at NGO! 80 families fed! 🌿</span>`;
+                            
+                            // Re-enable run trigger button
+                            isSimulating = false;
+                            btnRunSim.disabled = false;
+                            btnRunSim.innerHTML = `<i class="fa-solid fa-rotate-left"></i> Run Simulation Again`;
+                        });
+                    }, 1800);
+                });
+            }, 1500);
+        });
+    }
+});
+</script>
+{% endblock %}

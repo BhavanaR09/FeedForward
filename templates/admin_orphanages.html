@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}Orphanage Approvals - Admin Panel{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse collapse-horizontal">
+            <div class="position-sticky pt-3">
+                <div class="px-3 mb-4">
+                    <h6 class="text-uppercase text-xs text-muted fw-bold" style="font-size: 0.75rem; letter-spacing: 1px;">Admin Controls</h6>
+                </div>
+                <ul class="nav flex-column gap-1">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_dashboard') }}">
+                            <i class="fa-solid fa-gauge me-2 text-success"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_users') }}">
+                            <i class="fa-solid fa-users me-2 text-success"></i> Manage Users
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_donations') }}">
+                            <i class="fa-solid fa-bowl-food me-2 text-success"></i> Food Postings
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('admin_orphanages') }}">
+                            <i class="fa-solid fa-children me-2 text-success"></i> Orphanage Approvals
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_emergencies') }}">
+                            <i class="fa-solid fa-triangle-exclamation me-2 text-success"></i> Emergency Alerts
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_settings') }}">
+                            <i class="fa-solid fa-sliders me-2 text-success"></i> App Settings
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
+                <div>
+                    <h1 class="h2 fw-bold mb-1">Orphanage Approvals</h1>
+                    <p class="text-muted text-sm">Review beneficiary orphanage registrations before they can receive clothes, books, or money donations.</p>
+                </div>
+            </div>
+
+            <div class="card bg-white border border-light shadow-sm">
+                <div class="card-header bg-transparent border-0 px-4 pt-4 pb-0">
+                    <h5 class="fw-bold mb-0 text-dark"><i class="fa-solid fa-children me-2 text-success"></i>Beneficiary Orphanages</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0" style="font-size: 0.9rem;">
+                            <thead class="bg-light text-muted">
+                                <tr>
+                                    <th class="ps-4">Name</th>
+                                    <th>Contact Person</th>
+                                    <th>Phone</th>
+                                    <th>Email</th>
+                                    <th>Address</th>
+                                    <th>Status</th>
+                                    <th>Submitted</th>
+                                    <th class="text-end pe-4">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for orphanage in orphanages %}
+                                    <tr>
+                                        <td class="ps-4 fw-semibold">{{ orphanage.name }}</td>
+                                        <td>{{ orphanage.contact_person or 'N/A' }}</td>
+                                        <td>{{ orphanage.phone or 'N/A' }}</td>
+                                        <td>{{ orphanage.email or 'N/A' }}</td>
+                                        <td>{{ orphanage.address or 'N/A' }}</td>
+                                        <td>
+                                            <span class="badge text-uppercase px-2.5 py-1" style="font-size: 0.75rem; background-color: {% if orphanage.is_approved %}#d1fae5; color: #111827;{% else %}#ffedd5; color: #111827;{% endif %}">
+                                                {{ 'Approved' if orphanage.is_approved else 'Pending' }}
+                                            </span>
+                                        </td>
+                                        <td class="text-muted" style="font-size: 0.8rem;">{{ orphanage.created_at|format_datetime }}</td>
+                                        <td class="text-end pe-4">
+                                            {% if not orphanage.is_approved %}
+                                                <form action="{{ url_for('approve_orphanage', orphanage_id=orphanage.id) }}" method="POST" class="m-0">
+                                                    <button type="submit" class="btn btn-sm btn-success rounded-2 px-2.5 py-1" title="Approve Orphanage">
+                                                        <i class="fa-solid fa-circle-check"></i> Approve
+                                                    </button>
+                                                </form>
+                                            {% else %}
+                                                <span class="text-success fw-semibold">Verified</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td colspan="8" class="text-center py-5 text-muted">No orphanage registrations found.</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+{% endblock %}

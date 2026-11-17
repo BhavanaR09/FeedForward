@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+
+{% block title %}Donation History - FeedForward{% endblock %}
+
+{% block content %}
+<style>
+    .history-page { background: #f7faf8; min-height: calc(100vh - 72px); }
+    .history-hero { background: linear-gradient(135deg, #effaf1 0%, #ffffff 72%); border: 1px solid #dcefe0; }
+    .history-kicker { color: #2e7d32; font-size: .72rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+    .history-title { color: #183b25; font-size: clamp(1.75rem, 3vw, 2.45rem); letter-spacing: -.02em; }
+    .history-toolbar { background: #fff; border: 1px solid #e3ece5; box-shadow: 0 12px 30px rgba(30, 82, 45, .07); }
+    .history-search { min-height: 52px; border: 1px solid #d7e5da; background: #fbfdfb; padding-left: 2.8rem; }
+    .history-search:focus, .history-filter:focus { border-color: #2e7d32; box-shadow: 0 0 0 .2rem rgba(46, 125, 50, .12); background: #fff; }
+    .history-search-icon { left: 1rem; top: 50%; transform: translateY(-50%); color: #63946a; }
+    .history-filter { min-height: 44px; border-color: #d7e5da; color: #38533e; }
+    .history-record { border: 1px solid #e2ebe4; box-shadow: 0 8px 22px rgba(30, 82, 45, .06); transition: transform .2s ease, box-shadow .2s ease; }
+    .history-record:hover { transform: translateY(-2px); box-shadow: 0 14px 28px rgba(30, 82, 45, .1); }
+    .history-status { border-radius: 999px; display: inline-flex; align-items: center; gap: .4rem; font-size: .76rem; font-weight: 700; padding: .42rem .72rem; }
+    .history-status::before { background: currentColor; border-radius: 50%; content: ''; height: .42rem; width: .42rem; }
+    .history-status-pending { background: #fff7df; color: #9a6b00; }
+    .history-status-approved, .history-status-completed, .history-status-delivered { background: #e6f6e9; color: #23732c; }
+    .history-status-rejected { background: #fff0f0; color: #b33b3b; }
+    .history-status-other { background: #edf3f0; color: #50655a; }
+    .history-empty { border: 1px dashed #bdd7c2; background: #fbfefb; }
+    @media (max-width: 767.98px) { .history-page { min-height: auto; } .history-actions { border-top: 1px solid #edf2ee; } }
+</style>
+
+<div class="history-page py-4 py-lg-5">
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div>
+            <span class="history-kicker">Your contribution records</span>
+            <h1 class="history-title fw-bold mt-2 mb-2">Donation History</h1>
+            <p class="text-muted mb-0">Track and manage all your contributions in one place.</p>
+        </div>
+        <a href="{{ url_for('donor_dashboard') }}" class="btn btn-outline-success rounded-3 btn-sm">
+            &larr; Back to Dashboard
+        </a>
+    </div>
+
+    <div class="history-toolbar rounded-4 p-3 p-lg-4 mb-4">
+        <div class="row g-3 align-items-end">
+            <div class="col-12 col-lg-5"><label for="donationSearch" class="form-label small fw-semibold">Search donations</label><div class="position-relative"><i class="fa-solid fa-magnifying-glass position-absolute history-search-icon"></i><input id="donationSearch" class="form-control rounded-3 history-search" type="search" placeholder="Search donations..." autocomplete="off"></div></div>
+            <div class="col-12 col-sm-4 col-lg-2"><label for="donationType" class="form-label small fw-semibold">Donation Type</label><select id="donationType" class="form-select rounded-3 history-filter"><option value="">All Types</option><option value="food">Food</option><option value="clothes">Clothes</option><option value="books">Books</option><option value="money">Money</option></select></div>
+            <div class="col-12 col-sm-4 col-lg-2"><label for="donationStatus" class="form-label small fw-semibold">Status</label><select id="donationStatus" class="form-select rounded-3 history-filter"><option value="">All Status</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="rejected">Rejected</option><option value="completed">Completed</option><option value="delivered">Delivered</option></select></div>
+            <div class="col-12 col-sm-4 col-lg-2"><label for="donationDate" class="form-label small fw-semibold">Date</label><select id="donationDate" class="form-select rounded-3 history-filter"><option value="">All Dates</option><option value="7">Last 7 days</option><option value="30">Last 30 days</option><option value="year">This year</option></select></div>
+            <div class="col-12 col-lg-1"><button id="clearDonationFilters" type="button" class="btn btn-light border rounded-3 w-100" title="Clear filters"><i class="fa-solid fa-rotate-left"></i><span class="d-lg-none ms-1">Clear</span></button></div>
+        </div>
+        <div class="d-flex justify-content-between mt-3 pt-3 border-top"><span id="donationResultCount" class="small text-muted"></span><span class="small text-muted"><i class="fa-solid fa-filter me-1 text-success"></i>Filters update instantly</span></div>
+    </div>
+
+    <!-- Listings list -->
+    <div class="card bg-white border-0 shadow-sm p-4 rounded-4">
+        {% if donations|length == 0 %}
+            <div class="text-center py-5">
+                <i class="fa-solid fa-bowl-food fs-2 opacity-30 mb-2 d-block"></i>
+                <h2 class="h5 fw-bold mb-2">No donations found</h2>
+                <p class="text-muted mb-0">Try changing your search or filter options.</p>
+            </div>
+        {% else %}
+            <div class="row g-4">
+                {% for item in donations %}
+                    <div class="col-12 donation-record" data-search="{{ [item.title, item.donation_type, item.status, item.category, item.quantity, item.created_at, item.id, item.ngo_name|default('', true), item.recipient_name|default('', true)]|join(' ')|lower|e }}" data-type="{{ item.donation_type|default('', true)|lower }}" data-status="{{ item.status|default('', true)|lower }}" data-date="{{ item.created_at|default('', true) }}">
+                        <div class="card history-record border-0 rounded-4 overflow-hidden">
+                            <div class="row g-0 align-items-center">
+                                <div class="col-lg-3 bg-light p-3 d-flex align-items-center justify-content-center">
+                                    <div class="ff-food-thumb mx-auto" style="width:100%; max-width:180px; height:auto;">
+                                        {% if item.donation_type|default('', true)|lower == 'money' %}
+                                            <img src="{{ url_for('static', filename='images/money_image.png') }}" alt="Money donation" loading="lazy">
+                                        {% elif item.image_path %}
+                                            <img src="{{ url_for('static', filename=item.image_path|replace('static/', '', 1)) }}" alt="{{ item.title }}" loading="lazy">
+                                        {% else %}
+                                            <div class="d-flex align-items-center justify-content-center text-muted" style="width:100%; min-height:160px;"><i class="fa-solid fa-bowl-food fs-2"></i></div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 p-4">
+                                    <div class="d-flex align-items-start gap-3 mb-3 flex-wrap">
+                                        <div>
+                                            <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+                                                <h3 class="h5 mb-0">{{ item.title }}</h3>
+                                                <span class="badge rounded-pill bg-success-subtle text-success border border-success-subtle">{{ item.donation_type }} Donation</span>
+                                            </div>
+                                            <p class="mb-1 text-muted">Posted {{ item.created_at|format_datetime }}</p>
+                                        </div>
+                                        {% set status_class = 'pending' if item.status|lower == 'pending' else 'rejected' if item.status|lower in ['rejected', 'cancelled'] else 'approved' if item.status|lower in ['approved', 'accepted'] else 'completed' if item.status|lower in ['completed', 'paid'] else 'delivered' if item.status|lower == 'delivered' else 'other' %}
+                                        <span class="history-status history-status-{{ status_class }} mt-1">{{ item.status }}</span>
+                                    </div>
+                                    {% if item.donation_type == 'Food' and item.inspection_status %}
+                                        <div class="mt-2">
+                                            <span class="badge {% if item.inspection_result == 'Approved' %}bg-success{% elif item.inspection_result == 'Rejected' %}bg-danger{% else %}bg-warning text-dark{% endif %}">
+                                                {{ item.inspection_status }}{% if item.inspection_result %} - {{ item.inspection_result }}{% endif %}
+                                            </span>
+                                            {% if item.inspection_result == 'Rejected' %}
+                                                <small class="text-danger d-block mt-1">Rejected food cannot proceed to pickup or delivery.</small>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                    <div class="row g-3">
+                                        <div class="col-sm-6">
+                                            <p class="mb-1"><strong>Donation Type</strong> : {{ item.donation_type }}</p>
+                                            <p class="mb-1"><strong>Category</strong> : {{ item.category }}</p>
+                                            {% if item.donation_type == 'Money' %}
+                                                <p class="mb-1"><strong>Purpose</strong> : {{ item.purpose }}</p>
+                                                <p class="mb-1"><strong>Payment</strong> : {{ item.payment_method }}</p>
+                                            {% endif %}
+                                            {% if item.veg_non_veg %}
+                                                <p class="mb-1"><strong>Type</strong> : {{ item.veg_non_veg }}</p>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <p class="mb-1"><strong>Quantity</strong> : {{ item.quantity }}</p>
+                                            <p class="mb-1"><strong>Expiry</strong> : {{ item.expiry_time }}</p>
+                                        </div>
+                                        <div class="col-12">
+                                            <p class="mb-1"><strong>Pickup Window</strong> : {{ item.pickup_time }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 p-4 border-start history-actions">
+                                    <div class="d-flex flex-column h-100 justify-content-between">
+                                        <div class="mb-3">
+                                            {% if item.rating is defined and item.rating is not none %}
+                                                <div class="ff-rating mb-2">
+                                                    {% for i in range(1,6) %}
+                                                        {% if i <= item.rating %}
+                                                            <i class="fa-solid fa-star"></i>
+                                                        {% else %}
+                                                            <i class="fa-regular fa-star"></i>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                <div class="ff-small-muted mb-2">No feedback yet</div>
+                                            {% endif %}
+                                            {% if item.delivery_proof_path is defined and item.delivery_proof_path %}
+                                                <a href="{{ url_for('static', filename=item.delivery_proof_path) }}" target="_blank" class="btn btn-success btn-sm w-100 mb-2">View Proof</a>
+                                            {% else %}
+                                                <div class="ff-small-muted mb-2">No proof available</div>
+                                            {% endif %}
+                                            {% if item.certificate_path is defined and item.certificate_path %}
+                                                <a href="{{ url_for('download_certificate', donation_id=item.id, donation_type=item.donation_type|lower) }}" class="btn btn-outline-primary btn-sm w-100">Download Certificate</a>
+                                            {% endif %}
+                                            {% if item.donation_type == 'Money' and item.status == 'Paid' %}
+                                                <a href="{{ url_for('donor_money_receipt', donation_id=item.id) }}" target="_blank" class="btn btn-outline-success btn-sm w-100">View Payment Receipt</a>
+                                            {% endif %}
+                                        </div>
+                                        <div class="d-grid gap-2">
+                                            {% if item.donation_type == 'Food' and item.status not in ['Delivered', 'Cancelled'] %}
+                                                <a href="{{ url_for('donor_edit_donation', donation_id=item.id) }}" class="btn btn-primary btn-sm">Edit Donation</a>
+                                            {% elif item.donation_type == 'Clothes' and item.status in ['Pending', 'Cancelled'] %}
+                                                <a href="{{ url_for('donor_edit_clothes_donation', donation_id=item.id) }}" class="btn btn-primary btn-sm">Edit Donation</a>
+                                            {% elif item.donation_type == 'Books' and item.status in ['Pending', 'Cancelled'] %}
+                                                <a href="{{ url_for('donor_edit_books_donation', donation_id=item.id) }}" class="btn btn-primary btn-sm">Edit Donation</a>
+                                            {% endif %}
+                                            <form method="post" action="{{ url_for('donor_delete_typed_donation', donation_type=item.donation_type|lower, donation_id=item.id) if item.donation_type != 'Food' else url_for('donor_delete_donation', donation_id=item.id) }}" class="d-grid" data-confirm="Are you sure you want to delete this donation? This action cannot be undone.">
+                                                <button type="submit" class="btn btn-outline-danger btn-sm">Delete Donation</button>
+                                            </form>
+                                            {% if item.status not in ['Delivered', 'Cancelled', 'Paid'] %}
+                                                <form method="post" action="{{ url_for('donor_cancel_typed_donation', donation_type=item.donation_type|lower, donation_id=item.id) if item.donation_type != 'Food' else url_for('donor_cancel_donation', donation_id=item.id) }}" class="d-grid">
+                                                    <button type="submit" class="btn btn-danger btn-sm">Cancel Donation</button>
+                                                </form>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <div id="donationNoResults" class="history-empty rounded-4 text-center py-5 d-none mt-4">
+                <i class="fa-solid fa-magnifying-glass text-success fs-2 mb-3 d-block"></i>
+                <h2 class="h5 fw-bold mb-2">No donations found</h2>
+                <p class="text-muted mb-0">Try changing your search or filter options.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% if donations|length > 0 %}
+<script>
+    (() => {
+        const search = document.getElementById('donationSearch');
+        const type = document.getElementById('donationType');
+        const status = document.getElementById('donationStatus');
+        const date = document.getElementById('donationDate');
+        const clear = document.getElementById('clearDonationFilters');
+        const count = document.getElementById('donationResultCount');
+        const empty = document.getElementById('donationNoResults');
+        const records = [...document.querySelectorAll('.donation-record')];
+
+        const matchesStatus = (recordStatus, selectedStatus) => {
+            if (!selectedStatus) return true;
+            if (selectedStatus === 'approved') return ['approved', 'accepted'].includes(recordStatus);
+            if (selectedStatus === 'completed') return ['completed', 'paid'].includes(recordStatus);
+            return recordStatus === selectedStatus;
+        };
+
+        const applyFilters = () => {
+            const query = search.value.trim().toLowerCase();
+            const selectedDays = Number(date.value || 0);
+            const cutoff = date.value === 'year' ? new Date(new Date().getFullYear(), 0, 1) : selectedDays ? new Date(Date.now() - selectedDays * 86400000) : null;
+            let visible = 0;
+            records.forEach(record => {
+                const recordDate = new Date(record.dataset.date);
+                const matches = (!query || record.dataset.search.includes(query)) &&
+                    (!type.value || record.dataset.type === type.value) &&
+                    matchesStatus(record.dataset.status, status.value) &&
+                    (!cutoff || Number.isNaN(recordDate.getTime()) || recordDate >= cutoff);
+                record.classList.toggle('d-none', !matches);
+                if (matches) visible += 1;
+            });
+            count.textContent = `${visible} donation${visible === 1 ? '' : 's'} shown`;
+            empty.classList.toggle('d-none', visible !== 0);
+        };
+
+        [search, type, status, date].forEach(control => control.addEventListener('input', applyFilters));
+        [type, status, date].forEach(control => control.addEventListener('change', applyFilters));
+        clear.addEventListener('click', () => { search.value = ''; type.value = ''; status.value = ''; date.value = ''; applyFilters(); search.focus(); });
+        applyFilters();
+    })();
+</script>
+{% endif %}
+{% endblock %}

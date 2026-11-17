@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}FeedForward{% endblock %} - Community Donation Platform</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts (Inter) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Custom Platform Theme CSS -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/chatbot.css') }}" rel="stylesheet">
+    <style>
+        .ngo-page-stage {
+            align-items: flex-start;
+            display: flex;
+            gap: 1.5rem;
+            margin: 0 auto;
+            max-width: 1680px;
+            padding: 1.5rem 1.5rem 0;
+        }
+        .ngo-page-stage > main {
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+        .ngo-page-stage > main > .container-fluid,
+        .ngo-page-stage > main > .container {
+            max-width: none;
+            padding-left: 0;
+            padding-right: 0;
+        }
+        .ngo-page-stage > main .ngo-sidebar-wrapper {
+            display: none;
+        }
+        .ngo-page-stage > main .col-lg-9 {
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+        @media (max-width: 991.98px) {
+            .ngo-page-stage { padding-left: 1rem; padding-right: 1rem; }
+        }
+        @media (max-width: 767.98px) {
+            .ngo-page-stage { display: block; padding: 1rem .75rem 0; }
+        }
+
+        .btn-success,
+        .btn-success:hover,
+        .btn-success:focus,
+        .btn-success:active,
+        .btn-success.active,
+        .btn-primary,
+        .btn-primary:hover,
+        .btn-primary:focus,
+        .btn-primary:active,
+        .btn-primary.active,
+        .primary-btn,
+        .primary-btn:hover,
+        .primary-btn:focus,
+        .primary-btn:active,
+        .primary-btn.active,
+        .btn.bg-success,
+        .btn.bg-success:hover,
+        .btn.bg-success:focus,
+        .btn.bg-success:active,
+        .btn.bg-success.active {
+            color: #ffffff !important;
+        }
+
+        .btn-back-global {
+            background-color: #f8f9fa !important;
+            color: #334155 !important;
+            border: 1px solid rgba(0,0,0,0.08) !important;
+            transition: all 0.2s ease !important;
+        }
+        .btn-back-global:hover {
+            background-color: #e2e8f0 !important;
+            color: #1e293b !important;
+            transform: translateY(-1px);
+        }
+        body.dark-theme .btn-back-global {
+            background-color: #1e293b !important;
+            color: #f1f5f9 !important;
+            border: 1px solid rgba(255,255,255,0.08) !important;
+        }
+        body.dark-theme .btn-back-global:hover {
+            background-color: #334155 !important;
+            color: #ffffff !important;
+        }
+        /* Ensure navbar toggler and its icon are perfectly visible in both light and dark themes */
+        .navbar-toggler {
+            position: relative !important;
+            z-index: 20 !important;
+            width: 42px !important;
+            height: 38px !important;
+            min-width: 42px !important;
+            min-height: 38px !important;
+            border: 1px solid rgba(0, 0, 0, 0.15) !important;
+            background-color: rgba(255, 255, 255, 0.9) !important;
+            padding: 0 !important;
+            border-radius: 10px !important;
+            outline: none !important;
+            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08) !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            line-height: 1 !important;
+            flex-shrink: 0 !important;
+        }
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%2815, 23, 42, 0.75%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
+        }
+        .navbar-toggler:hover {
+            background-color: rgba(0, 0, 0, 0.08) !important;
+        }
+
+        .navbar .container {
+            gap: 0.5rem;
+            justify-content: space-between;
+        }
+
+        .navbar-left-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: nowrap;
+            min-width: 0;
+            margin-right: 0.5rem;
+        }
+
+        .navbar-primary-links {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            flex-wrap: nowrap;
+            white-space: nowrap;
+            overflow: visible;
+            margin-left: 0;
+            max-width: 100%;
+        }
+
+        .navbar-primary-links .nav-link {
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 0.38rem 0.52rem;
+            border-radius: 999px;
+            color: #475569;
+            transition: all 0.2s ease;
+        }
+
+        .navbar-primary-links .nav-link:hover,
+        .navbar-primary-links .nav-link.active {
+            color: #16a34a !important;
+            background-color: rgba(34, 197, 94, 0.08);
+        }
+
+        .navbar-menu-shell {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            flex-shrink: 0;
+            margin-right: 0.75rem;
+            z-index: 25;
+            overflow: visible;
+        }
+
+        .navbar-brand {
+            margin-left: 0;
+            white-space: nowrap;
+        }
+
+        .navbar-menu {
+            position: absolute;
+            top: calc(100% + 10px);
+            left: 0;
+            right: auto;
+            width: min(270px, calc(100vw - 18px));
+            max-width: 270px;
+            background: rgba(255, 255, 255, 0.98);
+            border: 1px solid rgba(148, 163, 184, 0.22);
+            border-radius: 1rem;
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+            padding: 0.75rem;
+            display: none;
+            grid-template-columns: 1fr;
+            gap: 0.35rem;
+            z-index: 1085;
+            overflow: visible;
+        }
+
+        .navbar-menu.show {
+            display: grid;
+        }
+
+        .navbar-menu .menu-link {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            color: #334155;
+            text-decoration: none;
+            padding: 0.8rem 0.9rem;
+            border-radius: 0.8rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            line-height: 1.3;
+            min-height: 44px;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            overflow: visible;
+        }
+
+        .navbar-menu .menu-link:hover,
+        .navbar-menu .menu-link.active {
+            background-color: rgba(34, 197, 94, 0.08);
+            color: #15803d;
+        }
+
+        @media (max-width: 991.98px) {
+            .navbar-primary-links {
+                gap: 0.05rem;
+            }
+
+            .navbar-primary-links .nav-link {
+                padding: 0.35rem 0.45rem;
+                font-size: 0.76rem;
+            }
+        }
+
+        @media (max-width: 767.98px) {
+            .navbar-primary-links {
+                display: none;
+            }
+
+            .navbar-menu {
+                width: min(260px, calc(100vw - 18px));
+                max-width: 260px;
+            }
+        }
+
+        body.dark-theme .navbar-primary-links .nav-link {
+            color: #cbd5e1;
+        }
+
+        body.dark-theme .navbar-primary-links .nav-link:hover,
+        body.dark-theme .navbar-primary-links .nav-link.active {
+            color: #4ade80 !important;
+            background-color: rgba(74, 222, 128, 0.12);
+        }
+
+        body.dark-theme .navbar-menu {
+            background: rgba(15, 23, 42, 0.98);
+            border-color: rgba(148, 163, 184, 0.2);
+        }
+
+        body.dark-theme .navbar-menu .menu-link {
+            color: #e2e8f0;
+        }
+
+        body.dark-theme .navbar-menu .menu-link:hover,
+        body.dark-theme .navbar-menu .menu-link.active {
+            background-color: rgba(74, 222, 128, 0.12);
+            color: #4ade80;
+        }
+
+        body.dark-theme .navbar-toggler {
+            border: 1px solid rgba(255, 255, 255, 0.25) !important;
+            background-color: rgba(255, 255, 255, 0.08) !important;
+        }
+        body.dark-theme .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.9%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
+            filter: none !important;
+        }
+        body.dark-theme .navbar-toggler:hover {
+            background-color: rgba(255, 255, 255, 0.15) !important;
+        }
+
+        /* Prevent profile outlines from becoming low-contrast in dark mode */
+        body.dark-theme .btn-outline-primary {
+            color: #22c55e !important;
+            border-color: #22c55e !important;
+        }
+        body.dark-theme .btn-outline-primary:hover {
+            background-color: #22c55e !important;
+            color: #ffffff !important;
+        }
+
+        /* High-contrast brand in dark mode */
+        body.dark-theme .navbar-brand {
+            color: #4ade80 !important;
+        }
+
+        /* Ensure FontAwesome hamburger menu icon has proper color contrast */
+        .navbar-hamburger-icon {
+            color: #1e293b !important;
+            transition: color 0.2s ease !important;
+        }
+        body.dark-theme .navbar-hamburger-icon {
+            color: #ffffff !important;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    {% include 'chatbot_widget.html' %}
+    <script>
+        // Synchronous theme-check to prevent visual flickering on page load
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-theme');
+        }
+    </script>
+
+    <!-- Primary Header Navbar -->
+    <nav class="navbar navbar-expand-lg sticky-top py-2.5">
+        <div class="container position-relative d-flex align-items-center justify-content-between">
+            <div class="navbar-left-group">
+                <div class="navbar-menu-shell">
+                    <button id="mainMenuToggle" class="navbar-toggler" type="button" aria-controls="mainNavbarMenu" aria-expanded="false" aria-label="Toggle navigation">
+                        <i class="fa-solid fa-bars navbar-hamburger-icon"></i>
+                    </button>
+
+                    <div id="mainNavbarMenu" class="navbar-menu" role="menu" aria-label="Main navigation menu">
+                        <a class="menu-link {% if request.endpoint == 'aboutus' %}active{% endif %}" href="{{ url_for('aboutus') }}" role="menuitem">
+                            <i class="fa-solid fa-circle-info"></i> About Us
+                        </a>
+                        <a class="menu-link {% if request.endpoint == 'home' %}active{% endif %}" href="{{ url_for('home') }}#sandbox" role="menuitem">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> Interactive Sandbox
+                        </a>
+                        <a class="menu-link {% if request.endpoint in ['home', 'index'] %}active{% endif %}" href="{{ url_for('home') }}#how-it-works" role="menuitem">
+                            <i class="fa-solid fa-list-check"></i> How It Works
+                        </a>
+                        {% if current_user.is_authenticated %}
+                            <a class="menu-link {% if request.endpoint == 'donor_donate' or request.endpoint == 'ngo_donations' or request.endpoint == 'volunteer_history' %}active{% endif %}" href="{{ url_for('donor_donate') if current_user.role == 'donor' else url_for('ngo_donations') if current_user.role == 'ngo' else url_for('volunteer_history') if current_user.role == 'volunteer' else url_for('dashboard_router') }}" role="menuitem">
+                                <i class="fa-solid fa-hand-holding-heart"></i> Donate
+                            </a>
+                        {% else %}
+                            <a class="menu-link" href="{{ url_for('login') }}" role="menuitem">
+                                <i class="fa-solid fa-hand-holding-heart"></i> Donate
+                            </a>
+                        {% endif %}
+                        <a class="menu-link {% if request.endpoint == 'profile' %}active{% endif %}" href="{{ url_for('profile') }}" role="menuitem">
+                            <i class="fa-solid fa-gear"></i> Settings
+                        </a>
+                    </div>
+                </div>
+
+                <a class="navbar-brand d-flex align-items-center" href="{{ url_for('index') }}">
+                    <i class="fa-solid fa-hand-holding-heart me-2 text-success"></i>
+                    FeedForward
+                </a>
+
+                <div class="navbar-primary-links">
+                    <a class="nav-link {% if request.endpoint == 'index' %}active fw-semibold text-success{% endif %}" href="{{ url_for('index') }}">
+                        <i class="fa-solid fa-house me-1"></i> Home
+                    </a>
+                    <a class="nav-link {% if request.path == url_for('home') + '#platformFeedbackSection' or request.endpoint == 'home_feedback' %}active fw-semibold text-success{% endif %}" href="{{ url_for('home') }}#platformFeedbackSection">
+                        <i class="fa-solid fa-comments me-1"></i> Feedback
+                    </a>
+                    <a class="nav-link {% if request.endpoint == 'contact' %}active fw-semibold text-success{% endif %}" href="{{ url_for('contact') }}">
+                        <i class="fa-solid fa-envelope me-1"></i> Contact Us
+                    </a>
+                </div>
+            </div>
+
+            <!-- Right-aligned tools (Always visible outside hamburger collapse for professional reach) -->
+            <div class="d-flex align-items-center gap-2 gap-md-3 ms-auto me-1 me-lg-0 order-lg-3">
+                <!-- Premium Theme Slider Switch -->
+                <div class="theme-switch-wrapper">
+                    <span class="theme-label-text d-none d-sm-inline opacity-75">Light</span>
+                    <label class="theme-switch" for="themeCheckbox" title="Toggle Light/Dark Theme">
+                        <input type="checkbox" id="themeCheckbox" aria-label="Toggle dark mode">
+                        <span class="slider-switch">
+                            <i class="fa-solid fa-sun icon-sun"></i>
+                            <i class="fa-solid fa-moon icon-moon"></i>
+                        </span>
+                    </label>
+                    <span class="theme-label-text d-none d-sm-inline opacity-75">Dark</span>
+                </div>
+
+                {% if current_user.is_authenticated %}
+                    <!-- Notification Dropdown -->
+                    <div class="dropdown">
+                        <a class="btn btn-link text-decoration-none position-relative p-1" href="#" role="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fa-regular fa-bell fs-5 text-secondary"></i>
+                            {% if unread_notifications|length > 0 %}
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem;">
+                                    {{ unread_notifications|length }}
+                                </span>
+                            {% endif %}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 p-2" aria-labelledby="notificationDropdown" style="width: 300px; max-height: 400px; overflow-y: auto;">
+                            <div class="d-flex justify-content-between align-items-center px-2 py-1 border-bottom">
+                                <span class="fw-bold">Notifications</span>
+                                {% if unread_notifications|length > 0 %}
+                                    <form action="{{ url_for('notifications_read_all') }}" method="POST" class="m-0">
+                                        <button type="submit" class="btn btn-link p-0 text-xs text-decoration-none" style="font-size: 0.75rem;">Clear All</button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                            {% if unread_notifications|length == 0 %}
+                                <li class="p-3 text-center text-muted">No new notifications</li>
+                            {% else %}
+                                {% for notif in unread_notifications %}
+                                    <li class="py-2 px-2 border-bottom">
+                                        <p class="mb-1 text-sm" style="font-size: 0.85rem;">{{ notif.message }}</p>
+                                        <small class="text-muted text-xs" style="font-size: 0.75rem;">{{ notif.created_at }}</small>
+                                    </li>
+                                {% endfor %}
+                                <li class="text-center pt-2">
+                                    <a href="{{ url_for('view_notifications') }}" class="text-xs text-decoration-none text-success" style="font-size: 0.8rem;">View all history</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+
+                    <!-- User Profile Dropdown -->
+                    <div class="dropdown">
+                        <a class="btn btn-outline-primary dropdown-toggle d-flex align-items-center gap-1 gap-sm-2 px-2.5 px-sm-3 py-1.5" href="#" role="button" id="userMenuDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fa-regular fa-circle-user fs-5"></i>
+                            <span class="d-none d-sm-inline">{{ current_user.username }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="userMenuDropdown">
+                            <li><a class="dropdown-menu-item dropdown-item" href="{{ url_for('dashboard_router') }}"><i class="fa-solid fa-gauge me-2"></i>Dashboard</a></li>
+                            <li><a class="dropdown-menu-item dropdown-item" href="{{ url_for('portfolio') }}"><i class="fa-solid fa-user-tie me-2"></i>Portfolio</a></li>
+                            <li><a class="dropdown-menu-item dropdown-item" href="{{ url_for('profile') }}"><i class="fa-solid fa-user-pen me-2"></i>Manage Profile</a></li>
+                            <li><a class="dropdown-menu-item dropdown-item" href="{{ url_for('view_notifications') }}"><i class="fa-regular fa-bell me-2"></i>Notifications</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-menu-item dropdown-item text-danger" href="{{ url_for('logout') }}"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</a></li>
+                        </ul>
+                    </div>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="btn btn-outline-success px-3.5 py-1.5 btn-sm fw-semibold rounded-pill hover-lift shadow-xs">Login</a>
+                    <div class="dropdown">
+                        <button class="btn btn-success dropdown-toggle px-3.5 py-1.5 btn-sm fw-semibold rounded-pill hover-lift shadow-xs" type="button" id="registerDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            Register
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2 rounded-3" aria-labelledby="registerDropdown">
+                            <li><a class="dropdown-item py-2" href="{{ url_for('register_donor') }}"><i class="fa-solid fa-store me-2 text-success"></i>As Food Donor</a></li>
+                            <li><a class="dropdown-item py-2" href="{{ url_for('register_ngo') }}"><i class="fa-solid fa-building-ngo me-2 text-success"></i>As NGO</a></li>
+                            <li><a class="dropdown-item py-2" href="{{ url_for('register_volunteer') }}"><i class="fa-solid fa-hands-helping me-2 text-success"></i>As Volunteer</a></li>
+                        </ul>
+                    </div>
+                {% endif %}
+            </div>
+
+        </div>
+    </nav>
+
+    <!-- Global Navigation Back Button -->
+    {% if request.endpoint and request.endpoint not in ['index', 'home', 'donor_certificates', 'donor_feedback', 'donor_history', 'donor_money_receipt', 'donor_volunteers', 'donor_verified_ngo_details', 'ngo_feedback', 'ngo_feedback_view', 'ngo_history', 'profile', 'volunteer_certificates', 'volunteer_dashboard_summary', 'volunteer_feedback', 'volunteer_history','ngo_assignments','ngo_volunteers','ngo_analytics'] %}
+    <div class="container mt-3 d-print-none">
+        {% if request.endpoint == 'donor_verified_ngos' %}
+        <a href="{{ url_for('donor_dashboard') }}" class="btn btn-back-global d-inline-flex align-items-center gap-2 px-3.5 py-1.5 rounded-pill shadow-xs" style="font-size: 0.85rem; font-weight: 500; cursor: pointer;">
+            <i class="fa-solid fa-arrow-left"></i> Back
+        </a>
+        {% else %}
+        <button onclick="history.back()" class="btn btn-back-global d-inline-flex align-items-center gap-2 px-3.5 py-1.5 rounded-pill shadow-xs" style="font-size: 0.85rem; font-weight: 500; cursor: pointer;">
+            <i class="fa-solid fa-arrow-left"></i> Back
+        </button>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Alert Messaging -->
+    <div class="container mt-3">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    {% if category == 'donation_success' %}
+                        <div class="modal fade" id="donationSuccessModal" tabindex="-1" aria-labelledby="donationSuccessTitle" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content border-0 shadow rounded-4">
+                                    <div class="modal-header border-0 pb-0">
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body text-center px-4 pb-4 pt-2">
+                                        <div class="rounded-circle bg-success-subtle text-success d-inline-flex align-items-center justify-content-center mb-3" style="width:64px;height:64px;">
+                                            <i class="fa-solid fa-check fs-3"></i>
+                                        </div>
+                                        <h2 id="donationSuccessTitle" class="h4 fw-bold mb-2">Donation Successfully Added!</h2>
+                                        <p class="text-muted mb-4">
+                                            {% if message == 'food' %}
+                                                Your food donation has been successfully added and is now available for processing.
+                                            {% elif message == 'clothes' %}
+                                                Your clothes donation has been successfully added and is now available for processing.
+                                            {% elif message == 'book' %}
+                                                Your book donation has been successfully added and is now available for processing.
+                                            {% else %}
+                                                Your donation has been successfully added and is now available for processing.
+                                            {% endif %}
+                                        </p>
+                                        <div class="d-flex flex-column flex-sm-row justify-content-center gap-2">
+                                            <a href="{{ url_for('donor_history') }}" class="btn btn-outline-success rounded-3">
+                                                View Donation History
+                                            </a>
+                                            <a href="{{ url_for('donor_dashboard') }}" class="btn btn-success rounded-3">
+                                                Go to Dashboard
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function () {
+                                const donationSuccessModal = document.getElementById('donationSuccessModal');
+                                if (donationSuccessModal && window.bootstrap) {
+                                    new bootstrap.Modal(donationSuccessModal).show();
+                                }
+                            });
+                        </script>
+                    {% else %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                            {% if category == 'success' %}
+                                <i class="fa-solid fa-circle-check me-2"></i>
+                            {% elif category == 'danger' %}
+                                <i class="fa-solid fa-circle-exclamation me-2"></i>
+                            {% else %}
+                                <i class="fa-solid fa-circle-info me-2"></i>
+                            {% endif %}
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Content Stage -->
+    {% block content %}{% endblock %}
+
+    <!-- Global Footer -->
+    <footer class="py-4 bg-white mt-auto">
+        <div class="container text-center">
+            <div class="mb-2">
+                <a href="{{ url_for('contact') }}" class="text-decoration-none text-success fw-semibold me-3">
+                    <i class="fa-solid fa-envelope me-1"></i> Contact Us
+                </a>
+                <a href="{{ url_for('home') }}#platformFeedbackSection" class="text-decoration-none text-muted me-3">Feedback</a>
+                <a href="{{ url_for('index') }}" class="text-decoration-none text-muted">Home</a>
+            </div>
+            <p class="mb-1 text-muted">&copy; 2026 FeedForward. Community Donation Platform. All rights reserved.</p>
+            <small class="text-muted">FeedForward is a community donation platform connecting donors, NGOs, volunteers and beneficiaries to make a meaningful impact.</small>
+        </div>
+    </footer>
+
+    <!-- Toast Container for asynchronous messages -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1080;">
+        <div id="toastContainer" class="toast-container"></div>
+    </div>
+
+    <!-- Bootstrap & Global Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function showToast(message, type = 'success') {
+            const toastId = 'toast-' + Date.now();
+            const toastElement = document.createElement('div');
+            toastElement.className = `toast align-items-center text-bg-${type} border-0`;
+            toastElement.role = 'alert';
+            toastElement.ariaLive = 'assertive';
+            toastElement.ariaAtomic = 'true';
+            toastElement.id = toastId;
+            toastElement.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">${message}</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            `;
+            document.getElementById('toastContainer').appendChild(toastElement);
+            const toast = new bootstrap.Toast(toastElement, { delay: 4500 });
+            toast.show();
+            toastElement.addEventListener('hidden.bs.toast', () => toastElement.remove());
+        }
+    </script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
+    <script>
+        // Global handler: replace forms with data-confirm attribute to show SweetAlert2 confirm dialogs
+        document.addEventListener('submit', function(e) {
+            const form = e.target;
+            if (form && form.matches && form.matches('form[data-confirm]')) {
+                const msg = form.getAttribute('data-confirm');
+                // Prevent immediate submit
+                e.preventDefault();
+                if (window.Swal) {
+                    Swal.fire({
+                        title: 'Please confirm',
+                        text: msg || 'Are you sure?',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        focusCancel: true,
+                        confirmButtonText: 'Delete',
+                        cancelButtonText: 'Cancel',
+                        customClass: {
+                            confirmButton: 'btn btn-danger',
+                            cancelButton: 'btn btn-secondary'
+                        },
+                        buttonsStyling: false
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Submit the form programmatically
+                            form.removeAttribute('data-confirm');
+                            form.submit();
+                        }
+                    });
+                } else {
+                    if (confirm(msg || 'Are you sure?')) {
+                        form.removeAttribute('data-confirm');
+                        form.submit();
+                    }
+                }
+            }
+        }, true);
+    </script>
+    
+    <script>
+        (function() {
+            const toggleButton = document.getElementById('mainMenuToggle');
+            const menu = document.getElementById('mainNavbarMenu');
+
+            if (toggleButton && menu) {
+                const closeMenu = () => {
+                    menu.classList.remove('show');
+                    toggleButton.setAttribute('aria-expanded', 'false');
+                };
+
+                const openMenu = () => {
+                    menu.classList.add('show');
+                    toggleButton.setAttribute('aria-expanded', 'true');
+                };
+
+                toggleButton.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    const isOpen = menu.classList.contains('show');
+                    if (isOpen) {
+                        closeMenu();
+                    } else {
+                        openMenu();
+                    }
+                });
+
+                menu.querySelectorAll('a').forEach((link) => {
+                    link.addEventListener('click', () => {
+                        closeMenu();
+                    });
+                });
+
+                document.addEventListener('click', function(event) {
+                    const clickedInsideMenu = menu.contains(event.target);
+                    const clickedToggle = toggleButton.contains(event.target);
+                    if (!clickedInsideMenu && !clickedToggle) {
+                        closeMenu();
+                    }
+                });
+
+                document.addEventListener('keydown', function(event) {
+                    if (event.key === 'Escape') {
+                        closeMenu();
+                    }
+                });
+            }
+        })();
+
+        // Premium sliding theme checkbox control
+        const themeCheckbox = document.getElementById('themeCheckbox');
+        
+        // Initialize state of sliding switch checkbox to match the active theme
+        if (document.body.classList.contains('dark-theme')) {
+            themeCheckbox.checked = true;
+        } else {
+            themeCheckbox.checked = false;
+        }
+
+        themeCheckbox.addEventListener('change', () => {
+            if (themeCheckbox.checked) {
+                document.body.classList.add('dark-theme');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.body.classList.remove('dark-theme');
+                localStorage.setItem('theme', 'light');
+            }
+        });
+
+        function isSpeechRecognitionAvailable() {
+            return !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+        }
+
+        function createSpeechRecognitionInstance() {
+            const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!Recognition) return null;
+            const recognition = new Recognition();
+            recognition.lang = navigator.language || 'en-US';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+            recognition.continuous = false;
+            return recognition;
+        }
+
+        function updateVoiceSearchUI(input, active, message = 'Listening...') {
+            const wrapper = input.closest('.voice-search-wrapper');
+            const button = wrapper?.querySelector('.voice-search-button');
+            const status = wrapper?.querySelector('.voice-search-status');
+            if (button) {
+                button.classList.toggle('listening', active);
+                button.setAttribute('aria-label', active ? 'Listening for voice input' : 'Start voice search');
+                button.title = active ? 'Listening...' : 'Start voice search';
+            }
+            if (status) {
+                status.textContent = active ? message : '';
+            }
+            if (wrapper) {
+                wrapper.classList.toggle('listening', active);
+            }
+        }
+
+        function dispatchVoiceSearchSubmit(input) {
+            const callbackName = input.dataset.voiceSearchCallback;
+            if (callbackName && typeof window[callbackName] === 'function') {
+                window[callbackName](input.value);
+                return;
+            }
+
+            const form = input.closest('form');
+            if (form) {
+                if (typeof form.requestSubmit === 'function') {
+                    form.requestSubmit();
+                } else {
+                    form.submit();
+                }
+                return;
+            }
+
+            const event = new Event('input', { bubbles: true, cancelable: true });
+            input.dispatchEvent(event);
+        }
+
+        function startVoiceSearchForInput(input) {
+            if (!isSpeechRecognitionAvailable()) {
+                showToast('Voice search is unavailable in this browser.', 'warning');
+                return;
+            }
+
+            if (input._voiceRecognitionActive) {
+                input._voiceRecognition?.stop();
+                return;
+            }
+
+            const recognition = createSpeechRecognitionInstance();
+            if (!recognition) {
+                showToast('Voice search is unavailable in this browser.', 'warning');
+                return;
+            }
+
+            updateVoiceSearchUI(input, true, 'Listening...');
+            input._voiceRecognitionActive = true;
+            input._voiceRecognition = recognition;
+
+            recognition.onresult = function(event) {
+                const transcript = event.results?.[0]?.[0]?.transcript?.trim();
+                if (transcript) {
+                    input.value = transcript;
+                    dispatchVoiceSearchSubmit(input);
+                    showToast(`Voice input captured: ${transcript}`, 'success');
+                } else {
+                    showToast('No speech was detected. Please try again.', 'warning');
+                }
+            };
+
+            recognition.onerror = function(event) {
+                const error = event.error || '';
+                const denied = error === 'not-allowed' || error === 'permission-denied';
+                const message = denied ? 'Microphone permission denied. Please allow access to use voice search.' : 'Voice recognition failed. Please try again.';
+                showToast(message, 'danger');
+                updateVoiceSearchUI(input, false);
+                input._voiceRecognitionActive = false;
+            };
+
+            recognition.onend = function() {
+                updateVoiceSearchUI(input, false);
+                input._voiceRecognitionActive = false;
+            };
+
+            try {
+                recognition.start();
+            } catch (error) {
+                console.error('Voice recognition start failed:', error);
+                showToast('Unable to start voice search. Please try again.', 'danger');
+                updateVoiceSearchUI(input, false);
+                input._voiceRecognitionActive = false;
+            }
+        }
+
+        function attachVoiceSearchToInput(input) {
+            if (!input || input.closest('.voice-search-wrapper')) return;
+            const wrapper = document.createElement('div');
+            wrapper.className = 'voice-search-wrapper';
+            input.parentNode.insertBefore(wrapper, input);
+            wrapper.appendChild(input);
+            input.classList.add('voice-search-input');
+
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'voice-search-button';
+            button.setAttribute('aria-label', 'Start voice search');
+            button.title = 'Start voice search';
+            button.innerHTML = '<i class="fa-solid fa-microphone"></i>';
+            button.addEventListener('click', function() {
+                startVoiceSearchForInput(input);
+            });
+
+            const status = document.createElement('span');
+            status.className = 'voice-search-status';
+            status.textContent = 'Listening...';
+
+            wrapper.appendChild(button);
+            wrapper.appendChild(status);
+        }
+
+        function getRelativeLuminance(color) {
+            const match = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([0-9.]+))?\)/);
+            if (!match) return 1;
+            const rgb = [match[1], match[2], match[3]].map((v) => {
+                const channel = Number(v) / 255;
+                return channel <= 0.03928 ? channel / 12.92 : Math.pow((channel + 0.055) / 1.055, 2.4);
+            });
+            return 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2];
+        }
+
+        function getContrastColor(backgroundColor) {
+            const luminance = getRelativeLuminance(backgroundColor);
+            const contrastWithBlack = (luminance + 0.05) / 0.05;
+            const contrastWithWhite = 1.05 / (luminance + 0.05);
+            return contrastWithWhite >= contrastWithBlack ? '#ffffff' : '#111827';
+        }
+
+        function ensureBadgeContrast() {
+            document.querySelectorAll('.badge.text-uppercase, .badge.status-badge, .ff-status-badge').forEach((badge) => {
+                badge.style.color = '#111827';
+            });
+
+            document.querySelectorAll('.badge:not(.text-uppercase):not(.status-badge)').forEach((badge) => {
+                const style = window.getComputedStyle(badge);
+                const bgColor = style.backgroundColor;
+                if (!bgColor || bgColor === 'transparent' || bgColor === 'rgba(0, 0, 0, 0)') return;
+                badge.style.color = getContrastColor(bgColor);
+            });
+        }
+
+        function attachVoiceSearch() {
+            document.querySelectorAll('input[data-voice-search="true"]').forEach((input) => {
+                attachVoiceSearchToInput(input);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            attachVoiceSearch();
+            ensureBadgeContrast();
+        });
+
+        // Global Password Visibility Toggle
+        document.addEventListener('click', function(e) {
+            const toggleBtn = e.target.classList.contains('toggle-password') ? e.target : e.target.closest('.toggle-password');
+            if (toggleBtn) {
+                e.preventDefault();
+                const targetId = toggleBtn.getAttribute('data-target');
+                const passwordInput = document.getElementById(targetId);
+                if (passwordInput) {
+                    const icon = toggleBtn.querySelector('i');
+                    if (passwordInput.type === 'password') {
+                        passwordInput.type = 'text';
+                        if (icon) {
+                            icon.classList.remove('fa-eye');
+                            icon.classList.add('fa-eye-slash');
+                        }
+                    } else {
+                        passwordInput.type = 'password';
+                        if (icon) {
+                            icon.classList.remove('fa-eye-slash');
+                            icon.classList.add('fa-eye');
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+    <script src="{{ url_for('static', filename='js/home_benefits_slider.js') }}"></script>
+    <script>
+        (function() {
+            const toggle = document.getElementById('ffChatbotToggle');
+            const panel = document.getElementById('ffChatbotPanel');
+            const close = document.getElementById('ffChatbotClose');
+            const minimize = document.getElementById('ffChatbotMinimize');
+            const clear = document.getElementById('ffChatbotClear');
+            const input = document.getElementById('ffChatbotInput');
+            const send = document.getElementById('ffChatbotSend');
+            const messages = document.getElementById('ffChatbotMessages');
+            const typing = document.getElementById('ffChatbotTyping');
+
+            if (!toggle || !panel || !input || !send || !messages || !typing) return;
+
+            const storageKey = 'feedforward-chatbot-messages';
+            const welcomeMessage = '👋 Hello! I’m the FeedForward AI Assistant. How can I assist you today?';
+            let isProcessing = false;
+
+            function timestamp() {
+                return new Intl.DateTimeFormat([], {hour: 'numeric', minute: '2-digit'}).format(new Date());
+            }
+
+            function updateSendState() {
+                send.disabled = !input.value.trim();
+            }
+
+            function saveMessages() {
+                const saved = Array.from(messages.querySelectorAll('.ff-chatbot-message')).map(function(row) {
+                    return {
+                        text: row.querySelector('.ff-chatbot-bubble')?.textContent || '',
+                        sender: row.classList.contains('user') ? 'user' : 'bot'
+                    };
+                });
+                try {
+                    sessionStorage.setItem(storageKey, JSON.stringify(saved));
+                } catch (error) {
+                    console.warn('Chat history could not be saved for this session.', error);
+                }
+            }
+
+            function setOpen(isOpen) {
+                panel.classList.toggle('open', isOpen);
+                toggle.setAttribute('aria-expanded', String(isOpen));
+                if (isOpen) input.focus();
+            }
+
+            function addMessage(text, sender) {
+                const row = document.createElement('div');
+                row.className = `ff-chatbot-message ${sender}`;
+                const bubble = document.createElement('div');
+                bubble.className = 'ff-chatbot-bubble';
+                bubble.textContent = text;
+                const time = document.createElement('time');
+                time.className = 'ff-chatbot-time';
+                time.textContent = timestamp();
+                row.appendChild(bubble);
+                row.appendChild(time);
+                messages.appendChild(row);
+                requestAnimationFrame(function() {
+                    messages.scrollTop = messages.scrollHeight;
+                });
+                saveMessages();
+            }
+            function setConversationMode(active) {
+                panel.classList.toggle('has-conversation', active);
+            }
+
+            function restoreMessages() {
+                try {
+                    const saved = JSON.parse(sessionStorage.getItem(storageKey) || '[]');
+                    if (!Array.isArray(saved) || !saved.length) return;
+                    messages.innerHTML = '';
+                    setConversationMode(saved.some(function(item) { return item.sender === 'user'; }));
+                    saved.forEach(function(item) {
+                        addMessage(item.text, item.sender === 'user' ? 'user' : 'bot');
+                    });
+                } catch (error) {
+                    try { sessionStorage.removeItem(storageKey); } catch (storageError) {}
+                }
+            }
+
+            function getConversationContext() {
+                const userMessages = Array.from(messages.querySelectorAll('.ff-chatbot-message.user .ff-chatbot-bubble'));
+                return userMessages.length ? userMessages[userMessages.length - 1].textContent : '';
+            }
+
+            function naturalResponseDelay(response) {
+                return 2000;
+            }
+
+            function wait(milliseconds) {
+                return new Promise(function(resolve) { setTimeout(resolve, milliseconds); });
+            }
+
+            async function sendMessage(message) {
+                const trimmed = message.trim();
+                if (!trimmed || isProcessing) return;
+
+                isProcessing = true;
+                const conversationContext = getConversationContext();
+                addMessage(trimmed, 'user');
+                setConversationMode(true);
+                input.value = '';
+                send.disabled = true;
+                typing.classList.add('visible');
+                try {
+                    const response = await fetch('/chatbot', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({message: trimmed, context: conversationContext})
+                    });
+                    const contentType = response.headers.get('content-type') || '';
+                    if (!contentType.includes('application/json')) {
+                        throw new Error(`Chatbot returned ${response.status} without JSON`);
+                    }
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.message || 'Chat request failed');
+                    const reply = data.response || data.message || data.reply;
+                    if (!reply) {
+                        console.error('Unexpected chatbot response:', data);
+                        addMessage('Sorry, I could not generate a response right now.', 'bot');
+                    } else {
+                        await wait(naturalResponseDelay(reply));
+                        addMessage(reply, 'bot');
+                    }
+                } catch (error) {
+                    addMessage('Sorry, I’m having trouble connecting right now. Please try again in a moment.', 'bot');
+                } finally {
+                    typing.classList.remove('visible');
+                    isProcessing = false;
+                    send.disabled = false;
+                    updateSendState();
+                    input.focus();
+                }
+            }
+
+            toggle.addEventListener('click', function() {
+                setOpen(!panel.classList.contains('open'));
+            });
+            close?.addEventListener('click', function() { setOpen(false); });
+            minimize?.addEventListener('click', function() { setOpen(false); });
+            clear?.addEventListener('click', function() {
+                try { sessionStorage.removeItem(storageKey); } catch (error) {}
+                messages.innerHTML = '';
+                setConversationMode(false);
+                addMessage(welcomeMessage, 'bot');
+                input.focus();
+            });
+            send.addEventListener('click', function() { sendMessage(input.value); });
+            input.addEventListener('change', updateSendState);
+            input.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter' && !event.shiftKey) {
+                    event.preventDefault();
+                    sendMessage(input.value);
+                }
+            });
+            input.addEventListener('input', function() {
+                input.style.height = 'auto';
+                input.style.height = Math.min(input.scrollHeight, 96) + 'px';
+                updateSendState();
+            });
+            document.querySelectorAll('.ff-chatbot-quick-action').forEach(function(button) {
+                button.addEventListener('click', function() { sendMessage(button.dataset.message || ''); });
+            });
+            restoreMessages();
+            updateSendState();
+        })();
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

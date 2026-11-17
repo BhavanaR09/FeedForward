@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}Donate Clothes - FeedForward{% endblock %}
+
+{% block content %}
+<div class="donation-form-bg donation-clothes-bg">
+    <div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="text-center mb-4">
+                <div class="rounded-circle bg-success bg-opacity-10 d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 72px; height: 72px;">
+                    <i class="fa-solid fa-shirt fs-3 text-success"></i>
+                </div>
+                <h1 class="fw-bold mb-2 text-light">{{ 'Edit Clothes Donation' if edit_mode else 'List Clothes Donation' }}</h1>
+                <p class="text-light">{{ 'Update the details for your donation below.' if edit_mode else 'Share clean, usable clothing and essentials for families and children.' }}</p>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-4 p-4">
+                <form method="POST" enctype="multipart/form-data">
+                    {{ form.hidden_tag() }}
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Item Type</label>
+                            {{ form.item_type(class='form-control rounded-3', placeholder='e.g. Shirts, Jackets, Uniforms') }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Category</label>
+                            {{ form.category(class='form-select rounded-3', id='clothesCategory') }}
+                        </div>
+                        <div class="col-md-6" id="clothesCategoryOtherWrap" style="display:none;">
+                            <label class="form-label fw-semibold">Please specify</label>
+                            {{ form.other_category(class='form-control rounded-3', placeholder='e.g. Baby care items') }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Size / Fit</label>
+                            {{ form.size(class='form-control rounded-3', placeholder='e.g. M, 8-10 years, XL') }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Quantity</label>
+                            {{ form.quantity(class='form-control rounded-3', placeholder='e.g. 12 sets') }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Condition</label>
+                            {{ form.condition(class='form-select rounded-3') }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Preferred Pickup Time</label>
+                            {{ form.pickup_time(class='form-control rounded-3', placeholder='e.g. Saturday 4 PM') }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Pickup Address</label>
+                            {{ form.address(class='form-control rounded-3', placeholder='Pickup address') }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Upload Image (optional)</label>
+                            <input type="file" name="clothes_image" id="clothesImage" class="form-control rounded-3" accept="image/*">
+                            <div id="clothesImagePreview" class="mt-3" style="display:none;"><img alt="Clothes preview" class="img-fluid rounded-3" style="max-height:220px;"></div>
+                            {% if edit_mode and donation.image_path %}<img src="{{ url_for('static', filename=donation.image_path) }}" alt="Current clothes image" class="img-fluid rounded-3 mt-3" style="max-height:220px;">{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-3 mt-4">
+                        <button type="submit" id="clothesSubmit" class="btn btn-success flex-grow-1 rounded-3 fw-semibold">{{ 'Update Clothes Donation' if edit_mode else 'List Clothes Donation' }}</button>
+                        <a href="{{ url_for('donor_dashboard') }}" class="btn btn-light rounded-3 fw-semibold border">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    </div>
+</div>
+
+<script>
+    function toggleCategoryOther(selectId, wrapId) {
+        const select = document.getElementById(selectId);
+        const wrap = document.getElementById(wrapId);
+        if (!select || !wrap) return;
+
+        const show = select.value === 'Other';
+        wrap.style.display = show ? 'block' : 'none';
+
+        const input = wrap.querySelector('input');
+        if (input) {
+            input.required = show;
+            input.disabled = !show;
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        toggleCategoryOther('clothesCategory', 'clothesCategoryOtherWrap');
+        const clothesSelect = document.getElementById('clothesCategory');
+        if (clothesSelect) {
+            clothesSelect.addEventListener('change', function() {
+                toggleCategoryOther('clothesCategory', 'clothesCategoryOtherWrap');
+            });
+        }
+    });
+</script>
+<script>
+    const clothesImage = document.getElementById('clothesImage');
+    const clothesPreview = document.querySelector('#clothesImagePreview img');
+    clothesImage?.addEventListener('change', function () {
+        const file = this.files?.[0];
+        if (!file || !clothesPreview) return;
+        clothesPreview.src = URL.createObjectURL(file);
+        document.getElementById('clothesImagePreview').style.display = 'block';
+    });
+    document.querySelector('form')?.addEventListener('submit', function () {
+        const button = document.getElementById('clothesSubmit');
+        if (button) { button.disabled = true; button.textContent = 'Uploading...'; }
+    });
+</script>
+{% endblock %}

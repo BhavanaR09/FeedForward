@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Select Volunteer - FeedForward{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm rounded-4 p-4">
+                <h2 class="fw-bold mb-2">Select a Volunteer</h2>
+                <p class="text-muted mb-4">{{ donation_type|capitalize }} donation accepted. Assign a volunteer for pickup.</p>
+                {% if volunteers %}
+                    <form method="POST" action="{{ url_for('ngo_assign_volunteer', donation_id=donation.id) if donation_type == 'food' else url_for('ngo_assign_non_food_volunteer', donation_type=donation_type, donation_id=donation.id) }}">
+                        <label for="volunteer_id" class="form-label fw-semibold">Approved volunteer</label>
+                        <select id="volunteer_id" name="volunteer_id" class="form-select rounded-3" required>
+                            <option value="" disabled selected>Select a volunteer</option>
+                            {% for volunteer in volunteers %}
+                                <option value="{{ volunteer.id }}">{{ volunteer.name }}{% if volunteer.phone %} - {{ volunteer.phone }}{% endif %}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit" class="btn btn-success mt-4">Confirm Assignment</button>
+                    </form>
+                {% else %}
+                    <div class="alert alert-warning mb-0">No approved volunteers are available for assignment.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

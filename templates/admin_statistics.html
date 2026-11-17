@@ -1,0 +1,396 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Statistics - FeedForward{% endblock %}
+
+{% block extra_css %}
+<style>
+    .participation-card {
+        --card-accent: #198754;
+        appearance: none;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        background: #fff;
+        box-shadow: 0 3px 0 #d9e2dc, 0 8px 18px rgba(15, 23, 42, 0.08);
+        color: #172033;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        font: inherit;
+        min-height: 128px;
+        padding: 1rem;
+        position: relative;
+        text-align: left;
+        transform: translateY(0);
+        transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+        width: 100%;
+    }
+
+    .participation-card::after {
+        background: var(--card-accent);
+        border-radius: 0 0 14px 14px;
+        bottom: -4px;
+        content: "";
+        height: 4px;
+        left: 10%;
+        opacity: 0.22;
+        position: absolute;
+        right: 10%;
+        transition: opacity 180ms ease, transform 180ms ease;
+    }
+
+    .participation-card:hover {
+        border-color: rgba(25, 135, 84, 0.35);
+        box-shadow: 0 5px 0 #c9d8ce, 0 16px 28px rgba(15, 23, 42, 0.13);
+        transform: translateY(-5px);
+    }
+
+    .participation-card:hover::after {
+        opacity: 0.45;
+        transform: translateY(3px) scaleX(0.92);
+    }
+
+    .participation-card:active {
+        box-shadow: 0 1px 0 #d9e2dc, 0 3px 8px rgba(15, 23, 42, 0.1);
+        transform: translateY(2px);
+    }
+
+    .participation-card:focus-visible {
+        outline: 3px solid rgba(25, 135, 84, 0.35);
+        outline-offset: 3px;
+    }
+
+    .participation-card__top {
+        align-items: flex-start;
+        display: flex;
+        gap: 0.75rem;
+        justify-content: space-between;
+    }
+
+    .participation-card__icon {
+        align-items: center;
+        background: rgba(25, 135, 84, 0.1);
+        border-radius: 10px;
+        color: var(--card-accent);
+        display: inline-flex;
+        height: 34px;
+        justify-content: center;
+        width: 34px;
+    }
+
+    .participation-card__hint {
+        color: #6b7280;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        margin-top: auto;
+        padding-top: 0.75rem;
+    }
+
+    .participation-dialog {
+        align-items: center;
+        background: rgba(15, 23, 42, 0.48);
+        display: flex;
+        inset: 0;
+        justify-content: center;
+        opacity: 0;
+        padding: 1rem;
+        position: fixed;
+        transition: opacity 180ms ease, visibility 180ms ease;
+        visibility: hidden;
+        z-index: 1060;
+    }
+
+    .participation-dialog[hidden] {
+        display: none;
+    }
+
+    .participation-dialog.is-open {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .participation-dialog__panel {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        box-shadow: 0 20px 50px rgba(15, 23, 42, 0.22);
+        display: flex;
+        flex-direction: column;
+        max-width: 520px;
+        max-height: min(680px, calc(100vh - 2rem));
+        transform: translateY(12px) scale(0.98);
+        transition: transform 180ms ease;
+        width: 100%;
+    }
+
+    .participation-dialog.is-open .participation-dialog__panel {
+        transform: translateY(0) scale(1);
+    }
+
+    .participation-dialog__records {
+        border-top: 1px solid #eef0f2;
+        margin-top: 1rem;
+        overflow-y: auto;
+        padding-top: 1rem;
+    }
+
+    .participation-dialog__records-list {
+        max-height: 260px;
+        overflow-y: auto;
+        padding-right: 0.25rem;
+    }
+
+    .participation-dialog__records li + li {
+        margin-top: 0.6rem;
+    }
+
+    @media (max-width: 575.98px) {
+        .participation-card {
+            min-height: 112px;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .participation-card,
+        .participation-card::after,
+        .participation-dialog,
+        .participation-dialog__panel {
+            transition: none;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse collapse-horizontal">
+            <div class="position-sticky pt-3">
+                <div class="px-3 mb-4">
+                    <h6 class="text-uppercase text-xs text-muted fw-bold" style="font-size: 0.75rem; letter-spacing: 1px;">Admin Controls</h6>
+                </div>
+                <ul class="nav flex-column gap-1">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_dashboard') }}">
+                            <i class="fa-solid fa-gauge me-2 text-success"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('admin_statistics') }}">
+                            <i class="fa-solid fa-chart-column me-2 text-success"></i> Statistics
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_users') }}">
+                            <i class="fa-solid fa-users me-2 text-success"></i> Manage Users
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_donations') }}">
+                            <i class="fa-solid fa-bowl-food me-2 text-success"></i> Food Postings
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_orphanages') }}">
+                            <i class="fa-solid fa-children me-2 text-success"></i> Orphanage Approvals
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_emergencies') }}">
+                            <i class="fa-solid fa-triangle-exclamation me-2 text-success"></i> Emergency Alerts
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_settings') }}">
+                            <i class="fa-solid fa-sliders me-2 text-success"></i> App Settings
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
+                <div>
+                    <h1 class="h2 fw-bold mb-1">Contribution Statistics</h1>
+                    <p class="text-muted text-sm mb-0">Exact participation and contribution totals across FeedForward.</p>
+                </div>
+                <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-success btn-sm rounded-3 d-flex align-items-center gap-1">
+                    <i class="fa-solid fa-arrow-left"></i> Dashboard
+                </a>
+            </div>
+
+            <h5 class="fw-bold text-dark mb-3">Participation</h5>
+            <div class="row g-4 mb-4">
+                <div class="col-xl-3 col-sm-6">
+                    <button class="participation-card" type="button" data-metric="donors" data-count="{{ stats.contributing_donors }}" aria-haspopup="dialog">
+                        <span class="participation-card__top"><span><span class="text-muted text-xs text-uppercase fw-semibold">Contributing Donors</span><strong class="d-block text-success fs-2 mt-1">{{ stats.contributing_donors }}</strong></span><span class="participation-card__icon"><i class="fa-solid fa-hand-holding-heart"></i></span></span>
+                        <span class="participation-card__hint">Click to view records <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i></span>
+                    </button>
+                </div>
+                <div class="col-xl-3 col-sm-6">
+                    <button class="participation-card" type="button" data-metric="verified-ngos" data-count="{{ stats.active_ngos }}" aria-haspopup="dialog">
+                        <span class="participation-card__top"><span><span class="text-muted text-xs text-uppercase fw-semibold">Verified NGOs</span><strong class="d-block text-dark fs-2 mt-1">{{ stats.active_ngos }}</strong></span><span class="participation-card__icon"><i class="fa-solid fa-building-circle-check"></i></span></span>
+                        <span class="participation-card__hint">Click to view records <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i></span>
+                    </button>
+                </div>
+                <div class="col-xl-3 col-sm-6">
+                    <button class="participation-card" type="button" data-metric="contributing-ngos" data-count="{{ stats.contributing_ngos }}" aria-haspopup="dialog">
+                        <span class="participation-card__top"><span><span class="text-muted text-xs text-uppercase fw-semibold">Contributing NGOs</span><strong class="d-block text-success fs-2 mt-1">{{ stats.contributing_ngos }}</strong></span><span class="participation-card__icon"><i class="fa-solid fa-handshake"></i></span></span>
+                        <span class="participation-card__hint">Click to view records <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i></span>
+                    </button>
+                </div>
+                <div class="col-xl-3 col-sm-6">
+                    <button class="participation-card" type="button" data-metric="approved-volunteers" data-count="{{ stats.active_volunteers }}" aria-haspopup="dialog">
+                        <span class="participation-card__top"><span><span class="text-muted text-xs text-uppercase fw-semibold">Approved Volunteers</span><strong class="d-block text-dark fs-2 mt-1">{{ stats.active_volunteers }}</strong></span><span class="participation-card__icon"><i class="fa-solid fa-user-check"></i></span></span>
+                        <span class="participation-card__hint">Click to view records <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i></span>
+                    </button>
+                </div>
+                <div class="col-xl-3 col-sm-6">
+                    <button class="participation-card" type="button" data-metric="contributing-volunteers" data-count="{{ stats.contributing_volunteers }}" aria-haspopup="dialog">
+                        <span class="participation-card__top"><span><span class="text-muted text-xs text-uppercase fw-semibold">Contributing Volunteers</span><strong class="d-block text-success fs-2 mt-1">{{ stats.contributing_volunteers }}</strong></span><span class="participation-card__icon"><i class="fa-solid fa-person-walking"></i></span></span>
+                        <span class="participation-card__hint">Click to view records <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i></span>
+                    </button>
+                </div>
+                <div class="col-xl-3 col-sm-6">
+                    <button class="participation-card" type="button" data-metric="ngo-assignments" data-count="{{ stats.ngo_assignments }}" aria-haspopup="dialog">
+                        <span class="participation-card__top"><span><span class="text-muted text-xs text-uppercase fw-semibold">NGO Assignments</span><strong class="d-block text-dark fs-2 mt-1">{{ stats.ngo_assignments }}</strong></span><span class="participation-card__icon"><i class="fa-solid fa-list-check"></i></span></span>
+                        <span class="participation-card__hint">Click to view records <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i></span>
+                    </button>
+                </div>
+                <div class="col-xl-3 col-sm-6">
+                    <button class="participation-card" type="button" data-metric="volunteer-assignments" data-count="{{ stats.volunteer_assignments }}" aria-haspopup="dialog">
+                        <span class="participation-card__top"><span><span class="text-muted text-xs text-uppercase fw-semibold">Volunteer Assignments</span><strong class="d-block text-dark fs-2 mt-1">{{ stats.volunteer_assignments }}</strong></span><span class="participation-card__icon"><i class="fa-solid fa-truck-fast"></i></span></span>
+                        <span class="participation-card__hint">Click to view records <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i></span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="participation-dialog" id="participationDialog" role="dialog" aria-modal="true" aria-labelledby="participationDialogTitle" aria-describedby="participationDialogDescription" hidden>
+                <div class="participation-dialog__panel p-4" role="document">
+                    <div class="d-flex align-items-start justify-content-between gap-3">
+                        <div>
+                            <span class="text-muted text-xs text-uppercase fw-semibold">Participation detail</span>
+                            <h2 class="h4 fw-bold text-dark mt-1 mb-1" id="participationDialogTitle"></h2>
+                            <p class="text-muted mb-0" id="participationDialogDescription"></p>
+                        </div>
+                        <button type="button" class="btn btn-light btn-sm rounded-circle" id="participationDialogClose" aria-label="Close details"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                    <div class="d-flex align-items-baseline gap-2 mt-4">
+                        <strong class="display-6 fw-bold text-success" id="participationDialogCount"></strong>
+                        <span class="text-muted">current records</span>
+                    </div>
+                    <div class="participation-dialog__records">
+                        <h3 class="h6 fw-bold text-dark">Relevant records</h3>
+                        <ul class="participation-dialog__records-list list-unstyled text-muted small mb-0" id="participationDialogRecords"></ul>
+                    </div>
+                    <div class="d-flex justify-content-end border-top mt-3 pt-3">
+                        <button type="button" class="btn btn-success px-4" id="participationDialogFooterClose">Close</button>
+                    </div>
+                </div>
+            </div>
+
+            <h5 class="fw-bold text-dark mb-3">Donation Breakdown</h5>
+            <div class="card bg-white border border-light shadow-sm">
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Contribution Type</th>
+                                <th class="text-end">Exact Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><i class="fa-solid fa-basket-shopping text-success me-2"></i>Food donations</td>
+                                <td class="text-end fw-bold">{{ stats.total_food_donations }}</td>
+                            </tr>
+                            <tr>
+                                <td><i class="fa-solid fa-shirt text-info me-2"></i>Clothes donations</td>
+                                <td class="text-end fw-bold">{{ stats.total_clothes_donations }}</td>
+                            </tr>
+                            <tr>
+                                <td><i class="fa-solid fa-book text-warning me-2"></i>Book donations</td>
+                                <td class="text-end fw-bold">{{ stats.total_book_donations }}</td>
+                            </tr>
+                            <tr>
+                                <td><i class="fa-solid fa-hand-holding-dollar text-primary me-2"></i>Money donations</td>
+                                <td class="text-end fw-bold">{{ stats.total_money_donations }}</td>
+                            </tr>
+                            <tr class="table-light">
+                                <td class="fw-bold">Verified money received</td>
+                                <td class="text-end fw-bold">{{ "%.2f"|format(stats.total_money_received or 0) }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    (() => {
+        const dialog = document.getElementById('participationDialog');
+        const closeButton = document.getElementById('participationDialogClose');
+        const footerCloseButton = document.getElementById('participationDialogFooterClose');
+        const title = document.getElementById('participationDialogTitle');
+        const description = document.getElementById('participationDialogDescription');
+        const count = document.getElementById('participationDialogCount');
+        const records = document.getElementById('participationDialogRecords');
+        let lastTrigger = null;
+
+        const metricDetails = {{ stats.details|tojson }};
+
+        const openDialog = (trigger) => {
+            const metric = metricDetails[trigger.dataset.metric];
+            if (!metric) return;
+            lastTrigger = trigger;
+            title.textContent = metric.title;
+            description.textContent = metric.description;
+            const filteredRecords = metric.records || [];
+            count.textContent = filteredRecords.length;
+            records.replaceChildren(...filteredRecords.map((record) => {
+                const item = document.createElement('li');
+                item.className = 'd-flex align-items-start justify-content-between gap-2 border-bottom pb-2';
+                const label = document.createElement('span');
+                const icon = document.createElement('i');
+                const status = document.createElement('span');
+                icon.className = 'fa-solid fa-circle-check text-success me-2';
+                label.append(icon, document.createTextNode(record.label));
+                status.className = 'badge text-bg-light border';
+                status.textContent = record.status;
+                item.append(label, status);
+                return item;
+            }));
+            dialog.hidden = false;
+            document.body.classList.add('overflow-hidden');
+            requestAnimationFrame(() => dialog.classList.add('is-open'));
+            closeButton.focus();
+        };
+
+        const closeDialog = () => {
+            dialog.classList.remove('is-open');
+            window.setTimeout(() => {
+                dialog.hidden = true;
+                document.body.classList.remove('overflow-hidden');
+                if (lastTrigger) lastTrigger.focus();
+            }, 180);
+        };
+
+        document.querySelectorAll('.participation-card').forEach((card) => {
+            card.addEventListener('click', () => openDialog(card));
+        });
+        closeButton.addEventListener('click', closeDialog);
+        footerCloseButton.addEventListener('click', closeDialog);
+        dialog.addEventListener('click', (event) => {
+            if (event.target === dialog) closeDialog();
+        });
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && !dialog.hidden) closeDialog();
+        });
+    })();
+</script>
+{% endblock %}

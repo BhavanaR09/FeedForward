@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h3 class="mb-3">Inspect Donation: {{ donation.food_name }} (ID: {{ donation.id }})</h3>
+            <p class="text-muted">Perform the food safety checklist below before confirming pickup.</p>
+
+            <form method="POST">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Food appearance acceptable?</label>
+                    <div>
+                        <label class="me-3"><input type="radio" name="appearance" value="yes" checked> Yes</label>
+                        <label><input type="radio" name="appearance" value="no"> No</label>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Packaging intact?</label>
+                    <div>
+                        <label class="me-3"><input type="radio" name="packaging" value="yes" checked> Yes</label>
+                        <label><input type="radio" name="packaging" value="no"> No</label>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Within expiry / safe-consumption time?</label>
+                    <div>
+                        <label class="me-3"><input type="radio" name="within_expiry" value="yes" checked> Yes</label>
+                        <label><input type="radio" name="within_expiry" value="no"> No</label>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Storage condition appropriate?</label>
+                    <div>
+                        <label class="me-3"><input type="radio" name="storage_ok" value="yes" checked> Yes</label>
+                        <label><input type="radio" name="storage_ok" value="no"> No</label>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Food suitable for delivery?</label>
+                    <div>
+                        <label class="me-3"><input type="radio" name="suitable" value="yes" checked> Yes</label>
+                        <label><input type="radio" name="suitable" value="no"> No</label>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Inspection Notes (optional)</label>
+                    <textarea name="notes" class="form-control" rows="3"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Decision</label>
+                    <div>
+                        <label class="me-3"><input type="radio" name="decision" value="Approved" checked> Approve and Continue with Pickup</label>
+                        <label class="ms-3"><input type="radio" name="decision" value="Rejected"> Reject Donation</label>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Rejection Reason (if rejecting)</label>
+                    <input type="text" name="rejection_reason" class="form-control" placeholder="e.g., smell, damaged packaging, expired" />
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button class="btn btn-primary" type="submit">Submit Inspection</button>
+                    <a href="{{ url_for('volunteer_dashboard') }}" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

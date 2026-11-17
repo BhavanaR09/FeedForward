@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}{{ ngo.ngo_name }} - FeedForward{% endblock %}
+
+{% block content %}
+<style>
+    .ngo-details-page { background: #f7faf8; min-height: calc(100vh - 72px); }
+    .ngo-details-card { background: #fff; border: 1px solid #e2ebe4; box-shadow: 0 12px 30px rgba(30, 82, 45, .08); }
+    .verified-badge { background: #e6f6e9; color: #23732c; border-radius: 999px; font-size: .8rem; font-weight: 700; padding: .45rem .7rem; }
+</style>
+
+<div class="ngo-details-page py-4 py-lg-5">
+    <div class="container" style="max-width: 860px;">
+        <a href="{{ url_for('donor_verified_ngos') }}" class="btn btn-light border rounded-3 mb-4"><i class="fa-solid fa-arrow-left me-2"></i>Back to Verified NGOs</a>
+        <section class="ngo-details-card rounded-4 p-4 p-lg-5">
+            <div class="d-flex align-items-start justify-content-between flex-wrap gap-3 mb-4">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-circle bg-success-subtle text-success d-flex align-items-center justify-content-center" style="width: 58px; height: 58px;"><i class="fa-solid fa-building-ngo fs-4"></i></div>
+                    <div>
+                        <h1 class="h3 fw-bold mb-1">{{ ngo.ngo_name }}</h1>
+                        <span class="verified-badge"><i class="fa-solid fa-circle-check me-1"></i>Verified by FeedForward admin</span>
+                    </div>
+                </div>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-6"><div class="small text-muted mb-1"><i class="fa-solid fa-location-dot text-success me-2"></i>Location</div><div class="fw-semibold">{{ ngo.address }}</div></div>
+                <div class="col-md-6"><div class="small text-muted mb-1"><i class="fa-solid fa-heart text-success me-2"></i>Cause</div><div class="fw-semibold">{{ ngo.organization_type or 'Community welfare' }}</div></div>
+                {% if ngo.phone %}<div class="col-md-6"><div class="small text-muted mb-1"><i class="fa-solid fa-phone text-success me-2"></i>Public contact</div><div class="fw-semibold"><a href="tel:{{ ngo.phone }}" class="text-success text-decoration-none">{{ ngo.phone }}</a></div></div>{% endif %}
+                <div class="col-12"><hr><p class="text-muted mb-0">This organization has been reviewed and approved to participate in FeedForward donation coordination.</p></div>
+            </div>
+        </section>
+    </div>
+</div>
+{% endblock %}

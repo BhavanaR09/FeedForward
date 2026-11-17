@@ -1,0 +1,725 @@
+{% extends "base.html" %}
+
+{% block title %}List Surplus Food - FeedForward{% endblock %}
+
+{% block extra_css %}
+{{ super() }}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+    .pickup-map-panel {
+        border: 1px solid rgba(25, 135, 84, 0.2);
+        border-radius: 12px;
+        background: #f8fcf9;
+        padding: 1rem;
+    }
+    .pickup-map-panel[hidden] {
+        display: none;
+    }
+    .pickup-map-canvas {
+        width: 100%;
+        height: 400px;
+        border: 1px solid rgba(15, 23, 42, 0.12);
+        border-radius: 8px;
+        z-index: 0;
+    }
+    .pickup-map-search-results {
+        max-height: 160px;
+        overflow-y: auto;
+    }
+    .pickup-map-search-results button {
+        text-align: left;
+        white-space: normal;
+    }
+    @media (max-width: 576px) {
+        .pickup-map-panel { padding: 0.75rem; }
+        .pickup-map-canvas { height: 320px; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="donor-donate-page">
+    <div class="container py-5">
+        <div class="donation-hero-shell">
+            <div class="donation-hero-copy">
+                <nav aria-label="breadcrumb" class="page-breadcrumb">
+                    <ol class="breadcrumb mb-3">
+                        <li class="breadcrumb-item">
+                            <a href="{{ url_for('index') }}"><i class="fa-solid fa-house me-1"></i>Home</a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a href="{{ url_for('donor_dashboard') }}">Dashboard</a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a href="{{ url_for('donor_donate') }}">Donations</a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">Add Surplus Food</li>
+                    </ol>
+                </nav>
+
+                <div class="page-header-icon">
+                    <i class="fa-solid fa-bowl-food"></i>
+                </div>
+
+                <h1>{{ 'Edit Donation' if edit_mode else 'List Surplus Food' }}</h1>
+                <p>{{ 'Update the details for your donation below.' if edit_mode else 'Share fresh food surplus with NGOs &amp; volunteers in your area instantly.' }}</p>
+            </div>
+        </div>
+
+        <form method="POST" action="{{ form_action if form_action is defined else url_for('donor_donate') }}" enctype="multipart/form-data" id="donationForm">
+            {{ form.hidden_tag() }}
+
+            <div class="donation-section-card ff-section">
+                <div class="donation-section-header">
+                    <div class="donation-section-icon">
+                        <i class="fa-solid fa-bowl-food"></i>
+                    </div>
+                    <div>
+                        <h5>FOOD INFORMATION</h5>
+                        <p>Tell us what you're donating</p>
+                    </div>
+                </div>
+
+                <div class="donation-section-body">
+                    <div class="mb-4">
+                        <label for="food_name" class="form-label fw-semibold mb-2">Food Item Name(s) <span class="text-danger">*</span></label>
+                        {{ form.food_name(class="form-control form-control-lg rounded-4", placeholder="e.g., Veg Biryani (2 Handis), Paneer Butter Masala (3 Liters)") }}
+                        {% for error in form.food_name.errors %}
+                            <div class="text-danger text-xs mt-2"><i class="fa-solid fa-circle-exclamation me-1"></i>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="category" class="form-label fw-semibold mb-2">Category <span class="text-danger">*</span></label>
+                            {{ form.category(class="form-select form-select-lg rounded-4", id="foodCategory") }}
+                            {% for error in form.category.errors %}
+                                <div class="text-danger text-xs mt-2"><i class="fa-solid fa-circle-exclamation me-1"></i>{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6" id="foodCategoryOtherWrap" style="display:none;">
+                            <label for="other_category" class="form-label fw-semibold mb-2">Please specify <span class="text-danger">*</span></label>
+                            {{ form.other_category(class="form-control form-control-lg rounded-4", placeholder="e.g. Festival meals") }}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="veg_non_veg" class="form-label fw-semibold mb-2">Diet Type <span class="text-danger">*</span></label>
+                            {{ form.veg_non_veg(class="form-select form-select-lg rounded-4") }}
+                            {% for error in form.veg_non_veg.errors %}
+                                <div class="text-danger text-xs mt-2"><i class="fa-solid fa-circle-exclamation me-1"></i>{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                function toggleCategoryOther(selectId, wrapId) {
+                    const select = document.getElementById(selectId);
+                    const wrap = document.getElementById(wrapId);
+                    if (!select || !wrap) return;
+                    const show = select.value === 'Other';
+                    wrap.style.display = show ? 'block' : 'none';
+                    const input = wrap.querySelector('input');
+                    if (input) {
+                        input.required = show;
+                    }
+                }
+
+                document.addEventListener('DOMContentLoaded', function() {
+                    toggleCategoryOther('foodCategory', 'foodCategoryOtherWrap');
+                    const foodCategory = document.getElementById('foodCategory');
+                    if (foodCategory) {
+                        foodCategory.addEventListener('change', function() {
+                            toggleCategoryOther('foodCategory', 'foodCategoryOtherWrap');
+                        });
+                    }
+                });
+            </script>
+
+            <div class="donation-section-card ff-section">
+                <div class="donation-section-header">
+                    <div class="donation-section-icon">
+                        <i class="fa-solid fa-calendar-days"></i>
+                    </div>
+                    <div>
+                        <h5>QUANTITY &amp; SCHEDULE</h5>
+                        <p>How much &amp; when can they pick it up?</p>
+                    </div>
+                </div>
+
+                <div class="donation-section-body">
+                    <div class="mb-4 qty-field-wrap">
+                        <label for="quantity" class="form-label fw-semibold mb-2">Quantity / Serving Estimation <span class="text-danger">*</span></label>
+                        <div class="qty-input-wrap">
+                            {{ form.quantity(class="form-control form-control-lg rounded-4", placeholder="e.g., 15 kg (Sufficient for 60–70 people)") }}
+                            <span class="qty-indicator"><i class="fa-solid fa-people-group"></i></span>
+                        </div>
+                        {% for error in form.quantity.errors %}
+                            <div class="text-danger text-xs mt-2"><i class="fa-solid fa-circle-exclamation me-1"></i>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="expiry_time" class="form-label fw-semibold mb-2">Expiry Time / Best Before <span class="text-danger">*</span></label>
+                            {{ form.expiry_time(class="form-control form-control-lg rounded-4", placeholder="Today before 10 PM") }}
+                            {% for error in form.expiry_time.errors %}
+                                <div class="text-danger text-xs mt-2"><i class="fa-solid fa-circle-exclamation me-1"></i>{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="pickup_time" class="form-label fw-semibold mb-2">Pickup Window <span class="text-danger">*</span></label>
+                            {{ form.pickup_time(class="form-control form-control-lg rounded-4", placeholder="4 PM – 6 PM") }}
+                            {% for error in form.pickup_time.errors %}
+                                <div class="text-danger text-xs mt-2"><i class="fa-solid fa-circle-exclamation me-1"></i>{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="safety-note mt-4">
+                        <i class="fa-solid fa-shield-heart"></i>
+                        <span>Please ensure the food is safe for consumption and within the expiry time.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="donation-section-card ff-section">
+                <div class="donation-section-header">
+                    <div class="donation-section-icon">
+                        <i class="fa-solid fa-location-dot"></i>
+                    </div>
+                    <div>
+                        <h5>PICKUP LOCATION</h5>
+                        <p>Where should they come to pick up?</p>
+                    </div>
+                </div>
+
+                <div class="donation-section-body">
+                    <div class="mb-4">
+                        <label for="address" class="form-label fw-semibold mb-2">Pickup Address <span class="text-danger">*</span></label>
+                        {{ form.address(class="form-control form-control-lg rounded-4", placeholder="Enter the full pickup address including landmark and building details") }}
+                        {% for error in form.address.errors %}
+                            <div class="text-danger text-xs mt-2"><i class="fa-solid fa-circle-exclamation me-1"></i>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                   
+
+                    <button id="openLocationMapBtn" type="button" class="btn btn-outline-success w-100 mt-2">
+                        <i class="fa-solid fa-map-location-dot me-2"></i> Select Location on Map
+                    </button>
+
+                    <div id="locationMessage" class="location-note mt-3">
+                        <i class="fa-solid fa-circle-info"></i>
+                        <span>Your location will only be used to help volunteers reach you for pickup.</span>
+                    </div>
+
+                    <section id="locationMapPanel" class="pickup-map-panel mt-3" aria-label="Pickup location map" hidden>
+                        <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
+                            <h6 class="fw-semibold mb-0">Choose pickup point</h6>
+                            <button id="closeLocationMapBtn" type="button" class="btn btn-sm btn-light border" aria-label="Close map">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                        <div id="locationSearchForm" class="row g-2 mb-2" role="search">
+                            <div class="col">
+                                <label class="visually-hidden" for="locationSearchInput">Search area, street, block, landmark or address</label>
+                                <input id="locationSearchInput" class="form-control" type="search" placeholder="Search area, street, block, landmark or address…" autocomplete="off">
+                            </div>
+                            <div class="col-auto">
+                                <button id="locationSearchButton" class="btn btn-outline-success" type="button">
+                                    <i class="fa-solid fa-magnifying-glass me-1"></i> Search
+                                </button>
+                            </div>
+                        </div>
+                        <div id="locationSearchResults" class="pickup-map-search-results list-group mb-2" aria-live="polite" hidden></div>
+                        <div id="pickupLocationMap" class="pickup-map-canvas" aria-label="Interactive OpenStreetMap" role="application"></div>
+                        <div id="mapSelectionMessage" class="location-note mt-2" aria-live="polite">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <span>Search for a place or click the map to choose a pickup point.</span>
+                        </div>
+                        <div class="d-flex justify-content-end mt-3">
+                            <button id="confirmPickupLocationBtn" type="button" class="btn btn-success" disabled>
+                                <i class="fa-solid fa-check me-2"></i> Confirm Pickup Location
+                            </button>
+                        </div>
+                    </section>
+
+                    {{ form.latitude(style="display:none;") }}
+                    {{ form.longitude(style="display:none;") }}
+                </div>
+            </div>
+
+            <div class="donation-section-card ff-section">
+                <div class="donation-section-header">
+                    <div class="donation-section-icon">
+                        <i class="fa-solid fa-camera"></i>
+                    </div>
+                    <div>
+                        <h5>FOOD PHOTO</h5>
+                        <p>Show NGOs what you're donating</p>
+                    </div>
+                </div>
+
+                <div class="donation-section-body">
+                    <div class="mb-3">
+                        <label for="food_image" class="form-label fw-semibold mb-2">
+                            Upload Food Photo {% if not edit_mode %}<span class="text-danger">*</span>{% endif %}
+                        </label>
+
+                        <div class="position-relative">
+                            <input type="file" name="food_image" id="food_image" class="form-control" accept=".png,.jpg,.jpeg,image/png,image/jpeg" {% if not edit_mode %}required{% endif %} onchange="previewImage(event)" style="display:none;">
+                            <label for="food_image" class="upload-trigger" id="uploadTrigger">
+                                <i class="fa-solid fa-cloud-arrow-up me-2"></i>
+                                <span id="uploadLabel">Click to upload</span>
+                                <span id="fileMeta" class="d-block small text-muted mt-1"></span>
+                            </label>
+                        </div>
+                        <div id="imageError" class="text-danger small mt-2" role="alert" style="display:none;"></div>
+                        <div id="imagePreview" class="mt-3" style="display:none;">
+                            <div class="position-relative d-inline-block">
+                                <img id="previewImg" src="" alt="Food preview" class="img-fluid rounded-3" style="max-height:300px; max-width:100%;">
+                                <button type="button" class="btn btn-sm btn-danger rounded-circle position-absolute" style="top:-10px; right:-10px;" onclick="removeImage()" aria-label="Remove selected photo">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="existingImageContainer" class="mt-3" {% if not (edit_mode and donation and donation.image_path) %}style="display:none;"{% endif %}>
+                            {% if edit_mode and donation and donation.image_path %}
+                                <p class="fw-semibold mb-2">Current Image</p>
+                                <img src="{{ url_for('static', filename=donation.image_path) }}" alt="Current food photo" class="img-fluid rounded-3" style="max-height:300px; max-width:100%;">
+                                <p class="text-muted small mt-2 mb-0">Leave the upload field empty to keep this image.</p>
+                            {% endif %}
+                        </div>
+                        <p class="text-muted small mt-3 mb-0">Maximum file size: 5MB. Supported formats: JPG and PNG.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex gap-3 mt-4 mb-4">
+                <button type="submit" class="btn btn-success btn-lg rounded-3 flex-grow-1 fw-semibold">
+                    <i class="fa-solid fa-check-circle me-2"></i> {{ submit_label if submit_label is defined else 'List Surplus Food' }}
+                </button>
+                <a href="{{ url_for('donor_dashboard') }}" class="btn btn-outline-secondary btn-lg rounded-3 fw-semibold">
+                    <i class="fa-solid fa-times me-2"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function previewImage(event) {
+    const fileInput = event.target;
+    const file = fileInput.files && fileInput.files[0];
+    const preview = document.getElementById('imagePreview');
+    const previewImg = document.getElementById('previewImg');
+    const existingContainer = document.getElementById('existingImageContainer');
+    const uploadTrigger = document.getElementById('uploadTrigger');
+    const uploadLabel = document.getElementById('uploadLabel');
+    const fileMeta = document.getElementById('fileMeta');
+    const imageError = document.getElementById('imageError');
+
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+        fileInput.value = '';
+        imageError.textContent = 'File size must be less than 5MB.';
+        imageError.style.display = 'block';
+        preview.style.display = 'none';
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (loadEvent) => {
+        previewImg.src = loadEvent.target.result;
+        preview.style.display = 'block';
+        existingContainer.style.display = 'none';
+        uploadTrigger.style.display = 'none';
+        uploadLabel.textContent = 'Photo selected';
+        fileMeta.textContent = `${file.name} (${(file.size / 1024 / 1024).toFixed(1)} MB)`;
+        imageError.style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+}
+
+function removeImage() {
+    document.getElementById('food_image').value = '';
+    document.getElementById('imagePreview').style.display = 'none';
+    document.getElementById('previewImg').src = '';
+    document.getElementById('existingImageContainer').style.display = '';
+    document.getElementById('uploadTrigger').style.display = '';
+    document.getElementById('uploadLabel').textContent = 'Click to upload';
+    document.getElementById('fileMeta').textContent = '';
+    document.getElementById('imageError').style.display = 'none';
+}
+
+function detectLocation() {
+    window.FeedForwardLocationPicker.useCurrentLocation();
+}
+</script>
+{% endblock %}
+
+{% block extra_js %}
+{{ super() }}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function () {
+    const mapPanel = document.getElementById('locationMapPanel');
+    const mapElement = document.getElementById('pickupLocationMap');
+    const mapMessage = document.getElementById('mapSelectionMessage');
+    const searchForm = document.getElementById('locationSearchForm');
+    const searchInput = document.getElementById('locationSearchInput');
+    const searchResults = document.getElementById('locationSearchResults');
+    const searchButton = document.getElementById('locationSearchButton');
+    const confirmButton = document.getElementById('confirmPickupLocationBtn');
+    const openMapButton = document.getElementById('openLocationMapBtn');
+    const closeMapButton = document.getElementById('closeLocationMapBtn');
+    const currentLocationButton = document.getElementById('detectLocationBtn');
+    const addressInput = document.querySelector('input[name="address"]');
+    const latitudeInput = document.querySelector('input[name="latitude"]');
+    const longitudeInput = document.querySelector('input[name="longitude"]');
+    const locationMessage = document.getElementById('locationMessage');
+
+    let map = null;
+    let marker = null;
+    let selectedLocation = null;
+    let reverseRequest = null;
+    let searchRequest = null;
+    let searchTimer = null;
+    let searchVersion = 0;
+    let selectionVersion = 0;
+
+    function setMessage(element, message) {
+        const text = element && element.querySelector('span');
+        if (text) text.textContent = message;
+    }
+
+    function formatEnglishAddress(components) {
+        const parts = [];
+        const seen = new Set();
+        const add = (value) => {
+            if (typeof value !== 'string') return false;
+            const part = value.trim();
+            if (!part || /[^\p{Script=Latin}\p{Mark}\p{Number}\p{Punctuation}\p{Separator}\p{Symbol}]/u.test(part)) return false;
+            const key = part.toLocaleLowerCase('en');
+            if (!seen.has(key)) {
+                seen.add(key);
+                parts.push(part);
+            }
+            return true;
+        };
+        const addFirst = (...values) => {
+            for (const value of values) {
+                if (add(value)) return;
+            }
+        };
+
+        add(components.house_number);
+        add(components.building);
+        addFirst(components.road, components.pedestrian, components.footway);
+        addFirst(components.neighbourhood, components.quarter, components.residential, components.hamlet);
+        add(components.suburb);
+        addFirst(components.village, components.town, components.city, components.municipality);
+        addFirst(components.district, components.city_district, components.county, components.state_district);
+        add(components.state);
+        add(components.postcode);
+        add(components.country);
+        return parts.join(', ');
+    }
+
+    function formatSearchLabel(result) {
+        const componentAddress = result.address ? formatEnglishAddress(result.address) : '';
+        if (componentAddress) return componentAddress;
+        return String(result.display_name || '').split(',').map(part => part.trim()).filter(part =>
+            part && !/[^\p{Script=Latin}\p{Mark}\p{Number}\p{Punctuation}\p{Separator}\p{Symbol}]/u.test(part)
+        ).slice(0, 6).join(', ');
+    }
+
+    function initializeMap() {
+        if (map) return true;
+        if (!mapElement || !window.L) {
+            setMessage(mapMessage, 'The interactive map could not be loaded. Please try again or enter the address manually.');
+            return false;
+        }
+        map = L.map(mapElement, { scrollWheelZoom: true }).fitWorld();
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap contributors</a>'
+        }).addTo(map);
+        map.on('click', event => previewLocation(event.latlng.lat, event.latlng.lng, 'map'));
+        return true;
+    }
+
+    function showMap() {
+        mapPanel.hidden = false;
+        if (!initializeMap()) return false;
+        window.requestAnimationFrame(() => {
+            if (map) map.invalidateSize();
+        });
+        return true;
+    }
+
+    function setMarker(latitude, longitude) {
+        if (!showMap()) return;
+        const point = [latitude, longitude];
+        if (!marker) {
+            marker = L.marker(point, { draggable: true, autoPan: true }).addTo(map);
+            marker.on('dragend', () => {
+                const pointAfterDrag = marker.getLatLng();
+                previewLocation(pointAfterDrag.lat, pointAfterDrag.lng, 'map');
+            });
+        } else {
+            marker.setLatLng(point);
+        }
+        map.setView(point, Math.max(map.getZoom(), 17));
+    }
+
+    function reverseGeocode(latitude, longitude, version) {
+        if (reverseRequest) reverseRequest.abort();
+        reverseRequest = new AbortController();
+        const params = new URLSearchParams({
+            format: 'jsonv2',
+            addressdetails: '1',
+            'accept-language': 'en',
+            lat: String(latitude),
+            lon: String(longitude)
+        });
+        if (params.get('lat') !== String(latitude) || params.get('lon') !== String(longitude)) {
+            return Promise.reject(new Error('Selected coordinates changed before lookup'));
+        }
+
+        const controller = reverseRequest;
+        const timeout = window.setTimeout(() => controller.abort(), 15000);
+        return fetch(`https://nominatim.openstreetmap.org/reverse?${params.toString()}`, { signal: controller.signal })
+            .then(response => {
+                if (!response.ok) throw new Error('Reverse geocoding failed');
+                return response.json();
+            })
+            .then(data => {
+                if (version !== selectionVersion) return null;
+                const address = formatEnglishAddress(data.address || {});
+                if (!address) throw new Error('No English address components returned');
+                return address;
+            })
+            .finally(() => window.clearTimeout(timeout));
+    }
+
+    function commitLocation(location, closePanel) {
+        if (!location || !location.address) return;
+        addressInput.value = location.address;
+        latitudeInput.value = String(location.latitude);
+        longitudeInput.value = String(location.longitude);
+        if (closePanel) mapPanel.hidden = true;
+        confirmButton.disabled = false;
+    }
+
+    function previewLocation(latitude, longitude, source, accuracy, knownAddress = '') {
+        const version = ++selectionVersion;
+        if (source !== 'current' && currentLocationButton) currentLocationButton.disabled = false;
+        selectedLocation = { latitude, longitude, source, accuracy, address: knownAddress };
+        if (source !== 'current') {
+            latitudeInput.value = '';
+            longitudeInput.value = '';
+        }
+        setMarker(latitude, longitude);
+        confirmButton.disabled = true;
+        if (knownAddress) {
+            setMessage(mapMessage, knownAddress);
+            commitLocation(selectedLocation, false);
+            setMessage(locationMessage, 'Location selected. Review the address and confirm the pickup point.');
+            return;
+        }
+        setMessage(mapMessage, 'Getting address…');
+        if (source === 'current') setMessage(locationMessage, 'Getting address…');
+
+        reverseGeocode(latitude, longitude, version)
+            .then(address => {
+                if (!address || version !== selectionVersion) return;
+                selectedLocation.address = address;
+                setMessage(mapMessage, address);
+                confirmButton.disabled = false;
+                commitLocation(selectedLocation, false);
+                if (source === 'current') {
+                    setMessage(locationMessage, Number.isFinite(accuracy) && accuracy > 100
+                        ? `Approximate location detected (${Math.round(accuracy)} m). Please adjust the marker to the exact pickup point.`
+                        : 'Current location detected. Adjust the marker if needed, then confirm.');
+                } else {
+                    setMessage(locationMessage, 'Location selected. Review the address and confirm the pickup point.');
+                }
+            })
+            .catch(error => {
+                if (version !== selectionVersion || error.name === 'AbortError') return;
+                console.error('Reverse geocoding failed:', error);
+                confirmButton.disabled = true;
+                setMessage(mapMessage, 'Unable to determine the address. Please select the location on the map and try again.');
+                setMessage(locationMessage, 'Unable to determine the address. Please select the location on the map and try again.');
+            });
+    }
+
+    function useCurrentLocation() {
+        if (!navigator.geolocation) {
+            setMessage(locationMessage, 'Location is unavailable in this browser. Please select the location on the map.');
+            return;
+        }
+
+        if (!showMap()) return;
+        const requestVersion = ++selectionVersion;
+        if (reverseRequest) reverseRequest.abort();
+        selectedLocation = null;
+        confirmButton.disabled = true;
+        if (currentLocationButton) currentLocationButton.disabled = true;
+        latitudeInput.value = '';
+        longitudeInput.value = '';
+        setMessage(locationMessage, 'Getting your precise location...');
+        setMessage(mapMessage, 'Getting your precise location...');
+        navigator.geolocation.getCurrentPosition(position => {
+            if (requestVersion !== selectionVersion) return;
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
+            const accuracy = position.coords.accuracy;
+            console.log('GPS latitude:', position.coords.latitude);
+            console.log('GPS longitude:', position.coords.longitude);
+            console.log('GPS accuracy:', position.coords.accuracy);
+            if (currentLocationButton) currentLocationButton.disabled = false;
+            if (!Number.isFinite(latitude) || !Number.isFinite(longitude) || !Number.isFinite(accuracy)) {
+                setMessage(locationMessage, 'Unable to detect your current location. Please try again.');
+                setMessage(mapMessage, 'Unable to detect your current location. Please try again.');
+                return;
+            }
+            previewLocation(latitude, longitude, 'current', accuracy);
+        }, error => {
+            if (requestVersion !== selectionVersion) return;
+            if (currentLocationButton) currentLocationButton.disabled = false;
+            const message = error.code === 1
+                ? 'Location permission was denied. Please allow location access or select the location on the map.'
+                : 'Unable to detect your current location. Please select the location on the map.';
+            setMessage(locationMessage, message);
+            setMessage(mapMessage, message);
+        }, {
+            enableHighAccuracy: true,
+            timeout: 30000,
+            maximumAge: 0
+        });
+    }
+
+    function renderSearchResults(results) {
+        searchResults.replaceChildren();
+        if (!results.length) {
+            searchResults.hidden = false;
+            setMessage(mapMessage, 'No matching locations found. Try a shorter address or select the location directly on the map.');
+            const empty = document.createElement('div');
+            empty.className = 'list-group-item small text-muted';
+            empty.textContent = 'No matching locations found. Try a shorter address or select the location directly on the map.';
+            searchResults.appendChild(empty);
+            return;
+        }
+
+        setMessage(mapMessage, 'Select a matching location.');
+
+        results.forEach(result => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'list-group-item list-group-item-action';
+            button.textContent = formatSearchLabel(result) || 'Selected map result';
+            button.addEventListener('click', () => {
+                const latitude = Number(result.lat);
+                const longitude = Number(result.lon);
+                searchResults.hidden = true;
+                if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+                    setMessage(mapMessage, 'That search result did not include usable coordinates. Please try another result.');
+                    return;
+                }
+                const address = result.address ? formatEnglishAddress(result.address) : '';
+                previewLocation(latitude, longitude, 'map', undefined, address);
+            });
+            searchResults.appendChild(button);
+        });
+        searchResults.hidden = false;
+    }
+
+    openMapButton.addEventListener('click', showMap);
+    closeMapButton.addEventListener('click', () => { mapPanel.hidden = true; });
+    confirmButton.addEventListener('click', () => {
+        if (!selectedLocation || !selectedLocation.address) return;
+        commitLocation(selectedLocation, true);
+        setMessage(locationMessage, 'Pickup location confirmed.');
+    });
+
+    function searchLocations(query = searchInput.value.trim(), version = null) {
+        if (version === null) {
+            window.clearTimeout(searchTimer);
+            version = ++searchVersion;
+        }
+        if (query.length < 3) {
+            setMessage(mapMessage, 'Enter at least 3 characters to search.');
+            return;
+        }
+        if (searchRequest) searchRequest.abort();
+        searchRequest = new AbortController();
+        searchButton.disabled = true;
+        setMessage(mapMessage, 'Searching…');
+        const params = new URLSearchParams({
+            format: 'json',
+            addressdetails: '1',
+            'accept-language': 'en',
+            limit: '10',
+            countrycodes: 'in',
+            q: query
+        });
+        fetch(`https://nominatim.openstreetmap.org/search?${params.toString()}`, { signal: searchRequest.signal })
+            .then(response => {
+                if (!response.ok) throw new Error('Location search failed');
+                return response.json();
+            })
+            .then(results => {
+                if (version === searchVersion) renderSearchResults(results);
+            })
+            .catch(error => {
+                if (version !== searchVersion || error.name === 'AbortError') return;
+                console.error('Location search failed:', error);
+                setMessage(mapMessage, 'Unable to search locations right now. Please click the map to select a point.');
+            })
+            .finally(() => {
+                if (version === searchVersion) searchButton.disabled = false;
+            });
+    }
+
+    searchButton.addEventListener('click', () => searchLocations());
+    searchInput.addEventListener('keydown', event => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            searchLocations();
+        }
+    });
+
+    searchInput.addEventListener('input', () => {
+        window.clearTimeout(searchTimer);
+        const query = searchInput.value.trim();
+        const version = ++searchVersion;
+        if (searchRequest) searchRequest.abort();
+        searchRequest = null;
+        searchButton.disabled = false;
+        searchResults.replaceChildren();
+        if (query.length < 3) {
+            searchResults.hidden = true;
+            return;
+        }
+        searchResults.hidden = false;
+        setMessage(mapMessage, 'Searching…');
+        searchTimer = window.setTimeout(() => searchLocations(query, version), 400);
+    });
+
+    addressInput.addEventListener('input', () => {
+        latitudeInput.value = '';
+        longitudeInput.value = '';
+        selectedLocation = null;
+        selectionVersion += 1;
+        if (currentLocationButton) currentLocationButton.disabled = false;
+        if (reverseRequest) reverseRequest.abort();
+        confirmButton.disabled = true;
+    });
+
+    window.FeedForwardLocationPicker = { useCurrentLocation };
+})();
+</script>
+{% endblock %}

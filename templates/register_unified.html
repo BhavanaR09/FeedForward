@@ -1,0 +1,767 @@
+{% extends "base.html" %}
+
+{% block title %}Register - FeedForward{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Premium Register Styles */
+    .register-card {
+        background: var(--bg-card, #ffffff);
+        border: 1px solid var(--border-color, rgba(0, 0, 0, 0.08));
+        border-radius: 1.25rem;
+        box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05);
+        transition: transform var(--transition-speed, 0.3s), box-shadow var(--transition-speed, 0.3s);
+    }
+    .register-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.08);
+    }
+    
+    /* Dynamic validation styling */
+    .validation-field {
+        transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+    
+    .validation-field.is-valid-custom {
+        border-color: #198754 !important;
+        box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.15) !important;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e") !important;
+        background-repeat: no-repeat !important;
+        background-position: right calc(0.375em + 0.1875rem) center !important;
+        background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem) !important;
+    }
+    
+    .validation-field.is-invalid-custom {
+        border-color: #dc3545 !important;
+        box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.15) !important;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545'/%3e%3c/svg%3e") !important;
+        background-repeat: no-repeat !important;
+        background-position: right calc(0.375em + 0.1875rem) center !important;
+        background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem) !important;
+    }
+
+    /* Support complete input-group border coloring using :has() */
+    .input-group:has(.is-invalid-custom) .input-group-text,
+    .input-group:has(.is-invalid-custom) .toggle-password {
+        border-color: #dc3545 !important;
+    }
+    .input-group:has(.is-valid-custom) .input-group-text,
+    .input-group:has(.is-valid-custom) .toggle-password {
+        border-color: #198754 !important;
+    }
+    
+    .error-feedback {
+        color: #dc3545;
+        font-size: 0.775rem;
+        margin-top: 0.25rem;
+        font-weight: 500;
+        display: none;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    /* Requirement helper list */
+    .password-rules {
+        font-size: 0.75rem;
+        color: var(--text-muted, #6c757d);
+        background: var(--bg-hover, #f8f9fa);
+        border: 1px solid var(--border-color, rgba(0, 0, 0, 0.05));
+    }
+    .rule-item {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        margin-bottom: 0.15rem;
+    }
+    .rule-item i {
+        font-size: 0.65rem;
+        transition: color 0.2s ease;
+    }
+    .rule-valid {
+        color: #198754 !important;
+    }
+    .rule-invalid {
+        color: #dc3545 !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="position-relative py-5 overflow-hidden animate-fade-in flex-grow-1 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, rgba(20, 83, 45, 0.85) 0%, rgba(15, 23, 42, 0.9) 100%), url('/static/images/login_bg_food.jpg') no-repeat center center; background-size: cover; min-height: calc(100vh - 75px);">
+    <!-- Ambient background glows -->
+    <div class="position-absolute rounded-circle opacity-10" style="width: 250px; height: 250px; background: #22c55e; filter: blur(75px); top: 15%; left: 10%; pointer-events: none;"></div>
+    <div class="position-absolute rounded-circle opacity-10" style="width: 350px; height: 350px; background: #10b981; filter: blur(95px); bottom: 15%; right: 10%; pointer-events: none;"></div>
+
+    <div class="container position-relative z-1 py-4">
+        <div class="row justify-content-center">
+            <div class="col-md-9 col-lg-7 col-xl-6">
+                
+                <!-- Brand Title -->
+                <div class="text-center mb-4 text-white">
+                    <div class="rounded-circle bg-success bg-opacity-25 d-inline-flex align-items-center justify-content-center mb-3 p-3 border border-white border-opacity-10" style="width: 65px; height: 65px; backdrop-filter: blur(5px);">
+                        <i class="fa-solid fa-leaf fs-3 text-success"></i>
+                    </div>
+                    <h2 class="fw-extrabold text-white mb-1">FeedForward</h2>
+                    <p class="text-white text-opacity-75 text-sm mb-0">Join our network to minimize waste and maximize relief</p>
+                </div>
+
+                <!-- Registration Card -->
+                <div class="card register-card border-0 p-4 p-md-5 rounded-4">
+                    <div class="text-center mb-4">
+                        <h4 class="fw-bold mb-1 text-dark-theme-white">Create Your Account</h4>
+                        <p class="text-muted text-sm">Fill in your information to get started with FeedForward</p>
+                    </div>
+
+                    <!-- Flash messages from backend -->
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show rounded-3 py-2.5 px-3 text-sm mb-4" role="alert">
+                                    <i class="fa-solid {{ 'fa-circle-exclamation' if category == 'error' else 'fa-circle-check' }} me-2"></i>{{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="padding: 0.8rem 1rem;"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+                    <!-- Main Form -->
+                    <form id="registrationForm" method="POST" action="{{ url_for('register_unified') }}" novalidate>
+                        
+                        <!-- Full Name -->
+                        <div class="mb-3">
+                            <label for="fullName" class="form-label fw-semibold text-xs text-uppercase tracking-wider opacity-75 text-dark-theme-muted">Full Name <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0 rounded-start-3 text-muted" style="border-color: rgba(0,0,0,0.08);"><i class="fa-regular fa-user"></i></span>
+                                <input type="text" id="fullName" name="full_name" class="form-control border-start-0 rounded-end-3 py-2 validation-field" 
+                                       placeholder="Enter your full name" required minlength="3" maxlength="50" pattern="^[a-zA-Z\s]+$">
+                            </div>
+                            <div class="error-feedback" id="fullNameError">
+                                <i class="fa-solid fa-circle-exclamation"></i> Full name is required (3-50 characters, letters and spaces only).
+                            </div>
+                        </div>
+
+                        <!-- Email Address -->
+                        <div class="mb-3">
+                            <label for="email" class="form-label fw-semibold text-xs text-uppercase tracking-wider opacity-75 text-dark-theme-muted">Email Address</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0 rounded-start-3 text-muted" style="border-color: rgba(0,0,0,0.08);"><i class="fa-regular fa-envelope"></i></span>
+                                    <input type="email" id="email" name="email" class="form-control border-start-0 rounded-end-3 py-2 validation-field" 
+                                        placeholder="email@example.com" required maxlength="100" aria-required="true">
+                            </div>
+                            <div class="error-feedback" id="emailError">
+                                <i class="fa-solid fa-circle-exclamation"></i> Please enter a valid email address (max 100 characters).
+                            </div>
+                        </div>
+
+                        <!-- Phone Number -->
+                        <div class="mb-3">
+                            <label for="phone" class="form-label fw-semibold text-xs text-uppercase tracking-wider opacity-75 text-dark-theme-muted">Phone Number <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0 rounded-start-3 text-muted" style="border-color: rgba(0,0,0,0.08);"><i class="fa-solid fa-phone"></i></span>
+                                    <input type="tel" id="phone" name="phone" class="form-control border-start-0 rounded-end-3 py-2 validation-field" 
+                                        placeholder="9876543210" required minlength="10" maxlength="10" pattern="^[6789][0-9]{9}$" aria-required="true">
+                            </div>
+                            <div class="error-feedback" id="phoneError">
+                                <i class="fa-solid fa-circle-exclamation"></i> Phone number must be exactly 10 digits and start with 6, 7, 8, or 9.
+                            </div>
+                        </div>
+
+                        <!-- Email OTP Verification -->
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label class="form-label fw-semibold text-xs text-uppercase tracking-wider opacity-75 text-dark-theme-muted mb-0">Email Verification</label>
+                                <button type="button" id="btnSendOtp" class="btn btn-outline-success btn-sm rounded-pill">Send OTP</button>
+                            </div>
+                            <div class="alert alert-info py-2 px-3 text-sm rounded-3" id="otpAlert" style="display:none;"></div>
+                            <div id="otpVerificationBlock" class="d-none">
+                                <label for="otpCode" class="form-label fw-semibold text-xs text-uppercase tracking-wider opacity-75 text-dark-theme-muted">Enter OTP</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0 rounded-start-3 text-muted" style="border-color: rgba(0,0,0,0.08);"><i class="fa-solid fa-shield-halved"></i></span>
+                                    <input type="text" id="otpCode" name="verification_code" class="form-control border-start-0 rounded-end-3 py-2 validation-field" placeholder="6-digit verification code" maxlength="6" pattern="^[0-9]{6}$">
+                                    <button type="button" id="btnVerifyOtp" class="btn btn-success rounded-end-3">Verify</button>
+                                </div>
+                                <div class="form-text text-muted text-xs mt-2">A 6-digit code will be sent to your email address. OTP expires after 5 minutes.</div>
+                            </div>
+                        </div>
+
+                        <!-- Role Selection -->
+                        <div class="mb-3">
+                            <label for="role" class="form-label fw-semibold text-xs text-uppercase tracking-wider opacity-75 text-dark-theme-muted">Role Selection <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0 rounded-start-3 text-muted" style="border-color: rgba(0,0,0,0.08);"><i class="fa-solid fa-briefcase"></i></span>
+                                <select id="role" name="role" class="form-select border-start-0 rounded-end-3 py-2 validation-field" required aria-required="true">
+                                    <option value="" disabled selected>Select your role</option>
+                                    <option value="donor">Donor</option>
+                                    <option value="ngo">NGO</option>
+                                    <option value="volunteer">Volunteer</option>
+                                </select>
+                            </div>
+                            <div class="error-feedback" id="roleError">
+                                <i class="fa-solid fa-circle-exclamation"></i> Please select a valid role.
+                            </div>
+                        </div>
+
+                        <!-- Organization Type (for NGO role) -->
+                        <div class="mb-3" id="organizationTypeGroup" style="display: none;">
+                            <label for="organizationType" class="form-label fw-semibold text-xs text-uppercase tracking-wider opacity-75 text-dark-theme-muted">Organization Type <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0 rounded-start-3 text-muted" style="border-color: rgba(0,0,0,0.08);"><i class="fa-solid fa-people-group"></i></span>
+                                <select id="organizationType" name="organization_type" class="form-select border-start-0 rounded-end-3 py-2 validation-field">
+                                    <option value="" disabled selected>Select organization type</option>
+                                    <option value="NGO">NGO</option>
+                                    <option value="Orphanage">Orphanage</option>
+                                    <option value="Old Age Home">Old Age Home</option>
+                                    <option value="Shelter Home">Shelter Home</option>
+                                    <option value="Community Kitchen">Community Kitchen</option>
+                                    <option value="Government Relief Center">Government Relief Center</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="error-feedback" id="organizationTypeError">
+                                <i class="fa-solid fa-circle-exclamation"></i> Please select a valid organization type.
+                            </div>
+                            <div class="mt-2" id="organizationTypeOtherGroup" style="display: none;">
+                                <label for="organizationTypeOther" class="form-label fw-semibold text-xs text-uppercase tracking-wider opacity-75 text-dark-theme-muted">Specify Other Type</label>
+                                <input type="text" id="organizationTypeOther" name="organization_type_other" class="form-control rounded-3 py-2 validation-field" placeholder="e.g. Children Home">
+                            </div>
+                        </div>
+
+                        <!-- Password -->
+                        <div class="mb-3">
+                            <label for="password" class="form-label fw-semibold text-xs text-uppercase tracking-wider opacity-75 text-dark-theme-muted">Password <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0 rounded-start-3 text-muted" style="border-color: rgba(0,0,0,0.08);"><i class="fa-solid fa-lock"></i></span>
+                                    <input type="password" id="password" name="password" class="form-control border-start-0 border-end-0 py-2 validation-field" 
+                                        placeholder="Enter strong password" required minlength="8" maxlength="20" aria-required="true">
+                                <button class="btn btn-outline-secondary border-start-0 rounded-end-3 bg-light text-muted toggle-password" type="button" data-target="password" style="border-color: rgba(0,0,0,0.08);">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
+                            
+                            <!-- Password Strength Indicator Rules Box -->
+                            <div class="password-rules p-3 rounded-3 mt-2">
+                                <div class="fw-semibold mb-1 text-xs opacity-75">Password requirements (8-20 characters, no spaces):</div>
+                                <div class="row g-1 text-xs">
+                                    <div class="col-6 rule-item" id="ruleLen"><i class="fa-solid fa-circle"></i> 8-20 characters</div>
+                                    <div class="col-6 rule-item" id="ruleUpper"><i class="fa-solid fa-circle"></i> 1 uppercase letter</div>
+                                    <div class="col-6 rule-item" id="ruleLower"><i class="fa-solid fa-circle"></i> 1 lowercase letter</div>
+                                    <div class="col-6 rule-item" id="ruleDigit"><i class="fa-solid fa-circle"></i> 1 numeric digit</div>
+                                    <div class="col-6 rule-item" id="ruleSpecial"><i class="fa-solid fa-circle"></i> 1 special char (@#$%&!?_-)</div>
+                                    <div class="col-6 rule-item" id="ruleNoSpace"><i class="fa-solid fa-circle"></i> No spaces</div>
+                                </div>
+                            </div>
+                            <div class="error-feedback" id="passwordError">
+                                <i class="fa-solid fa-circle-exclamation"></i> Password must meet all strength requirements.
+                            </div>
+                        </div>
+
+                        <!-- Confirm Password -->
+                        <div class="mb-4">
+                            <label for="confirmPassword" class="form-label fw-semibold text-xs text-uppercase tracking-wider opacity-75 text-dark-theme-muted">Confirm Password <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0 rounded-start-3 text-muted" style="border-color: rgba(0,0,0,0.08);"><i class="fa-solid fa-lock"></i></span>
+                                    <input type="password" id="confirmPassword" name="confirm_password" class="form-control border-start-0 border-end-0 py-2 validation-field" 
+                                        placeholder="Repeat your password" required aria-required="true">
+                                <button class="btn btn-outline-secondary border-start-0 rounded-end-3 bg-light text-muted toggle-password" type="button" data-target="confirmPassword" style="border-color: rgba(0,0,0,0.08);">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="error-feedback" id="confirmPasswordError">
+                                <i class="fa-solid fa-circle-exclamation"></i> Passwords do not match.
+                            </div>
+                        </div>
+
+                        <!-- Register Button -->
+                        <button type="submit" id="btnRegister" class="btn btn-success w-100 py-2.5 rounded-3 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2" disabled>
+                            Register <i class="fa-solid fa-user-plus"></i>
+                        </button>
+                    </form>
+
+                    <div class="text-center mt-4 pt-3 border-top border-light">
+                        <p class="text-muted text-sm mb-0">Already have an account? <a href="{{ url_for('login') }}" class="text-success fw-semibold text-decoration-none hover-underline">Sign In</a></p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('registrationForm');
+    const fullNameInput = document.getElementById('fullName');
+    const emailInput = document.getElementById('email');
+    const phoneInput = document.getElementById('phone');
+    const roleSelect = document.getElementById('role');
+    const organizationTypeGroup = document.getElementById('organizationTypeGroup');
+    const organizationTypeSelect = document.getElementById('organizationType');
+    const organizationTypeOtherGroup = document.getElementById('organizationTypeOtherGroup');
+    const organizationTypeOtherInput = document.getElementById('organizationTypeOther');
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirmPassword');
+    const otpCodeInput = document.getElementById('otpCode');
+    const otpAlert = document.getElementById('otpAlert');
+    const otpVerificationBlock = document.getElementById('otpVerificationBlock');
+    const btnSendOtp = document.getElementById('btnSendOtp');
+    const btnVerifyOtp = document.getElementById('btnVerifyOtp');
+    const registerButton = document.getElementById('btnRegister');
+    let otpVerified = false;
+
+    // Rule items for password helper
+    const rules = {
+        len: { elem: document.getElementById('ruleLen'), test: (val) => val.length >= 8 && val.length <= 20 },
+        upper: { elem: document.getElementById('ruleUpper'), test: (val) => /[A-Z]/.test(val) },
+        lower: { elem: document.getElementById('ruleLower'), test: (val) => /[a-z]/.test(val) },
+        digit: { elem: document.getElementById('ruleDigit'), test: (val) => /[0-9]/.test(val) },
+        special: { elem: document.getElementById('ruleSpecial'), test: (val) => /[@#\$%&!\?_\-]/.test(val) },
+        nospace: { elem: document.getElementById('ruleNoSpace'), test: (val) => val.length > 0 && !/\s/.test(val) }
+    };
+
+    // Keep track of valid states
+    const validationStates = {
+        fullName: false,
+        email: false,
+        phone: false,
+        role: false,
+        password: false,
+        confirmPassword: false,
+        organizationType: true
+    };
+
+    // Real-time error elements
+    const errors = {
+        fullName: document.getElementById('fullNameError'),
+        email: document.getElementById('emailError'),
+        phone: document.getElementById('phoneError'),
+        role: document.getElementById('roleError'),
+        password: document.getElementById('passwordError'),
+        confirmPassword: document.getElementById('confirmPasswordError'),
+        organizationType: document.getElementById('organizationTypeError')
+    };
+
+    function setValid(input, errorElem) {
+        input.classList.remove('is-invalid-custom');
+        input.classList.add('is-valid-custom');
+        if (errorElem) errorElem.style.display = 'none';
+    }
+
+    function setInvalid(input, errorElem) {
+        input.classList.remove('is-valid-custom');
+        input.classList.add('is-invalid-custom');
+        if (errorElem) {
+            errorElem.style.display = 'flex';
+        }
+    }
+
+    function clearValidation(input, errorElem) {
+        input.classList.remove('is-valid-custom', 'is-invalid-custom');
+        if (errorElem) errorElem.style.display = 'none';
+    }
+
+    // Check if the overall form is valid and update the register button status
+    function updateFormButtonState() {
+        const allValid = Object.values(validationStates).every(state => state === true) && otpVerified;
+        if (allValid) {
+            registerButton.removeAttribute('disabled');
+        } else {
+            registerButton.setAttribute('disabled', 'disabled');
+        }
+    }
+
+    function resetOtpVerification() {
+        if (!otpVerified) {
+            return;
+        }
+        otpVerified = false;
+        otpVerificationBlock.classList.remove('d-none');
+        otpAlert.innerHTML = `<div class="alert alert-warning py-2 px-3 text-sm rounded-3"><i class="fa-solid fa-triangle-exclamation me-2"></i>Your OTP verification is no longer valid after changes. Please resend and verify again.</div>`;
+        otpAlert.style.display = 'block';
+        updateFormButtonState();
+    }
+
+    // 1. Full Name Validation
+    function validateFullName() {
+        const value = fullNameInput.value.trim();
+        const pattern = /^[a-zA-Z\s]+$/;
+        const isFormatValid = pattern.test(value);
+        const isLengthValid = value.length >= 3 && value.length <= 50;
+        const isValid = value.length > 0 && isFormatValid && isLengthValid;
+        
+        validationStates.fullName = isValid;
+
+        if (value.length === 0) {
+            clearValidation(fullNameInput, errors.fullName);
+        } else if (isValid) {
+            setValid(fullNameInput, errors.fullName);
+        } else {
+            if (!isLengthValid) {
+                errors.fullName.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> Must be between 3 and 50 characters.`;
+            } else {
+                errors.fullName.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> Only alphabets and spaces are allowed.`;
+            }
+            setInvalid(fullNameInput, errors.fullName);
+        }
+        if (otpVerified) {
+            resetOtpVerification();
+        }
+        updateFormButtonState();
+    }
+
+    // 2. Email Address Validation
+    function validateEmail() {
+        const value = emailInput.value.trim();
+        const pattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        const isFormatValid = pattern.test(value);
+        const isLengthValid = value.length <= 100;
+        const isValid = value.length > 0 && isFormatValid && isLengthValid;
+
+        validationStates.email = isValid;
+
+        if (value.length === 0) {
+            clearValidation(emailInput, errors.email);
+        } else if (isValid) {
+            setValid(emailInput, errors.email);
+        } else {
+            if (!isLengthValid) {
+                errors.email.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> Email cannot exceed 100 characters.`;
+            } else {
+                errors.email.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> Invalid email address format.`;
+            }
+            setInvalid(emailInput, errors.email);
+        }
+        if (otpVerified) {
+            resetOtpVerification();
+        }
+        updateFormButtonState();
+    }
+
+    // 3. Phone Number Validation
+    function validatePhone() {
+        const value = phoneInput.value.trim();
+        const isLengthValid = value.length === 10;
+        const isFormatValid = /^[6789][0-9]{9}$/.test(value);
+        const isValid = isLengthValid && isFormatValid;
+
+        validationStates.phone = isValid;
+
+        if (value.length === 0) {
+            clearValidation(phoneInput, errors.phone);
+        } else if (isValid) {
+            setValid(phoneInput, errors.phone);
+        } else {
+            if (!isLengthValid) {
+                errors.phone.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> Must contain exactly 10 digits.`;
+            } else {
+                errors.phone.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> Must start with 6, 7, 8, or 9 and contain only digits.`;
+            }
+            setInvalid(phoneInput, errors.phone);
+        }
+        if (otpVerified) {
+            resetOtpVerification();
+        }
+        updateFormButtonState();
+    }
+
+    // 4. Role Selection Validation
+    function validateRole() {
+        const value = roleSelect.value;
+        const isValid = value === 'donor' || value === 'ngo' || value === 'volunteer';
+
+        validationStates.role = isValid;
+
+        if (value === '') {
+            clearValidation(roleSelect, errors.role);
+        } else if (isValid) {
+            setValid(roleSelect, errors.role);
+        } else {
+            errors.role.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> Please select a valid role.`;
+            setInvalid(roleSelect, errors.role);
+        }
+        updateFormButtonState();
+    }
+
+    function toggleOrganizationTypeFields() {
+        const isNgoRole = roleSelect.value === 'ngo';
+        organizationTypeGroup.style.display = isNgoRole ? 'block' : 'none';
+        if (!isNgoRole) {
+            validationStates.organizationType = true;
+            organizationTypeOtherGroup.style.display = 'none';
+            clearValidation(organizationTypeSelect, errors.organizationType);
+            return;
+        }
+        validateOrganizationType();
+    }
+
+    function validateOrganizationType() {
+        const isNgoRole = roleSelect.value === 'ngo';
+        if (!isNgoRole) {
+            validationStates.organizationType = true;
+            clearValidation(organizationTypeSelect, errors.organizationType);
+            organizationTypeOtherGroup.style.display = 'none';
+            return;
+        }
+
+        const value = organizationTypeSelect.value;
+        const isOther = value === 'Other';
+        const hasOtherValue = organizationTypeOtherInput.value.trim().length > 0;
+        const isValid = Boolean(value) && (!isOther || hasOtherValue);
+
+        validationStates.organizationType = isValid;
+        organizationTypeOtherGroup.style.display = isOther ? 'block' : 'none';
+
+        if (!value) {
+            clearValidation(organizationTypeSelect, errors.organizationType);
+        } else if (isValid) {
+            setValid(organizationTypeSelect, errors.organizationType);
+        } else {
+            setInvalid(organizationTypeSelect, errors.organizationType);
+        }
+        updateFormButtonState();
+    }
+
+    // 5. Password Validation
+    function validatePassword() {
+        const value = passwordInput.value;
+        let meetsAll = true;
+
+        // Test individual rules and highlight
+        Object.keys(rules).forEach(key => {
+            const rule = rules[key];
+            const isRulePassed = rule.test(value);
+            const icon = rule.elem.querySelector('i');
+
+            if (isRulePassed) {
+                rule.elem.classList.remove('rule-invalid');
+                rule.elem.classList.add('rule-valid');
+                icon.className = 'fa-solid fa-circle-check';
+            } else {
+                rule.elem.classList.remove('rule-valid');
+                rule.elem.classList.add('rule-invalid');
+                icon.className = 'fa-solid fa-circle-xmark';
+                meetsAll = false;
+            }
+        });
+
+        const isEmpty = value.length === 0;
+        const isValid = !isEmpty && meetsAll;
+        validationStates.password = isValid;
+
+        if (isEmpty) {
+            clearValidation(passwordInput, errors.password);
+            // Reset rule icons to default when empty
+            Object.keys(rules).forEach(key => {
+                const item = rules[key].elem;
+                item.classList.remove('rule-valid', 'rule-invalid');
+                const icon = item.querySelector('i');
+                icon.className = 'fa-solid fa-circle';
+            });
+        } else if (isValid) {
+            setValid(passwordInput, errors.password);
+        } else {
+            errors.password.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> Password must meet all strength requirements.`;
+            setInvalid(passwordInput, errors.password);
+        }
+        validateConfirmPassword(); // Check confirmation matching whenever password changes
+    }
+
+    // 6. Confirm Password Validation
+    function validateConfirmPassword() {
+        const passValue = passwordInput.value;
+        const confirmValue = confirmPasswordInput.value;
+        const isEmpty = confirmValue.length === 0;
+        const isMatch = passValue === confirmValue;
+        const isValid = !isEmpty && isMatch && validationStates.password;
+
+        validationStates.confirmPassword = isValid;
+
+        if (isEmpty) {
+            clearValidation(confirmPasswordInput, errors.confirmPassword);
+        } else if (isValid) {
+            setValid(confirmPasswordInput, errors.confirmPassword);
+        } else {
+            if (!isMatch) {
+                errors.confirmPassword.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> Passwords do not match.`;
+            } else {
+                errors.confirmPassword.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> Main password is invalid.`;
+            }
+            setInvalid(confirmPasswordInput, errors.confirmPassword);
+        }
+        updateFormButtonState();
+    }
+
+    // Toggle password visibility functionality
+    document.querySelectorAll('.toggle-password').forEach(button => {
+        button.addEventListener('click', function() {
+            const targetId = this.getAttribute('data-target');
+            const targetInput = document.getElementById(targetId);
+            const icon = this.querySelector('i');
+            if (targetInput.type === 'password') {
+                targetInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                targetInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+    });
+
+    // Add event listeners for dynamic real-time validation
+    fullNameInput.addEventListener('input', validateFullName);
+    emailInput.addEventListener('input', validateEmail);
+
+    phoneInput.addEventListener('input', function() {
+        this.value = this.value.replace(/[^0-9]/g, ''); // Numeric enforcement
+        validatePhone();
+    });
+
+    roleSelect.addEventListener('change', function() {
+        validateRole();
+        toggleOrganizationTypeFields();
+        if (otpVerified) {
+            resetOtpVerification();
+        }
+    });
+    organizationTypeSelect.addEventListener('change', validateOrganizationType);
+    organizationTypeOtherInput.addEventListener('input', validateOrganizationType);
+    passwordInput.addEventListener('input', validatePassword);
+    confirmPasswordInput.addEventListener('input', validateConfirmPassword);
+
+    if (btnSendOtp) {
+        btnSendOtp.addEventListener('click', async function() {
+            otpAlert.style.display = 'none';
+            const email = emailInput.value.trim().toLowerCase();
+            const role = roleSelect.value.trim().toLowerCase();
+            const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+            if (!email) {
+                otpAlert.innerHTML = '<div class="alert alert-danger py-2 px-3 text-sm rounded-3"><i class="fa-solid fa-circle-exclamation me-2"></i>Please enter your email address.</div>';
+                otpAlert.style.display = 'block';
+                return;
+            }
+            if (!emailPattern.test(email)) {
+                otpAlert.innerHTML = '<div class="alert alert-danger py-2 px-3 text-sm rounded-3"><i class="fa-solid fa-circle-exclamation me-2"></i>Please enter a valid email address.</div>';
+                otpAlert.style.display = 'block';
+                return;
+            }
+            if (!role) {
+                otpAlert.innerHTML = '<div class="alert alert-danger py-2 px-3 text-sm rounded-3"><i class="fa-solid fa-circle-exclamation me-2"></i>Please select a role before requesting an OTP.</div>';
+                otpAlert.style.display = 'block';
+                return;
+            }
+
+            const payload = {
+                full_name: fullNameInput.value.trim(),
+                email,
+                phone: phoneInput.value.trim(),
+                role
+            };
+
+            btnSendOtp.disabled = true;
+            btnSendOtp.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Checking...';
+
+            try {
+                const response = await fetch('/api/register/send-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await response.json();
+                if (data.exists) {
+                    otpVerificationBlock.classList.add('d-none');
+                    otpAlert.innerHTML = `<div class="alert alert-danger py-2 px-3 text-sm rounded-3"><i class="fa-solid fa-circle-exclamation me-2"></i>${data.error || 'Email is already registered.'}</div>`;
+                    otpAlert.style.display = 'block';
+                } else if (data.success) {
+                    otpVerificationBlock.classList.remove('d-none');
+                    otpAlert.innerHTML = `<div class="alert alert-success py-2 px-3 text-sm rounded-3"><i class="fa-solid fa-circle-check me-2"></i>${data.message}</div>`;
+                    otpAlert.style.display = 'block';
+                } else {
+                    otpAlert.innerHTML = `<div class="alert alert-danger py-2 px-3 text-sm rounded-3"><i class="fa-solid fa-circle-exclamation me-2"></i>${data.error}</div>`;
+                    otpAlert.style.display = 'block';
+                }
+            } catch (err) {
+                otpAlert.innerHTML = `<div class="alert alert-danger py-2 px-3 text-sm rounded-3"><i class="fa-solid fa-circle-exclamation me-2"></i>Unable to send OTP. Please try again later.</div>`;
+                otpAlert.style.display = 'block';
+            } finally {
+                btnSendOtp.disabled = false;
+                btnSendOtp.innerHTML = 'Send OTP';
+            }
+        });
+    }
+
+    if (btnVerifyOtp) {
+        btnVerifyOtp.addEventListener('click', async function() {
+            otpAlert.style.display = 'none';
+            const payload = {
+                email: emailInput.value.trim().toLowerCase(),
+                otp_code: otpCodeInput.value.trim(),
+                verification_code: otpCodeInput.value.trim()
+            };
+
+            if (!payload.email || !payload.otp_code) {
+                otpAlert.innerHTML = `<div class="alert alert-danger py-2 px-3 text-sm rounded-3"><i class="fa-solid fa-circle-exclamation me-2"></i>Please provide both email and OTP code.</div>`;
+                otpAlert.style.display = 'block';
+                return;
+            }
+
+            btnVerifyOtp.disabled = true;
+            btnVerifyOtp.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Verifying...';
+
+            try {
+                const response = await fetch('/api/register/verify-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await response.json();
+                if (data.success) {
+                    otpVerified = true;
+                    otpAlert.innerHTML = `<div class="alert alert-success py-2 px-3 text-sm rounded-3"><i class="fa-solid fa-circle-check me-2"></i>${data.message}</div>`;
+                    otpAlert.style.display = 'block';
+                    otpVerificationBlock.classList.add('d-none');
+                } else {
+                    otpVerified = false;
+                    otpAlert.innerHTML = `<div class="alert alert-danger py-2 px-3 text-sm rounded-3"><i class="fa-solid fa-circle-exclamation me-2"></i>${data.error}</div>`;
+                    otpAlert.style.display = 'block';
+                }
+            } catch (err) {
+                otpVerified = false;
+                otpAlert.innerHTML = `<div class="alert alert-danger py-2 px-3 text-sm rounded-3"><i class="fa-solid fa-circle-exclamation me-2"></i>OTP verification failed. Please try again.</div>`;
+                otpAlert.style.display = 'block';
+            } finally {
+                btnVerifyOtp.disabled = false;
+                btnVerifyOtp.innerHTML = 'Verify';
+                updateFormButtonState();
+            }
+        });
+    }
+
+    form.addEventListener('submit', function(event) {
+        if (!otpVerified) {
+            event.preventDefault();
+            otpAlert.innerHTML = `<div class="alert alert-danger py-2 px-3 text-sm rounded-3"><i class="fa-solid fa-circle-exclamation me-2"></i>Please verify your email OTP before registering.</div>`;
+            otpAlert.style.display = 'block';
+        }
+    });
+
+    // Run initial checks (in case browser auto-filled values) without highlighting untouched fields
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlRole = urlParams.get('role');
+    if (urlRole && ['donor', 'ngo', 'volunteer'].includes(urlRole.toLowerCase())) {
+        roleSelect.value = urlRole.toLowerCase();
+    }
+
+    validateFullName();
+    validateEmail();
+    validatePhone();
+    validateRole();
+    toggleOrganizationTypeFields();
+    validatePassword();
+    validateConfirmPassword();
+});
+</script>
+{% endblock %}

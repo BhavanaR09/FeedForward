@@ -1,0 +1,1510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donor Dashboard - FeedForward</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: #F7F9F8;
+            color: #172033;
+        }
+
+        /* HEADER */
+        .header {
+            background-color: #087A3D;
+            background-image: none !important;
+            color: white;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #E5E7EB;
+        }
+
+        .header::before,
+        .header::after {
+            content: none !important;
+            background-image: none !important;
+        }
+
+        .header-left {
+            background-image: none !important;
+        }
+
+        .header-left::before,
+        .header-left::after,
+        .header-left img,
+        .header img {
+            display: none !important;
+            content: none !important;
+            background-image: none !important;
+        }
+
+        .header-right {
+            background-image: none !important;
+        }
+
+        .header-right::before,
+        .header-right::after,
+        .header-right img {
+            display: none !important;
+            content: none !important;
+            background-image: none !important;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: white;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .logo-container:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: scale(1.05);
+        }
+
+        .logo-icon {
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        .brand-name {
+            font-weight: 700;
+            font-size: 22px;
+            letter-spacing: -0.5px;
+        }
+
+        .brand-tagline {
+            font-size: 14px;
+            opacity: 0.85;
+            font-weight: 500;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .notification-wrapper {
+            position: relative;
+        }
+
+        .notification-bell {
+            font-size: 18px;
+            cursor: pointer;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .notification-bell:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            transform: scale(1.1);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: #E53935;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .user-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .user-name {
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .dropdown-arrow {
+            font-size: 15px;
+            transition: transform 0.2s ease;
+        }
+
+        .user-menu.active .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 200px;
+            margin-top: 8px;
+            display: none;
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        .user-dropdown.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 12px 16px;
+            color: #172033;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        .dropdown-item:hover {
+            background-color: #F7F9F8;
+        }
+
+        .dropdown-item.logout {
+            color: #E53935;
+            border-top: 1px solid #E5E7EB;
+        }
+
+        .dropdown-item.logout:hover {
+            background-color: #FEE;
+        }
+
+        /* LAYOUT */
+        .layout-container {
+            display: flex;
+            height: calc(100vh - 48px);
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 160px;
+            background-color: white;
+            border-right: 1px solid #E5E7EB;
+            padding: 16px 8px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            margin-bottom: 20px;
+        }
+
+        .sidebar-item {
+            margin-bottom: 4px;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 14px;
+            color: #667085;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .sidebar-link:hover {
+            background-color: #F7F9F8;
+            color: #087A3D;
+        }
+
+        .sidebar-link.active {
+            background-color: #EAF7EE;
+            color: #087A3D;
+            font-weight: 600;
+        }
+
+        .sidebar-link i {
+            font-size: 14px;
+            width: 16px;
+        }
+
+        .help-card {
+            margin-top: auto;
+            background-color: #EAF7EE;
+            border-radius: 6px;
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #D1F2E4;
+        }
+
+        .help-icon {
+            font-size: 22px;
+            color: #087A3D;
+            margin-bottom: 6px;
+        }
+
+        .help-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #172033;
+            margin-bottom: 4px;
+        }
+
+        .help-text {
+            font-size: 14px;
+            color: #667085;
+            margin-bottom: 8px;
+        }
+
+        .help-link {
+            display: block;
+            background-color: white;
+            border: 1px solid #D1F2E4;
+            color: #087A3D;
+            padding: 8px 12px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .help-link:hover {
+            background-color: #087A3D;
+            color: white;
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+        }
+
+        /* BACK BUTTON */
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #087A3D;
+            text-decoration: none;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            padding: 6px 12px;
+            border-radius: 4px;
+        }
+
+        .back-button:hover {
+            background-color: #F0F9F7;
+        }
+
+        /* WELCOME CARD */
+        .welcome-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #E5E7EB;
+        }
+
+        .welcome-content h3 {
+            font-size: 14px;
+            color: #087A3D;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .welcome-content h1 {
+            font-size: 22px;
+            font-weight: 600;
+            color: #172033;
+            margin-bottom: 4px;
+        }
+
+        .welcome-content p {
+            font-size: 14px;
+            color: #667085;
+        }
+
+        .welcome-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background-color: #087A3D;
+            color: #ffffff !important;
+        }
+
+        .btn-primary:hover,
+        .btn-primary:focus,
+        .btn-primary:active,
+        .btn-primary.active {
+            background-color: #056B35;
+            color: #ffffff !important;
+        }
+
+        .btn-secondary {
+            background-color: white;
+            color: #172033;
+            border: 1px solid #E5E7EB;
+        }
+
+        .btn-secondary:hover {
+            background-color: #F7F9F8;
+        }
+
+        /* STATS GRID */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .stat-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 16px;
+            border: 1px solid #E5E7EB;
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .stat-badge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-badge.green {
+            background-color: #EAF7EE;
+            color: #087A3D;
+        }
+
+        .stat-badge.orange {
+            background-color: #FEF3E2;
+            color: #F28C18;
+        }
+
+        .stat-badge.red {
+            background-color: #FCE8E8;
+            color: #E53935;
+        }
+
+        .stat-icon {
+            font-size: 18px;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stat-icon.green {
+            background-color: #EAF7EE;
+            color: #087A3D;
+        }
+
+        .stat-icon.orange {
+            background-color: #FEF3E2;
+            color: #F28C18;
+        }
+
+        .stat-icon.red {
+            background-color: #FCE8E8;
+            color: #E53935;
+        }
+
+        .stat-number {
+            font-size: 28px;
+            font-weight: 700;
+            color: #172033;
+            margin-bottom: 2px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #08090a;
+            margin-bottom: 4px;
+        }
+
+        .stat-description {
+            font-size: 12px;
+            color: #a19b9b;
+        }
+
+        /* ANALYTICS GRID */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: 2fr 1.5fr 1.2fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 16px;
+            border: 1px solid #E5E7EB;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .card-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #172033;
+        }
+
+        .card-subtitle {
+            font-size: 10px;
+            color: #667085;
+            margin-top: 2px;
+        }
+
+        .card-menu {
+            font-size: 14px;
+            color: #999;
+            cursor: pointer;
+        }
+
+        /* PERFORMANCE CARD */
+        .performance-body {
+            display: flex;
+            gap: 12px;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100px;
+        }
+
+        .chart-wrapper canvas {
+            max-width: 100%;
+        }
+
+        .chart-center {
+            position: absolute;
+            top: 100%;
+            left: 100%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            pointer-events: none;
+        }
+
+        .chart-center-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: #172033;
+        }
+
+        .chart-center-label {
+            font-size: 14px;
+            color: #667085;
+        }
+
+        .performance-legend {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 80%;
+        }
+
+        .legend-label {
+            flex: 1;
+            color: #667085;
+            font-size: 14px;
+        }
+
+        .legend-value {
+            font-weight: 600;
+            color: #172033;
+            font-size: 14px;
+        }
+
+        /* DISTRIBUTION CARD */
+        .distribution-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .distribution-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .dist-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .dist-icon.green {
+            background-color: #EAF7EE;
+            color: #087A3D;
+        }
+
+        .dist-icon.blue {
+            background-color: #E3F2FD;
+            color: #2388E8;
+        }
+
+        .dist-icon.purple {
+            background-color: #F3E5F5;
+            color: #7B4BD9;
+        }
+
+        .dist-icon.orange {
+            background-color: #FEF3E2;
+            color: #F28C18;
+        }
+
+        .dist-content {
+            flex: 1;
+        }
+
+        .dist-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            margin-bottom: 3px;
+        }
+
+        .dist-name {
+            color: #172033;
+            font-weight: 500;
+        }
+
+        .dist-value {
+            color: #667085;
+        }
+
+        .dist-count {
+            color: #667085;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .dist-bar {
+            height: 4px;
+            background-color: #E5E7EB;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .dist-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.3s;
+        }
+
+        .dist-fill.green {
+            background-color: #087A3D;
+        }
+
+        .dist-fill.blue {
+            background-color: #2388E8;
+        }
+
+        .dist-fill.purple {
+            background-color: #7B4BD9;
+        }
+
+        .dist-fill.orange {
+            background-color: #F28C18;
+        }
+
+        /* EFFICIENCY CARD */
+        .efficiency-score {
+            font-size: 40px;
+            font-weight: 700;
+            color: #087A3D;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .efficiency-bar {
+            height: 6px;
+            background-color: #E5E7EB;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .efficiency-fill {
+            height: 100%;
+            background-color: #087A3D;
+            border-radius: 3px;
+        }
+
+        .efficiency-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .efficiency-stat {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 10px;
+        }
+
+        .efficiency-stat-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            flex-shrink: 0;
+        }
+
+        .efficiency-stat-icon.green {
+            background-color: #EAF7EE;
+            color: #087A3D;
+        }
+
+        .efficiency-stat-icon.blue {
+            background-color: #E3F2FD;
+            color: #2388E8;
+        }
+
+        .efficiency-stat-content {
+            flex: 1;
+        }
+
+        .efficiency-stat-value {
+            font-weight: 600;
+            color: #01ad4e;
+            font-size: 11px;
+        }
+
+        .efficiency-stat-label {
+            color: #667085;
+            font-size: 10px;
+        }
+
+        /* BOTTOM GRID */
+        .bottom-grid {
+            display: grid;
+            grid-template-columns: 1fr 2.5fr;
+            gap: 12px;
+        }
+
+        /* NOTIFICATION CARD */
+        .notification-card {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .notification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .notification-item {
+            display: flex;
+            gap: 8px;
+            padding: 10px 0;
+            border-top: 1px solid #E5E7EB;
+        }
+
+        .notification-item:first-child {
+            border-top: none;
+            padding-top: 0;
+        }
+
+        .timeline-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #087A3D;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 3px;
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-title-text {
+            font-size: 15px;
+            font-weight: 600;
+            color: #172033;
+            margin-bottom: 2px;
+        }
+
+        .notification-meta {
+            font-size: 14px;
+            color: #667085;
+        }
+
+        .notification-status {
+            display: inline-block;
+            background-color: #EAF7EE;
+            color: #087A3D;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 14px;
+            font-weight: 600;
+            margin: 2px 0;
+        }
+
+        .view-all-link {
+            font-size: 12px;
+            color: #087A3D;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* QUICK ACTIONS */
+        .quick-actions {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .actions-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #172033;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .action-grid {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-start;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+        }
+
+        .action-card {
+            flex: 0 0 auto;
+            min-width: 120px;
+            background-color: white;
+            border-radius: 6px;
+            padding: 14px;
+            border: 1px solid #E5E7EB;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .action-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-color: #087A3D;
+        }
+
+        .action-card.primary {
+            background-color: #EAF7EE;
+            border-color: #D1F2E4;
+        }
+
+        .action-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .action-icon.green {
+            background-color: #EAF7EE;
+            color: #087A3D;
+        }
+
+        .action-icon.blue {
+            background-color: #E3F2FD;
+            color: #2388E8;
+        }
+
+        .action-icon.purple {
+            background-color: #F3E5F5;
+            color: #7B4BD9;
+        }
+
+        .action-icon.orange {
+            background-color: #FEF3E2;
+            color: #F28C18;
+        }
+
+        .action-icon.teal {
+            background-color: #E0F2F1;
+            color: #00897B;
+        }
+
+        .action-card-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #172033;
+            margin-bottom: 2px;
+            line-height: 1.3;
+        }
+
+        .action-card-description {
+            font-size: 14px;
+            color: #667085;
+            line-height: 1.2;
+        }
+
+        .action-card-arrow {
+            display: none;
+        }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #D1D5DB;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #9CA3AF;
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <div class="header">
+        <div class="header-left">
+            <a href="{{ url_for('home') }}" class="logo-container">
+                <div class="logo-icon"><i class="fa-solid fa-hand-holding-heart"></i></div>
+                <div class="logo-text">
+                    <div class="brand-name">FeedForward</div>
+                    <div class="brand-tagline">Share • Support • Sustain</div>
+                </div>
+            </a>
+        </div>
+        <div class="header-right">
+            <div class="notification-wrapper">
+                <a href="{{ url_for('view_notifications') }}" class="notification-bell" title="View notifications">
+                    <i class="fas fa-bell"></i>
+                </a>
+                <div class="notification-badge">{{ unread_notifications|length if unread_notifications else 0 }}</div>
+            </div>
+            <div class="user-menu" id="userMenu">
+                <div class="user-avatar"><i class="fas fa-user"></i></div>
+                <div class="user-name">{{ donor.company_name if donor else 'Bhavana' }}</div>
+                <div class="dropdown-arrow"><i class="fas fa-chevron-down"></i></div>
+                <div class="user-dropdown" id="userDropdown">
+                    <a href="{{ url_for('profile') }}" class="dropdown-item">
+                        <i class="fas fa-user-circle"></i>
+                        <span>Profile</span>
+                    </a>
+                    <a href="{{ url_for('donor_history') }}" class="dropdown-item">
+                        <i class="fas fa-history"></i>
+                        <span>History</span>
+                    </a>
+                    <a href="{{ url_for('donor_certificates') }}" class="dropdown-item">
+                        <i class="fas fa-certificate"></i>
+                        <span>Certificates</span>
+                    </a>
+                    <a href="{{ url_for('logout') }}" class="dropdown-item logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- LAYOUT CONTAINER -->
+    <div class="layout-container">
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <ul class="sidebar-menu">
+                <li class="sidebar-item">
+                    <a href="{{ url_for('donor_dashboard') }}" class="sidebar-link active">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="{{ url_for('donor_donate') }}" class="sidebar-link">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>List Donation</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="{{ url_for('donor_history') }}" class="sidebar-link">
+                        <i class="fas fa-gift"></i>
+                        <span>My Donations</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="{{ url_for('donor_verified_ngos') }}" class="sidebar-link">
+                        <i class="fas fa-building-ngo"></i>
+                        <span>Verified NGOs</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="{{ url_for('portfolio') }}" class="sidebar-link">
+                        <i class="fas fa-briefcase"></i>
+                        <span>My Portfolio</span>
+                    </a>
+                </li>
+                
+                <li class="sidebar-item">
+                    <a href="{{ url_for('donor_volunteers') }}" class="sidebar-link">
+                        <i class="fas fa-people-carry"></i>
+                        <span>Volunteers</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="{{ url_for('donor_feedback') }}" class="sidebar-link">
+                        <i class="fas fa-comment-dots"></i>
+                        <span>Feedback</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="{{ url_for('donor_certificates') }}" class="sidebar-link">
+                        <i class="fas fa-certificate"></i>
+                        <span>Certificates</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="{{ url_for('profile') }}" class="sidebar-link">
+                        <i class="fas fa-cog"></i>
+                        <span>Profile Settings</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="{{ url_for('logout') }}" class="sidebar-link">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </a>
+                </li>
+            </ul>
+
+            <!-- HELP CARD -->
+            <div class="help-card">
+                <div class="help-icon"><i class="fas fa-hands-holding-heart"></i></div>
+                <div class="help-title">Need Help?</div>
+                <div class="help-text">We're here to help you make a bigger impact.</div>
+                <a href="{{ url_for('contact') }}" class="help-link">Contact Support</a>
+            </div>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+            <!-- BACK BUTTON -->
+            <a href="javascript:history.back()" class="back-button">
+                <i class="fas fa-chevron-left"></i>
+                Back
+            </a>
+
+            <!-- WELCOME CARD -->
+            <div class="welcome-card">
+                <div class="welcome-content">
+                    <h3>Donor Experience</h3>
+                    <h1>Welcome back, {{ donor.company_name if donor else 'Bhavana' }}</h1>
+                    <p>Manage your donations and make a meaningful impact.</p>
+                </div>
+                <div class="welcome-actions">
+                    <a href="{{ url_for('donor_donate') }}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> List New Donation
+                    </a>
+                    <a href="{{ url_for('profile') }}" class="btn btn-secondary">
+                        <i class="fas fa-user-pen"></i> Manage Profile
+                    </a>
+                </div>
+            </div>
+
+            <!-- STATS GRID -->
+            <div class="stats-grid">
+                <!-- Card 1: Active Donations -->
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-badge green">Active</div>
+                        <div class="stat-icon green"><i class="fas fa-gift"></i></div>
+                    </div>
+                    <div class="stat-number">{{ stats.total_donated }}</div>
+                    <div class="stat-label">Active Donations</div>
+                    <div class="stat-description">Currently active listings</div>
+                </div>
+
+                <!-- Card 2: Completed Deliveries -->
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-badge green">Success</div>
+                        <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+                    </div>
+                    <div class="stat-number">{{ stats.delivered }}</div>
+                    <div class="stat-label">Completed Deliveries</div>
+                    <div class="stat-description">Successfully delivered</div>
+                </div>
+
+                <!-- Card 3: Pending -->
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-badge orange">Pending</div>
+                        <div class="stat-icon orange"><i class="fas fa-clock"></i></div>
+                    </div>
+                    <div class="stat-number">{{ stats.pending }}</div>
+                    <div class="stat-label">Pending</div>
+                    <div class="stat-description">Awaiting delivery</div>
+                </div>
+
+                <!-- Card 4: Cancelled / Issues -->
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-badge red">Issues</div>
+                        <div class="stat-icon red"><i class="fas fa-exclamation-triangle"></i></div>
+                    </div>
+                    <div class="stat-number">{{ stats.cancelled }}</div>
+                    <div class="stat-label">Cancelled / Issues</div>
+                    <div class="stat-description">Cancelled or with issues</div>
+                </div>
+            </div>
+
+            <!-- ANALYTICS GRID -->
+            <div class="analytics-grid">
+                <!-- Performance Chart Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Your Donation Performance</h3>
+                        <p>Distribution across donation statuses</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="performanceChart" width="80" height="80"></canvas>
+                        </div>
+                        <div class="performance-legend">
+                            <div class="legend-item">
+                                <span class="legend-color" style="background-color: #087A3D;"></span>
+                                <span class="legend-label">Delivered</span>
+                                <span class="legend-value">{{ stats.delivered }}</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color" style="background-color: #2388E8;"></span>
+                                <span class="legend-label">Active</span>
+                                <span class="legend-value">{{ (stats.total_donated - stats.pending - stats.cancelled - stats.delivered) if stats.total_donated else 0 }}</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color" style="background-color: #F5A623;"></span>
+                                <span class="legend-label">Pending</span>
+                                <span class="legend-value">{{ stats.pending }}</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color" style="background-color: #E53935;"></span>
+                                <span class="legend-label">Cancelled</span>
+                                <span class="legend-value">{{ stats.cancelled }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Distribution by Type -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Donation Distribution</h3>
+                        <p>By donation type</p>
+                    </div>
+                    <div class="card-body">
+                        {% set donation_total = stats.total_donated if stats.total_donated else 0 %}
+                        <div class="distribution-items">
+                            <div class="distribution-item">
+                                <div class="dist-icon green"><i class="fas fa-utensils"></i></div>
+                                <div class="dist-info">
+                                    <span class="dist-label">Food</span>
+                                    <span class="dist-count">{{ stats.food_count }}</span>
+                                </div>
+                                <div class="dist-bar">
+                                    <div class="dist-progress" style="width: {{ ((stats.food_count / donation_total * 100) if donation_total else 0) }}%; background-color: #087A3D;"></div>
+                                </div>
+                            </div>
+                            <div class="distribution-item">
+                                <div class="dist-icon blue"><i class="fas fa-shirt"></i></div>
+                                <div class="dist-info">
+                                    <span class="dist-label">Clothes</span>
+                                    <span class="dist-count">{{ stats.clothes_count }}</span>
+                                </div>
+                                <div class="dist-bar">
+                                    <div class="dist-progress" style="width: {{ ((stats.clothes_count / donation_total * 100) if donation_total else 0) }}%; background-color: #2388E8;"></div>
+                                </div>
+                            </div>
+                            <div class="distribution-item">
+                                <div class="dist-icon purple"><i class="fas fa-book"></i></div>
+                                <div class="dist-info">
+                                    <span class="dist-label">Books</span>
+                                    <span class="dist-count">{{ stats.books_count }}</span>
+                                </div>
+                                <div class="dist-bar">
+                                    <div class="dist-progress" style="width: {{ ((stats.books_count / donation_total * 100) if donation_total else 0) }}%; background-color: #7B4BD9;"></div>
+                                </div>
+                            </div>
+                            <div class="distribution-item">
+                                <div class="dist-icon orange"><i class="fas fa-rupee-sign"></i></div>
+                                <div class="dist-info">
+                                    <span class="dist-label">Money</span>
+                                    <span class="dist-count">{{ stats.money_count }}</span>
+                                </div>
+                                <div class="dist-bar">
+                                    <div class="dist-progress" style="width: {{ ((stats.money_count / donation_total * 100) if donation_total else 0) }}%; background-color: #F28C18;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Delivery Efficiency -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Delivery Efficiency</h3>
+                        <p>Success rate</p>
+                    </div>
+                    <div class="card-body">
+                        {% set efficiency_pct = ((stats.delivered / stats.total_donated) * 100) if stats.total_donated else 0 %}
+                        <div class="efficiency-score">{{ efficiency_pct | round(1) }}%</div>
+                        <div class="efficiency-bar">
+                            <div class="efficiency-fill" style="width: {{ efficiency_pct }}%;"></div>
+                        </div>
+                        <div class="efficiency-comparison">
+                            <div class="comp-item">
+                                <div class="comp-icon" style="color: #087A3D;"><i class="fas fa-check-circle"></i></div>
+                                <div>
+                                    <strong>{{ stats.delivered }}</strong>
+                                    <span>Delivered</span>
+                                </div>
+                            </div>
+                            <div class="comp-item">
+                                <div class="comp-icon" style="color: #2388E8;"><i class="fas fa-list"></i></div>
+                                <div>
+                                    <strong>{{ stats.total_donated }}</strong>
+                                    <span>Total</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BOTTOM GRID: NOTIFICATIONS & QUICK ACTIONS -->
+            <div class="bottom-grid">
+                <!-- Notifications Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-bell"></i> Latest Notification</h3>
+                        <a href="{{ url_for('donor_history') }}" class="view-all-link">View All →</a>
+                    </div>
+                    <div class="card-body">
+                        {% if recent_donations and recent_donations|length > 0 %}
+                            {% set latest = recent_donations[0] %}
+                            <div class="notification-item">
+                                
+                                <div class="notification-details">
+                                    <div class="notification-title">{{ latest.food_name }}</div>
+                                    <div class="notification-status" data-status="{{ latest.status }}">
+                                        {{ latest.status }}
+                                    </div>
+                                    {% if latest.inspection_status %}
+                                        <div class="small mt-1 {% if latest.inspection_result == 'Rejected' %}text-danger{% elif latest.inspection_result == 'Approved' %}text-success{% else %}text-warning{% endif %}">
+                                            {{ latest.inspection_status }}{% if latest.inspection_result %} - {{ latest.inspection_result }}{% endif %}
+                                        </div>
+                                    {% endif %}
+                                    <div class="notification-meta">
+                                        <span><strong>Volunteer:</strong> {{ latest.assigned_volunteer_name or 'Pending assignment' }}</span>
+                                        <span><strong>Date:</strong> {{ latest.created_at|format_datetime }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="notification-item empty">
+                                <div class="notification-badge">
+                                    <i class="fas fa-info-circle"></i>
+                                </div>
+                                <div class="notification-details">
+                                    <div class="notification-title">No recent updates</div>
+                                    <div class="notification-meta">Your donation activity will appear here.</div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Quick Actions Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="action-grid">
+                            <a href="{{ url_for('donor_donate') }}" class="action-card primary">
+                                <div class="action-icon green"><i class="fas fa-plus"></i></div>
+                                <div class="action-card-title">Create Donation</div>
+                                <div class="action-card-description">List a new donation</div>
+                                <div class="action-card-arrow"><i class="fas fa-arrow-right"></i></div>
+                            </a>
+
+                            <a href="{{ url_for('portfolio') }}" class="action-card">
+                                <div class="action-icon blue"><i class="fas fa-briefcase"></i></div>
+                                <div class="action-card-title">My Portfolio</div>
+                                <div class="action-card-description">View your donations</div>
+                                <div class="action-card-arrow"><i class="fas fa-arrow-right"></i></div>
+                            </a>
+
+                            <a href="{{ url_for('donor_history') }}" class="action-card">
+                                <div class="action-icon purple"><i class="fas fa-history"></i></div>
+                                <div class="action-card-title">Donation History</div>
+                                <div class="action-card-description">Track activity</div>
+                                <div class="action-card-arrow"><i class="fas fa-arrow-right"></i></div>
+                            </a>
+
+                            <a href="{{ url_for('donor_certificates') }}" class="action-card">
+                                <div class="action-icon orange"><i class="fas fa-certificate"></i></div>
+                                <div class="action-card-title">Download Certificates</div>
+                                <div class="action-card-description">Get your certificates</div>
+                                <div class="action-card-arrow"><i class="fas fa-arrow-right"></i></div>
+                            </a>
+
+                            <a href="{{ url_for('donor_feedback') }}" class="action-card">
+                                <div class="action-icon teal"><i class="fas fa-comments"></i></div>
+                                <div class="action-card-title">View Feedback</div>
+                                <div class="action-card-description">See what others said</div>
+                                <div class="action-card-arrow"><i class="fas fa-arrow-right"></i></div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="footer">© 2025 FeedForward | Connecting Help with Hope</footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script>
+        // Function to get color based on status
+        function getStatusColor(status) {
+            const statusLower = status ? status.toLowerCase() : '';
+            if (statusLower.includes('delivered') || statusLower.includes('completed')) return '#087A3D';
+            if (statusLower.includes('active') || statusLower.includes('pending assignment')) return '#2388E8';
+            if (statusLower.includes('pending')) return '#F5A623';
+            if (statusLower.includes('cancelled') || statusLower.includes('issue')) return '#E53935';
+            return '#172033';
+        }
+
+        // Function to format date
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
+            return new Date(dateString).toLocaleString('en-IN', options);
+        }
+
+        // Render performance chart
+        function renderPerformanceChart() {
+            const canvas = document.getElementById('performanceChart');
+            if (!canvas) return;
+
+            const ctx = canvas.getContext('2d');
+            const delivered = {{ stats.delivered }};
+            const active = {{ (stats.total_donated - stats.pending - stats.cancelled - stats.delivered) if stats.total_donated else 0 }};
+            const pending = {{ stats.pending }};
+            const cancelled = {{ stats.cancelled }};
+
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Delivered', 'Active', 'Pending', 'Cancelled'],
+                    datasets: [{
+                        data: [delivered, active, pending, cancelled],
+                        backgroundColor: ['#087A3D', '#2388E8', '#F5A623', '#E53935'],
+                        borderColor: '#ffffff',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+        }
+
+        // Apply status colors to notification status elements
+        function applyStatusColors() {
+            document.querySelectorAll('[data-status]').forEach(el => {
+                el.style.color = getStatusColor(el.dataset.status);
+            });
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            renderPerformanceChart();
+            applyStatusColors();
+            
+            // User menu dropdown functionality
+            const userMenu = document.getElementById('userMenu');
+            const userDropdown = document.getElementById('userDropdown');
+            
+            if (userMenu && userDropdown) {
+                userMenu.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    userDropdown.classList.toggle('show');
+                    userMenu.classList.toggle('active');
+                });
+                
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function() {
+                    userDropdown.classList.remove('show');
+                    userMenu.classList.remove('active');
+                });
+            }
+        });
+    </script>
+</body>
+</html>
+

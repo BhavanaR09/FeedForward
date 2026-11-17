@@ -1,0 +1,183 @@
+{% set sidebar_ngo = ngo|default(None, true) or current_user.get_profile_data() or {} %}
+<aside class="ngo-sidebar-wrapper" id="ngoSharedSidebar">
+    <button type="button" class="ngo-sidebar-toggle d-md-none" id="ngoSidebarClose" aria-label="Close NGO navigation"><i class="fa-solid fa-xmark"></i></button>
+    <div class="card border-0 shadow-sm rounded-4 p-4 mb-3">
+        <div class="d-flex align-items-start gap-3 mb-4">
+            <div class="bg-success bg-opacity-10 text-success rounded-4 p-3 flex-shrink-0">
+                <i class="fa-solid fa-building-ngo fs-4"></i>
+            </div>
+            <div class="flex-grow-1 min-width-0">
+                <p class="text-muted text-uppercase fw-semibold mb-1" style="font-size:0.72rem; letter-spacing:.18em;">NGO Partner</p>
+                <h5 class="fw-bold mb-0">{{ sidebar_ngo.ngo_name or 'NGO Partner' }}</h5>
+                <p class="text-muted mb-0 text-truncate">{{ sidebar_ngo.organization_type or 'Beneficiary Organization' }}</p>
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <p class="text-muted mb-2"><i class="fa-solid fa-location-dot me-2 text-danger"></i><small>{{ sidebar_ngo.address or 'Location not provided' }}</small></p>
+            <div class="d-flex flex-wrap gap-2">
+                <a href="{{ url_for('profile') }}" class="btn btn-outline-success btn-sm rounded-pill flex-grow-1">Profile</a>
+                <a href="{{ url_for('ngo_history') }}" class="btn btn-success btn-sm rounded-pill flex-grow-1">History</a>
+            </div>
+        </div>
+
+        <div class="p-3 bg-light rounded-4">
+            <div class="d-flex justify-content-between align-items-start mb-3 flex-wrap gap-2">
+                <div class="flex-grow-1">
+                    <span class="fw-semibold d-block">Live Matrix</span>
+                    <small class="text-muted">Real-time activity stream</small>
+                </div>
+                <span class="badge bg-success bg-opacity-15 text-success rounded-pill px-2 py-1 flex-shrink-0">Live</span>
+            </div>
+            <div class="border rounded-3 p-2 mb-3" style="background: #f8fffb;">
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <span class="rounded-circle" style="width: 8px; height: 8px; background:#10b981;"></span>
+                    <small class="fw-semibold text-success" id="liveMatrixStatus">Tracking your activity</small>
+                </div>
+                <small class="text-muted" id="liveMatrixText">Real-time updates are enabled for this session.</small>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+                <span class="text-muted small">Assignments</span>
+                <strong class="small">{{ my_assignments|default([], true)|length }}</strong>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+                <span class="text-muted small">Available listings</span>
+                <strong class="small">{{ available_donations|default([], true)|length }}</strong>
+            </div>
+            <div class="d-flex justify-content-between mb-3">
+                <span class="text-muted small">Volunteers</span>
+                <strong class="small">{{ volunteers|default([], true)|length }}</strong>
+            </div>
+            <div>
+                <div class="fw-semibold small mb-2">Browsing history</div>
+                <ul id="liveMatrixHistory" class="list-unstyled small mb-0"></ul>
+            </div>
+        </div>
+
+        <script>
+            (function () {
+                const storageKey = 'ngoLiveMatrixHistory';
+                const maxItems = 5;
+                const historyList = document.getElementById('liveMatrixHistory');
+                const statusEl = document.getElementById('liveMatrixStatus');
+                const textEl = document.getElementById('liveMatrixText');
+
+                if (!historyList || !statusEl || !textEl) {
+                    return;
+                }
+
+                const formatLabel = (path) => {
+                    const routes = {
+                        '/ngo/dashboard': 'Dashboard',
+                        '/ngo/donations': 'Browse listings',
+                        '/ngo/assignments': 'View assignments',
+                        '/ngo/volunteers': 'Volunteer roster',
+                        '/ngo/history': 'History'
+                    };
+                    return routes[path] || 'Current page';
+                };
+
+                const entry = {
+                    label: formatLabel(window.location.pathname),
+                    path: window.location.pathname,
+                    time: new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+                };
+
+                let history = [];
+                try {
+                    history = JSON.parse(sessionStorage.getItem(storageKey) || '[]');
+                } catch (e) {
+                    history = [];
+                }
+
+                const hasSamePath = history.some(item => item.path === entry.path);
+                if (!hasSamePath) {
+                    history = [entry, ...history].slice(0, maxItems);
+                    sessionStorage.setItem(storageKey, JSON.stringify(history));
+                } else {
+                    history = history.map(item => item.path === entry.path ? entry : item);
+                    sessionStorage.setItem(storageKey, JSON.stringify(history));
+                }
+
+                statusEl.textContent = `Now viewing ${entry.label}`;
+                textEl.textContent = `Last update ${entry.time} • ${history.length} recent pages tracked`;
+                historyList.innerHTML = history.map((item, index) => `
+                    <li class="d-flex justify-content-between align-items-center py-1 ${index === 0 ? 'text-success fw-semibold' : ''}">
+                        <span>${item.label}</span>
+                        <small class="text-muted">${item.time}</small>
+                    </li>
+                `).join('');
+            })();
+        </script>
+
+        <div class="mb-4">
+            <h6 class="fw-semibold mb-3">Quick Actions</h6>
+            <div class="list-group list-group-flush">
+                <a href="{{ url_for('ngo_dashboard') }}" class="list-group-item list-group-item-action rounded-3 py-2{% if request.endpoint == 'ngo_dashboard' %} active bg-success text-white{% endif %}"><i class="fa-solid fa-house me-2"></i>Dashboard</a>
+                <a href="{{ url_for('portfolio') }}" class="list-group-item list-group-item-action rounded-3 py-2{% if request.endpoint == 'portfolio' %} active bg-success text-white{% endif %}"><i class="fa-solid fa-briefcase me-2"></i>Portfolio</a>
+                <a href="{{ url_for('ngo_donations') }}" class="list-group-item list-group-item-action rounded-3 py-2{% if request.endpoint in ['ngo_donations', 'ngo_category_donations'] %} active bg-success text-white{% endif %}"><i class="fa-solid fa-list-check me-2"></i>Browse listings</a>
+                <a href="{{ url_for('ngo_assignments') }}" class="list-group-item list-group-item-action rounded-3 py-2{% if request.endpoint == 'ngo_assignments' %} active bg-success text-white{% endif %}"><i class="fa-solid fa-truck-fast me-2"></i>Assignments</a>
+                <a href="{{ url_for('ngo_volunteers') }}" class="list-group-item list-group-item-action rounded-3 py-2{% if request.endpoint == 'ngo_volunteers' %} active bg-success text-white{% endif %}"><i class="fa-solid fa-people-group me-2"></i>Volunteers</a>
+                <a href="{{ url_for('ngo_history') }}" class="list-group-item list-group-item-action rounded-3 py-2{% if request.endpoint == 'ngo_history' %} active bg-success text-white{% endif %}"><i class="fa-solid fa-clock-rotate-left me-2"></i>History</a>
+                <a href="{{ url_for('view_notifications') }}" class="list-group-item list-group-item-action rounded-3 py-2{% if request.endpoint == 'view_notifications' %} active bg-success text-white{% endif %}"><i class="fa-solid fa-bell me-2"></i>Notifications</a>
+                <a href="{{ url_for('profile') }}" class="list-group-item list-group-item-action rounded-3 py-2{% if request.endpoint == 'profile' %} active bg-success text-white{% endif %}"><i class="fa-solid fa-user me-2"></i>Profile</a>
+            </div>
+        </div>
+
+        <div class="p-3 bg-success bg-opacity-10 text-success rounded-4">
+            <p class="fw-semibold mb-2">Operational readiness</p>
+            <p class="mb-0 text-muted" style="font-size:0.95rem;">Use dedicated pages to claim donations, assign pickups, and manage volunteers more efficiently.</p>
+        </div>
+    </div>
+</aside>
+
+<style>
+    .ngo-sidebar-wrapper {
+        flex: 0 0 220px;
+        max-width: 220px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        position: sticky;
+        top: 1rem;
+        z-index: 1020;
+    }
+
+    .ngo-sidebar-wrapper .card {
+        width: 100%;
+        max-width: 220px;
+        box-sizing: border-box;
+        position: relative;
+        top: auto;
+    }
+
+    .ngo-sidebar-wrapper .list-group-item {
+        position: relative;
+        z-index: 1;
+    }
+
+    .min-width-0 {
+        min-width: 0;
+    }
+
+    .text-truncate {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .ngo-sidebar-toggle { align-self: flex-end; border: 0; background: transparent; color: #2e7d32; font-size: 1.1rem; }
+    @media (max-width: 767.98px) {
+        .ngo-sidebar-wrapper { background: #fff; box-shadow: 0 15px 40px rgba(15, 23, 42, .16); max-width: 280px; overflow-y: auto; padding: .75rem; position: fixed; inset: 0 auto 0 0; transform: translateX(-105%); transition: transform .25s ease; width: min(280px, 88vw); }
+        .ngo-sidebar-wrapper.is-open { transform: translateX(0); }
+        .ngo-sidebar-wrapper .card { box-shadow: none !important; padding: .75rem !important; }
+    }
+</style>
+<script>
+    (() => {
+        const sidebar = document.getElementById('ngoSharedSidebar');
+        const close = document.getElementById('ngoSidebarClose');
+        const open = document.getElementById('ngoSidebarOpen');
+        if (sidebar && close) close.addEventListener('click', () => sidebar.classList.remove('is-open'));
+        if (sidebar && open) open.addEventListener('click', () => sidebar.classList.add('is-open'));
+    })();
+</script>

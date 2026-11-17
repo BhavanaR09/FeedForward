@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Volunteer Emergencies - FeedForward{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-5">
+    <div class="row gx-4 gy-4">
+        {% include 'volunteer_sidebar.html' %}
+        <div class="col-lg-9">
+            <div class="position-relative mb-4 rounded-4 overflow-hidden" style="min-height:100px; background-image: linear-gradient(90deg, rgba(220,38,38,0.06), rgba(34,197,94,0.02)), url('{{ url_for('static', filename='images/food-small.jpg') }}'); background-size:cover; background-position:center;">
+                <div class="p-4 text-white" style="background: linear-gradient(90deg, rgba(0,0,0,0.24), rgba(0,0,0,0.08));">
+                    <span class="badge bg-danger bg-opacity-20 text-success rounded-pill text-uppercase fw-semibold px-3 py-2">Emergency Alerts</span>
+                    <h1 class="fw-bold text-white mt-2 mb-1">Volunteer Emergencies</h1>
+                    <p class="text-white-75 mb-0">Stay aware of active emergencies and volunteer assignments for rapid response.</p>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    {% if active_emergencies and active_emergencies|length > 0 %}
+                        <div class="row g-3">
+                            {% for emergency in active_emergencies %}
+                                <div class="col-12">
+                                    <div class="card border-0 shadow-sm rounded-4 p-3">
+                                        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                                            <div>
+                                                <h5 class="fw-semibold mb-1">{{ emergency.title }}</h5>
+                                                <small class="text-muted d-block">{{ emergency.location }} • {{ emergency.disaster_type }}</small>
+                                                <p class="text-muted mt-2 mb-2">{{ emergency.details }}</p>
+
+                                                <div class="d-flex gap-3 flex-wrap align-items-center text-muted">
+                                                    <div><i class="fa-solid fa-clock me-1"></i> Reported: {{ emergency.created_at }}</div>
+                                                    <div class="ms-2"><i class="fa-solid fa-map-pin me-1"></i> Area: {{ emergency.location }}</div>
+                                                </div>
+                                            </div>
+                                            <div class="text-end">
+                                                <span class="badge rounded-pill px-3 py-2 {% if emergency.severity == 'Critical' %}bg-danger{% elif emergency.severity == 'High' %}bg-warning text-dark{% elif emergency.severity == 'Medium' %}bg-info text-dark{% else %}bg-success text-white{% endif %}">{{ emergency.severity }}</span>
+                                                <div class="mt-3">
+                                                    <a href="{{ url_for('volunteer_dashboard') }}" class="btn btn-sm btn-outline-success rounded-3">View Assignments</a>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- small timeline / distribution info -->
+                                        <div class="mt-3 border-top pt-3">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <small class="text-muted">Relief Requests: <strong>{{ emergency.requests_count if emergency.requests_count is defined else '—' }}</strong></small>
+                                                </div>
+                                                <div>
+                                                    <small class="text-muted">Volunteers Assigned: <strong>{{ emergency.volunteers_assigned if emergency.volunteers_assigned is defined else '0' }}</strong></small>
+                                                </div>
+                                            </div>
+                                            <div class="mt-2">
+                                                <small class="text-muted">Distribution timeline:</small>
+                                                <ul class="list-unstyled mb-0 mt-2 text-muted" style="font-size:0.92rem;">
+                                                    <li>• Reported: {{ emergency.created_at }}</li>
+                                                    <li>• Assessment: {{ emergency.start_date if emergency.start_date else 'Pending' }}</li>
+                                                    <li>• Response: {{ emergency.end_date if emergency.end_date else 'Ongoing' }}</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="card border-0 shadow-sm rounded-4 p-4 text-center text-muted">
+                            <p class="mb-0">No active emergencies at the moment.</p>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="card border-0 shadow-sm rounded-4 p-3 mb-3">
+                        <h6 class="fw-semibold mb-2">Affected Areas</h6>
+                        <div class="text-muted">
+                            {% if active_emergencies %}
+                                <ul class="mb-0 ps-3">
+                                    {% for e in active_emergencies[:6] %}
+                                        <li>{{ e.location }} <small class="text-muted">({{ e.disaster_type }})</small></li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <div>No areas to show.</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="card border-0 shadow-sm rounded-4 p-3 mb-3">
+                        <h6 class="fw-semibold mb-2">Volunteer Quick Actions</h6>
+                        <a href="{{ url_for('volunteer_dashboard') }}" class="btn btn-success w-100 mb-2">Go to Dashboard</a>
+                        <a href="{{ url_for('volunteer_history') }}" class="btn btn-outline-secondary w-100">View Delivery History</a>
+                    </div>
+
+                    <div class="card border-0 shadow-sm rounded-4 p-3">
+                        <h6 class="fw-semibold mb-2">Safety Tips</h6>
+                        <ul class="mb-0 ps-3 text-muted">
+                            <li>Confirm pickup windows before departure</li>
+                            <li>Carry ID and wear reflective vest</li>
+                            <li>Coordinate with NGO leads on arrival</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

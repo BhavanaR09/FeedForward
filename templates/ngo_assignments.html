@@ -1,0 +1,1099 @@
+{% extends "base.html" %}
+
+{% block title %}NGO Assignments - FeedForward{% endblock %}
+
+{% block content %}
+
+<style>
+    /* =========================================================
+       NGO ASSIGNMENTS PAGE LAYOUT
+       ========================================================= */
+
+    .ngo-assignment-layout {
+        display: flex;
+        align-items: flex-start;
+        width: 100%;
+        min-height: calc(100vh - 70px);
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    /* LEFT NGO SIDEBAR */
+    .ngo-assignment-sidebar {
+        flex: 0 0 220px;
+        width: 220px;
+        min-width: 220px;
+        max-width: 220px;
+        align-self: flex-start;
+        box-sizing: border-box;
+        position: relative;
+        z-index: 5;
+    }
+
+    /* RIGHT MAIN CONTENT */
+    .ngo-assignment-main {
+        flex: 1 1 auto;
+        min-width: 0;
+        width: auto;
+        box-sizing: border-box;
+        padding: 24px 28px 40px;
+    }
+
+    .ngo-assignment-container {
+        width: 100%;
+        max-width: none;
+        margin: 0;
+    }
+
+    /* =========================================================
+       FILTER PANEL
+       ========================================================= */
+
+    .assignment-filter-panel {
+        background: #fff;
+        border: 1px solid #e3ece5;
+        box-shadow: 0 10px 26px rgba(30, 82, 45, .06);
+    }
+
+    .assignment-search {
+        min-height: 48px;
+        border-color: #d7e5da;
+        padding-left: 2.7rem;
+    }
+
+    .assignment-search:focus,
+    .assignment-filter:focus {
+        border-color: #2e7d32;
+        box-shadow: 0 0 0 .2rem rgba(46, 125, 50, .12);
+    }
+
+    .assignment-search-icon {
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #63946a;
+    }
+
+    .assignment-filter {
+        min-height: 42px;
+        border-color: #d7e5da;
+    }
+
+    .assignment-empty {
+        border: 1px dashed #bdd7c2;
+        background: #fbfefb;
+    }
+
+    /* =========================================================
+       ASSIGNMENT TABLE
+       ========================================================= */
+
+    .assignment-table-container {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .assignment-table-container .table-responsive {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .assignment-table-container table {
+        width: 100%;
+        min-width: 850px;
+    }
+
+    /* Prevent long content from breaking layout */
+    .assignment-table-container td,
+    .assignment-table-container th {
+        vertical-align: middle;
+    }
+
+    /* =========================================================
+       HEADER
+       ========================================================= */
+
+    .assignment-page-header {
+        width: 100%;
+    }
+
+    .assignment-page-header h1 {
+        font-size: clamp(1.6rem, 2vw, 2rem);
+    }
+
+    /* =========================================================
+       RESPONSIVE FILTERS
+       ========================================================= */
+
+    @media (min-width: 992px) {
+
+        .assignment-filter-panel .row {
+            display: grid;
+            grid-template-columns: minmax(280px, 1fr)
+                                   minmax(140px, 160px)
+                                   minmax(160px, 180px)
+                                   minmax(160px, 180px);
+            gap: 16px;
+            margin: 0;
+        }
+
+        .assignment-filter-panel .row > div {
+            width: auto !important;
+            padding: 0;
+        }
+    }
+
+    /* =========================================================
+       DONATION IMAGE
+       ========================================================= */
+
+    .assignment-donation-image {
+        width: 68px;
+        height: 68px;
+        min-width: 68px;
+        border-radius: 14px;
+        overflow: hidden;
+        background: #eef7f0;
+        border: 1px solid #dce9df;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(30, 82, 45, .06);
+    }
+
+    .donation-thumbnail {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .donation-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #3d8b4f;
+        font-size: 26px;
+        background: linear-gradient(
+            135deg,
+            #eef8f0,
+            #dcefdF
+        );
+    }
+
+    .donation-details {
+        min-width: 0;
+    }
+
+    .donation-details .donation-name {
+        max-width: 280px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .donation-location {
+        max-width: 280px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    /* =========================================================
+       TABLET
+       ========================================================= */
+
+    @media (max-width: 1100px) {
+
+        .ngo-assignment-sidebar {
+            flex: 0 0 200px;
+            width: 200px;
+            min-width: 200px;
+            max-width: 200px;
+        }
+
+        .ngo-assignment-main {
+            padding: 20px;
+        }
+    }
+
+    /* =========================================================
+       MOBILE
+       ========================================================= */
+
+    @media (max-width: 768px) {
+
+        .ngo-assignment-layout {
+            display: block;
+            min-height: auto;
+        }
+
+        .ngo-assignment-sidebar {
+            width: 100%;
+            min-width: 100%;
+            max-width: 100%;
+            flex: none;
+        }
+
+        .ngo-assignment-main {
+            width: 100%;
+            padding: 16px;
+        }
+
+        .assignment-page-header {
+            flex-direction: column;
+        }
+
+        .assignment-page-header > a {
+            align-self: flex-start;
+        }
+    }
+
+    @media (max-width: 575.98px) {
+
+        .assignment-filter-panel {
+            padding: 1rem !important;
+        }
+
+        .ngo-assignment-main {
+            padding: 12px;
+        }
+    }
+</style>
+
+
+<!-- =========================================================
+     NGO ASSIGNMENT PAGE
+     ========================================================= -->
+
+<div class="ngo-assignment-layout">
+
+    <!-- =====================================================
+         LEFT NGO SIDEBAR
+         ===================================================== -->
+    <aside class="ngo-assignment-sidebar">
+
+        {% include 'ngo_sidebar.html' %}
+
+    </aside>
+
+
+    <!-- =====================================================
+         RIGHT MAIN CONTENT
+         ===================================================== -->
+    <main class="ngo-assignment-main">
+
+        <div class="ngo-assignment-container">
+
+            <!-- PAGE HEADER -->
+            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+
+                <div class="assignment-page-header d-flex align-items-start justify-content-between mb-4 flex-wrap gap-3">
+
+                    <div>
+
+                        <span class="badge bg-info bg-opacity-15 text-info rounded-pill text-uppercase fw-semibold px-3 py-2">
+                            Assignments
+                        </span>
+
+                        <h1 class="fw-bold text-dark mt-3 mb-1">
+                            Current NGO Pickups
+                        </h1>
+
+                        <p class="text-muted mb-0">
+                            Manage your accepted donations and assign volunteers for pickup.
+                        </p>
+
+                    </div>
+
+                    <a href="{{ url_for('ngo_dashboard') }}"
+                       class="btn btn-outline-success btn-sm rounded-pill px-4 py-2 d-inline-flex align-items-center gap-2">
+
+                        <i class="fa-solid fa-arrow-left"></i>
+                        Dashboard
+
+                    </a>
+
+                </div>
+
+
+                <!-- =================================================
+                     SEARCH AND FILTERS
+                     ================================================= -->
+
+                <div class="assignment-filter-panel rounded-4 p-3 p-lg-4 mb-4">
+
+                    <div class="row g-3 align-items-end">
+
+                        <!-- SEARCH -->
+                        <div class="col-12 col-lg-6">
+
+                            <label for="assignmentSearch"
+                                   class="form-label small fw-semibold">
+
+                                Search donations
+
+                            </label>
+
+                            <div class="position-relative">
+
+                                <i class="fa-solid fa-magnifying-glass position-absolute assignment-search-icon"></i>
+
+                                <input
+                                    id="assignmentSearch"
+                                    class="form-control rounded-3 assignment-search"
+                                    type="search"
+                                    placeholder="Search donations, location or volunteer..."
+                                    autocomplete="off"
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- STATUS -->
+                        <div class="col-12 col-sm-4 col-lg-2">
+
+                            <label for="assignmentStatus"
+                                   class="form-label small fw-semibold">
+
+                                Status
+
+                            </label>
+
+                            <select id="assignmentStatus"
+                                    class="form-select rounded-3 assignment-filter">
+
+                                <option value="">All Status</option>
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- VOLUNTEER -->
+                        <div class="col-12 col-sm-4 col-lg-2">
+
+                            <label for="assignmentVolunteer"
+                                   class="form-label small fw-semibold">
+
+                                Volunteer
+
+                            </label>
+
+                            <select id="assignmentVolunteer"
+                                    class="form-select rounded-3 assignment-filter">
+
+                                <option value="">All Volunteers</option>
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- LOCATION -->
+                        <div class="col-12 col-sm-4 col-lg-2">
+
+                            <label for="assignmentLocation"
+                                   class="form-label small fw-semibold">
+
+                                Location
+
+                            </label>
+
+                            <select id="assignmentLocation"
+                                    class="form-select rounded-3 assignment-filter">
+
+                                <option value="">All Locations</option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- FILTER FOOTER -->
+                    <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top gap-3 flex-wrap">
+
+                        <span id="assignmentResultCount"
+                              class="small text-muted">
+                        </span>
+
+                        <button
+                            id="clearAssignmentFilters"
+                            type="button"
+                            class="btn btn-light border rounded-3">
+
+                            <i class="fa-solid fa-rotate-left me-1"></i>
+                            Clear Filters
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     ASSIGNED DONATIONS
+                     ================================================= -->
+
+                <div class="card border-0 shadow-sm rounded-4 p-4 assignment-table-container">
+
+                    <div class="d-flex align-items-start justify-content-between mb-4 flex-wrap gap-3">
+
+                        <div>
+
+                            <h4 class="fw-bold mb-1">
+                                Assigned Donations
+                            </h4>
+
+                            <p class="text-muted mb-0">
+                                Review active assignments and volunteer handoff status.
+                            </p>
+
+                        </div>
+
+                        <span class="badge bg-info bg-opacity-15 text-light py-2 px-3 rounded-pill">
+
+                            {{ my_assignments|length }} active
+
+                        </span>
+
+                    </div>
+
+
+                    {% if my_assignments|length == 0 %}
+
+                        <!-- EMPTY STATE -->
+
+                        <div class="text-center py-5">
+
+                            <i class="fa-solid fa-handshake-angle fs-1 text-muted opacity-30 mb-3"></i>
+
+                            <p class="text-muted mb-0">
+                                No assigned pickups yet.
+                                Claim donations from nearby donors.
+                            </p>
+
+                        </div>
+
+                    {% else %}
+
+                        <!-- TABLE -->
+
+                        <div class="table-responsive border rounded-4 overflow-hidden">
+
+                            <table class="table table-hover align-middle mb-0">
+
+                                <thead class="bg-light text-muted text-uppercase text-xs">
+
+                                    <tr>
+
+                                        <th class="ps-4">
+                                            Donation
+                                        </th>
+
+                                        <th>
+                                            Quantity
+                                        </th>
+
+                                        <th>
+                                            Pickup Deadline
+                                        </th>
+
+                                        <th>
+                                            Status
+                                        </th>
+
+                                        <th>
+                                            Volunteer
+                                        </th>
+
+                                        <th class="text-end pe-4">
+                                            Workflow
+                                        </th>
+
+                                    </tr>
+
+                                </thead>
+
+
+                                <tbody>
+
+                                    {% for item in my_assignments %}
+
+                                        <!-- MAIN ASSIGNMENT ROW -->
+
+                                        <tr
+                                            class="assignment-row"
+
+                                            data-search="{{ [
+                                                item.food_name,
+                                                item.address,
+                                                item.volunteer_name,
+                                                item.quantity,
+                                                item.expiry_time,
+                                                item.pickup_time,
+                                                item.status,
+                                                item.inspection_status,
+                                                item.inspection_result
+                                            ]|join(' ')|lower|e }}"
+
+                                            data-volunteer="{{ item.volunteer_name|default('', true)|lower|e }}"
+
+                                            data-location="{{ item.address|default('', true)|lower|e }}"
+
+                                            data-status="{% if item.inspection_status and item.inspection_result not in ['Approved', 'Rejected'] %}pending inspection{% else %}{{ item.status|default('', true)|lower|e }}{% endif %}"
+                                        >
+
+                                            <!-- DONATION -->
+
+                                            <td class="ps-4">
+
+                                                <div class="fw-semibold text-dark">
+                                                    {{ item.food_name }}
+                                                </div>
+
+                                                <small class="text-muted d-block">
+                                                    {{ item.address }}
+                                                </small>
+
+                                                {% if item.created_at %}
+
+                                                    <small class="text-muted d-block mt-1">
+
+                                                        <i class="fa-solid fa-bowl-food me-1"></i>
+
+                                                        Food Prepared:
+                                                        {{ item.created_at|format_datetime('%d %b %Y, %I:%M %p') }}
+
+                                                    </small>
+
+                                                {% endif %}
+
+                                                <small class="text-muted d-block mt-1">
+
+                                                    <i class="fa-regular fa-clock me-1"></i>
+
+                                                    Best Before:
+                                                    {{ item.expiry_time|format_datetime('%d %b %Y, %I:%M %p') if item.expiry_time else 'N/A' }}
+
+                                                </small>
+
+
+                                                {% if item.status == 'Expired' %}
+
+                                                    <small class="text-danger d-block mt-2 fw-semibold">
+
+                                                        <i class="fa-solid fa-circle-exclamation me-1"></i>
+
+                                                        Expired — Best before time exceeded
+
+                                                    </small>
+
+                                                {% endif %}
+
+
+                                                {% if item.inspection_status %}
+
+                                                    <div class="mt-2">
+
+                                                        {% if item.inspection_result == 'Approved' %}
+
+                                                            <span class="badge bg-success-subtle text-success-emphasis rounded-pill px-2 py-1">
+
+                                                                Inspection Completed - Approved
+
+                                                            </span>
+
+                                                        {% elif item.inspection_result == 'Rejected' %}
+
+                                                            <span class="badge bg-danger-subtle text-danger-emphasis rounded-pill px-2 py-1">
+
+                                                                Inspection Completed - Rejected
+
+                                                            </span>
+
+                                                        {% else %}
+
+                                                            <span class="badge bg-warning-subtle text-warning-emphasis rounded-pill px-2 py-1">
+
+                                                                Pending Inspection
+
+                                                            </span>
+
+                                                        {% endif %}
+
+
+                                                        {% if item.inspection_notes %}
+
+                                                            <div class="text-muted text-xs mt-1">
+
+                                                                Notes:
+                                                                {{ item.inspection_notes }}
+
+                                                            </div>
+
+                                                        {% endif %}
+
+
+                                                        {% if item.inspection_result == 'Rejected' %}
+
+                                                            <div class="text-danger text-xs mt-1">
+
+                                                                This donation cannot proceed to delivery.
+
+                                                            </div>
+
+                                                        {% endif %}
+
+                                                    </div>
+
+                                                {% endif %}
+
+                                            </td>
+
+
+                                            <!-- QUANTITY -->
+
+                                            <td>
+                                                {{ item.quantity }}
+                                            </td>
+
+
+                                            <!-- PICKUP DEADLINE -->
+
+                                            <td>
+
+                                                {{ item.expiry_time|format_datetime('%d %b %Y, %I:%M %p')
+                                                   if item.expiry_time else 'N/A' }}
+
+                                            </td>
+
+
+                                            <!-- STATUS -->
+
+                                            <td>
+
+                                                <span class="badge status-badge status-{{ item.status|replace(' ', '-')|lower }}">
+
+                                                    {{ item.status }}
+
+                                                </span>
+
+                                            </td>
+
+
+                                            <!-- VOLUNTEER -->
+
+                                            <td>
+
+                                                {% if item.status in ['Accepted', 'Pending'] %}
+
+                                                    <span class="text-muted">
+                                                        Unassigned
+                                                    </span>
+
+                                                {% elif item.volunteer_name %}
+
+                                                    <strong>
+                                                        {{ item.volunteer_name }}
+                                                    </strong>
+
+                                                {% else %}
+
+                                                    <span class="text-muted">
+                                                        Awaiting assignment
+                                                    </span>
+
+                                                {% endif %}
+
+                                            </td>
+
+
+                                            <!-- WORKFLOW -->
+
+                                            <td class="text-end pe-4">
+
+                                                {% if item.status == 'Accepted' %}
+
+                                                    <div class="d-flex gap-2 justify-content-end align-items-center flex-wrap">
+
+                                                        <button
+                                                            class="btn btn-sm btn-success rounded-pill"
+                                                            data-bs-toggle="collapse"
+                                                            data-bs-target="#assignVolunteer{{ loop.index }}"
+                                                            aria-expanded="false"
+                                                            aria-controls="assignVolunteer{{ loop.index }}"
+                                                        >
+
+                                                            Assign Volunteer
+
+                                                        </button>
+
+                                                    </div>
+
+
+                                                {% elif item.status == 'Volunteer Assigned' %}
+
+                                                    <span class="text-success fw-semibold">
+                                                        Assigned
+                                                    </span>
+
+
+                                                {% elif item.status == 'Picked Up' %}
+
+                                                    <span class="text-success fw-semibold">
+                                                        Pickup
+                                                    </span>
+
+
+                                                {% elif item.status == 'Delivered' %}
+
+                                                    <span class="text-warning fw-semibold">
+                                                        Waiting for NGO Confirmation
+                                                    </span>
+
+
+                                                {% elif item.status == 'Completed' %}
+
+                                                    <span class="text-success fw-semibold">
+                                                        Completed
+                                                    </span>
+
+
+                                                {% elif item.status == 'Expired' %}
+
+                                                    <div class="d-flex gap-2 justify-content-end align-items-center flex-wrap">
+
+                                                        <span class="badge bg-danger-subtle text-danger-emphasis rounded-pill px-2 py-1">
+
+                                                            Expired
+
+                                                        </span>
+
+                                                    </div>
+
+
+                                                {% elif item.status in ['Cancelled', 'Rejected'] %}
+
+                                                    <span class="badge bg-secondary-subtle text-secondary-emphasis rounded-pill px-2 py-1">
+
+                                                        {{ item.status }}
+
+                                                    </span>
+
+
+                                                {% else %}
+
+                                                    <span class="text-muted">
+                                                        Pending
+                                                    </span>
+
+                                                {% endif %}
+
+                                            </td>
+
+                                        </tr>
+
+
+                                        <!-- ASSIGN VOLUNTEER COLLAPSE -->
+
+                                        {% if item.status == 'Accepted' %}
+
+                                            <tr
+                                                class="collapse assignment-detail"
+                                                id="assignVolunteer{{ loop.index }}"
+                                            >
+
+                                                <td colspan="6"
+                                                    class="bg-white border-top-0">
+
+                                                    <form
+                                                        action="{{ url_for('ngo_assign_volunteer', donation_id=item.donation_id) }}"
+                                                        method="POST"
+                                                        class="row g-2 align-items-center"
+                                                    >
+
+                                                        <div class="col-md-8">
+
+                                                            <select
+                                                                name="volunteer_id"
+                                                                class="form-select rounded-4"
+                                                                required
+                                                            >
+
+                                                                <option value=""
+                                                                        disabled
+                                                                        selected>
+
+                                                                    Select a volunteer to assign
+
+                                                                </option>
+
+                                                                {% for vol in volunteers %}
+
+                                                                    <option value="{{ vol.id }}">
+
+                                                                        {{ vol.name }} — {{ vol.phone }}
+
+                                                                    </option>
+
+                                                                {% endfor %}
+
+                                                            </select>
+
+                                                        </div>
+
+
+                                                        <div class="col-md-4 d-grid">
+
+                                                            <button
+                                                                type="submit"
+                                                                class="btn btn-success rounded-4"
+                                                            >
+
+                                                                Confirm Assignment
+
+                                                            </button>
+
+                                                        </div>
+
+                                                    </form>
+
+                                                </td>
+
+                                            </tr>
+
+                                        {% endif %}
+
+                                    {% endfor %}
+
+
+                                    <!-- NO SEARCH RESULTS -->
+
+                                    <tr id="assignmentNoResults" class="d-none">
+
+                                        <td colspan="6"
+                                            class="text-center py-5">
+
+                                            <div class="assignment-empty rounded-4 py-4">
+
+                                                <i class="fa-solid fa-magnifying-glass text-success fs-3 mb-3 d-block"></i>
+
+                                                <div class="fw-semibold">
+                                                    No matching donations found
+                                                </div>
+
+                                                <div class="text-muted small mt-1">
+                                                    Try changing your search or filter.
+                                                </div>
+
+                                            </div>
+
+                                        </td>
+
+                                    </tr>
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+
+{% if my_assignments|length > 0 %}
+
+<script>
+
+    (() => {
+
+        const search = document.getElementById('assignmentSearch');
+        const status = document.getElementById('assignmentStatus');
+        const volunteer = document.getElementById('assignmentVolunteer');
+        const location = document.getElementById('assignmentLocation');
+        const clear = document.getElementById('clearAssignmentFilters');
+        const count = document.getElementById('assignmentResultCount');
+        const empty = document.getElementById('assignmentNoResults');
+
+        const rows = [
+            ...document.querySelectorAll('.assignment-row')
+        ];
+
+
+        const addOptions = (select, values) => {
+
+            [
+                ...new Set(
+                    values.filter(Boolean)
+                )
+            ]
+            .sort()
+            .forEach(value => {
+
+                const option = document.createElement('option');
+
+                option.value = value;
+
+                option.textContent =
+                    value.replace(
+                        /\b\w/g,
+                        letter => letter.toUpperCase()
+                    );
+
+                select.appendChild(option);
+
+            });
+
+        };
+
+
+        addOptions(
+            status,
+            rows.map(row => row.dataset.status)
+        );
+
+        addOptions(
+            volunteer,
+            rows.map(row => row.dataset.volunteer)
+        );
+
+        addOptions(
+            location,
+            rows.map(row => row.dataset.location)
+        );
+
+
+        const applyFilters = () => {
+
+            const query =
+                search.value.trim().toLowerCase();
+
+            let visible = 0;
+
+
+            rows.forEach(row => {
+
+                const matches =
+                    (!query ||
+                        row.dataset.search.includes(query)) &&
+
+                    (!status.value ||
+                        row.dataset.status === status.value) &&
+
+                    (!volunteer.value ||
+                        row.dataset.volunteer === volunteer.value) &&
+
+                    (!location.value ||
+                        row.dataset.location === location.value);
+
+
+                row.classList.toggle(
+                    'd-none',
+                    !matches
+                );
+
+
+                const detail =
+                    row.nextElementSibling;
+
+
+                if (
+                    detail &&
+                    detail.classList.contains(
+                        'assignment-detail'
+                    )
+                ) {
+
+                    detail.classList.toggle(
+                        'd-none',
+                        !matches
+                    );
+
+                }
+
+
+                if (matches) {
+                    visible += 1;
+                }
+
+            });
+
+
+            count.textContent =
+                `${visible} active donation${visible === 1 ? '' : 's'} shown`;
+
+
+            empty.classList.toggle(
+                'd-none',
+                visible !== 0
+            );
+
+        };
+
+
+        [
+            search,
+            status,
+            volunteer,
+            location
+        ].forEach(control => {
+
+            control.addEventListener(
+                'input',
+                applyFilters
+            );
+
+            control.addEventListener(
+                'change',
+                applyFilters
+            );
+
+        });
+
+
+        clear.addEventListener(
+            'click',
+            () => {
+
+                search.value = '';
+                status.value = '';
+                volunteer.value = '';
+                location.value = '';
+
+                applyFilters();
+
+                search.focus();
+
+            }
+        );
+
+
+        applyFilters();
+
+    })();
+
+</script>
+
+{% endif %}
+
+{% endblock %}

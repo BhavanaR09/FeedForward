@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Volunteers - {{ donor.company_name }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2 class="mb-2">Volunteers Working on Your Donations</h2>
+            <p class="text-muted">See all volunteers assigned to your food donations</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{{ url_for('donor_dashboard') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    {% if volunteers and volunteers|length > 0 %}
+    <div class="row">
+        {% for volunteer in volunteers %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-start mb-3">
+                        <div class="rounded-circle bg-success-light d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px;">
+                            <i class="fas fa-user-tie text-success" style="font-size: 24px;"></i>
+                        </div>
+                        <div>
+                            <h5 class="card-title mb-1">{{ volunteer.name }}</h5>
+                            <small class="text-muted">Volunteer</small>
+                        </div>
+                    </div>
+
+                    <div class="volunteer-info mb-3">
+                        {% if volunteer.phone %}
+                        <div class="mb-2">
+                            <small class="text-muted d-block">Phone</small>
+                            <a href="tel:{{ volunteer.phone }}" class="text-decoration-none">{{ volunteer.phone }}</a>
+                        </div>
+                        {% endif %}
+                        
+                        {% if volunteer.address %}
+                        <div class="mb-2">
+                            <small class="text-muted d-block">Address</small>
+                            <span class="text-decoration-none">{{ volunteer.address }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <hr>
+
+                    <div class="volunteer-stats">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Total Assignments</span>
+                            <strong class="text-primary">{{ volunteer.total_assignments }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted">Completed</span>
+                            <strong class="text-success">{{ volunteer.deliveries_completed }}</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info" role="alert">
+        <i class="fas fa-info-circle me-2"></i>
+        No volunteers have been assigned to your donations yet. When volunteers pick up your donations, they will appear here.
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .bg-success-light {
+        background-color: rgba(34, 197, 94, 0.12) !important;
+    }
+</style>
+{% endblock %}

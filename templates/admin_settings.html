@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}System Settings - Admin Panel{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar Navigation -->
+        <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse collapse-horizontal">
+            <div class="position-sticky pt-3">
+                <div class="px-3 mb-4">
+                    <h6 class="text-uppercase text-xs text-muted fw-bold" style="font-size: 0.75rem; letter-spacing: 1px;">Admin Controls</h6>
+                </div>
+                <ul class="nav flex-column gap-1">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_dashboard') }}">
+                            <i class="fa-solid fa-gauge me-2 text-success"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_users') }}">
+                            <i class="fa-solid fa-users me-2 text-success"></i> Manage Users
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_donations') }}">
+                            <i class="fa-solid fa-bowl-food me-2 text-success"></i> Food Postings
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_emergencies') }}">
+                            <i class="fa-solid fa-triangle-exclamation me-2 text-success"></i> Emergency Alerts
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('admin_settings') }}">
+                            <i class="fa-solid fa-sliders me-2 text-success"></i> App Settings
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Content Panel -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
+                <div>
+                    <h1 class="h2 fw-bold mb-1">System Configuration</h1>
+                    <p class="text-muted text-sm">Tune application properties, mail services, notification limits, and global constants.</p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xl-6">
+                    <div class="card bg-white border border-light shadow-sm p-4 rounded-4">
+                        <h5 class="fw-bold mb-4 text-dark"><i class="fa-solid fa-sliders text-success me-2"></i>Global Platform Settings</h5>
+                        
+                        <form method="POST" action="{{ url_for('admin_settings') }}">
+                            {{ form.hidden_tag() }}
+                            
+                            <div class="mb-3">
+                                <label for="system_name" class="form-label fw-semibold">Application Name</label>
+                                {{ form.system_name(class="form-control rounded-3 py-2") }}
+                                {% for error in form.system_name.errors %}
+                                    <div class="text-danger text-xs mt-1">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="contact_email" class="form-label fw-semibold">Admin Contact Email</label>
+                                {{ form.contact_email(class="form-control rounded-3 py-2") }}
+                                {% for error in form.contact_email.errors %}
+                                    <div class="text-danger text-xs mt-1">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="enable_notifications" class="form-label fw-semibold">Enable Global Notifications</label>
+                                {{ form.enable_notifications(class="form-select rounded-3 py-2") }}
+                                {% for error in form.enable_notifications.errors %}
+                                    <div class="text-danger text-xs mt-1">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="enable_emergency_mode" class="form-label fw-semibold">Enable Emergency Disaster Mode</label>
+                                {{ form.enable_emergency_mode(class="form-select rounded-3 py-2") }}
+                                {% for error in form.enable_emergency_mode.errors %}
+                                    <div class="text-danger text-xs mt-1">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            
+                            <button type="submit" class="btn btn-success rounded-3 px-4 py-2 fw-semibold">
+                                <i class="fa-solid fa-floppy-disk me-2"></i> Save Settings
+                            </button>
+                        </form>
+                        <form method="GET" action="{{ url_for('admin_test_smtp') }}" class="mt-3">
+                            <button type="submit" class="btn btn-outline-primary rounded-3 px-4 py-2 fw-semibold">
+                                <i class="fa-solid fa-envelope me-2"></i> Send SMTP Test Email
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+{% endblock %}

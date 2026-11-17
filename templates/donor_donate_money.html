@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}Donate Money for Orphans - FeedForward{% endblock %}
+
+{% block content %}
+<div class="donation-form-bg donation-money-bg">
+    <div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="text-center mb-4">
+                <div class="rounded-circle bg-success bg-opacity-10 d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 72px; height: 72px;">
+                    <i class="fa-solid fa-hand-holding-heart fs-3 text-success"></i>
+                </div>
+                <h1 class="fw-bold mb-2 text-light">Donate Money for Orphans</h1>
+                <p class="text-light">Provide direct support for education, meals, and welfare of orphan beneficiaries.</p>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-4 p-4">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Approved Orphanage / Organization</label>
+                            {{ form.orphanage_id(class='form-select rounded-3') }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Amount</label>
+                            {{ form.amount(class='form-control rounded-3', placeholder='e.g. 2500') }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Donation Purpose</label>
+                            {{ form.purpose(class='form-select rounded-3') }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Payment Method</label>
+                            {{ form.payment_method(class='form-select rounded-3') }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Note</label>
+                            {{ form.note(class='form-control rounded-3', rows='4', placeholder='Optional note or special purpose') }}
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-3 mt-4">
+                        <button type="submit" class="btn btn-success flex-grow-1 rounded-3 fw-semibold">Submit Donation</button>
+                        <a href="{{ url_for('donor_dashboard') }}" class="btn btn-light rounded-3 fw-semibold border">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    </div>
+</div>
+<div class="modal fade" id="paymentResultModal" tabindex="-1" aria-labelledby="paymentResultTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow">
+            <div class="modal-body text-center p-4 p-md-5">
+                <div id="paymentResultIcon" class="rounded-circle bg-success-subtle text-success d-inline-flex align-items-center justify-content-center mb-3" style="width: 64px; height: 64px;">
+                    <i class="fa-solid fa-check fs-3"></i>
+                </div>
+                <h2 id="paymentResultTitle" class="h4 fw-bold mb-2">Payment Successful!</h2>
+                <p id="paymentResultMessage" class="text-muted mb-3">Thank you for supporting FeedForward.</p>
+                <div id="paymentResultDetails" class="small text-muted mb-4"></div>
+                <button type="button" class="btn btn-success px-4" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% if razorpay_order is defined and razorpay_order %}
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const paymentResultModal = new bootstrap.Modal(document.getElementById('paymentResultModal'));
+        const paymentResultIcon = document.getElementById('paymentResultIcon');
+        const paymentResultTitle = document.getElementById('paymentResultTitle');
+        const paymentResultMessage = document.getElementById('paymentResultMessage');
+        const paymentResultDetails = document.getElementById('paymentResultDetails');
+
+        function showPaymentResult(type, title, message, details) {
+            const success = type === 'success';
+            paymentResultIcon.className = success
+                ? 'rounded-circle bg-success-subtle text-success d-inline-flex align-items-center justify-content-center mb-3'
+                : 'rounded-circle bg-danger-subtle text-danger d-inline-flex align-items-center justify-content-center mb-3';
+            paymentResultIcon.innerHTML = success
+                ? '<i class="fa-solid fa-check fs-3"></i>'
+                : '<i class="fa-solid fa-exclamation fs-3"></i>';
+            paymentResultTitle.textContent = title;
+            paymentResultMessage.textContent = message;
+            paymentResultDetails.textContent = details || '';
+            paymentResultModal.show();
+        }
+
+        let paymentResultReceived = false;
+        const options = {
+            key: {{ razorpay_key_id|tojson }},
+            amount: {{ razorpay_order.amount|int }},
+            currency: {{ razorpay_order.currency|tojson }},
+            name: 'FeedForward',
+            description: 'Money donation for orphan support',
+            order_id: {{ razorpay_order.id|tojson }},
+            prefill: {
+                name: {{ donor_name|tojson }},
+                email: {{ donor_email|tojson }},
+                contact: {{ donor_phone|tojson }}
+            },
+            theme: { color: '#198754' },
+            handler: function (response) {
+                paymentResultReceived = true;
+                checkout.close();
+                fetch('{{ url_for("donor_money_payment_success") }}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    body: JSON.stringify(response)
+                })
+                .then(function (result) {
+                    if (!result.ok) {
+                        throw new Error('Verification request failed with status ' + result.status);
+                    }
+                    return result.json();
+                })
+                .then(function (result) {
+                    if (result.success && result.verified) {
+                        showPaymentResult('success', 'Payment Successful!', 'Thank you for supporting FeedForward.', 'Donation Amount: ₹{{ "%.2f"|format(razorpay_order.amount / 100) }} | Payment Status: Verified');
+                    } else {
+                        showPaymentResult('error', 'Payment Verification Failed', result.error || 'We could not verify your payment. Please try again.');
+                    }
+                })
+                .catch(function () { showPaymentResult('error', 'Payment Verification Failed', 'Something went wrong while verifying your payment.'); });
+            },
+            modal: { ondismiss: function () {
+                if (!paymentResultReceived) {
+                    showPaymentResult('error', 'Payment Cancelled', 'Your donation has not been completed.');
+                }
+            } }
+        };
+        const checkout = new Razorpay(options);
+        checkout.on('payment.failed', function () {
+            paymentResultReceived = true;
+            showPaymentResult('error', 'Payment Failed', 'Your payment could not be completed. Please try again.');
+        });
+        checkout.open();
+    });
+</script>
+{% endif %}
+{% endblock %}

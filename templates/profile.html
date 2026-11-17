@@ -1,0 +1,346 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Profile - FeedForward{% endblock %}
+
+{% block content %}
+{% if current_user.role == 'admin' %}
+<div class="container mt-3 d-print-none">
+    <a href="{{ url_for('portfolio') }}" class="btn btn-outline-success btn-sm rounded-3">
+        <i class="fa-solid fa-arrow-left me-1"></i> Back to Portfolio
+    </a>
+</div>
+{% endif %}
+<div class="container-fluid py-5">
+    <div class="row justify-content-center">
+        <div class="col-xl-10">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="row g-0">
+                    <div class="col-lg-4 bg-success bg-opacity-10 p-4 d-flex flex-column justify-content-between">
+                        <div>
+                            <div class="d-flex align-items-center gap-3 mb-4">
+                                <div class="rounded-circle bg-white border border-light p-2" style="width: 90px; height: 90px;">
+                                    {% if profile_image_url %}
+                                        <img src="{{ url_for('static', filename=profile_image_url) }}" alt="Profile Image" class="rounded-circle w-100 h-100" style="object-fit: cover;">
+                                    {% else %}
+                                        <i class="fa-regular fa-user fs-2 text-success"></i>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <h3 class="mb-1 fw-bold text-dark">{{ current_user.full_name or current_user.username }}</h3>
+                                    <p class="text-muted mb-0">{{ current_user.role.capitalize() }} Account</p>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <h6 class="text-uppercase text-success text-xs fw-semibold mb-2">Profile Completion</h6>
+                                <div class="progress rounded-pill" style="height: 14px;">
+                                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ profile_completion }}%;" aria-valuenow="{{ profile_completion }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                                <small class="text-muted">{{ profile_completion }}% complete</small>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <div class="mb-3">
+                                <span class="text-muted d-block text-uppercase text-xs fw-semibold">Created On</span>
+                                <strong>{{ current_user.created_at|format_datetime }}</strong>
+                            </div>
+                            <div>
+                                <span class="text-muted d-block text-uppercase text-xs fw-semibold">Last Login</span>
+                                <strong>{{ current_user.last_login|format_datetime if current_user.last_login else 'Not available' }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-8 p-4 p-md-5 bg-white">
+                        <div class="d-flex align-items-start justify-content-between mb-4">
+                            <div>
+                                <h2 class="fw-bold mb-1">Manage Profile</h2>
+                                <p class="text-muted mb-0">Keep your personal and role-specific profile details up to date.</p>
+                            </div>
+                            <span class="badge bg-success bg-opacity-15 text-light py-2 px-3 rounded-pill">Role: {{ current_user.role.capitalize() }}</span>
+                        </div>
+
+                        <form method="POST" enctype="multipart/form-data" data-confirm="Save changes to your profile?">
+                            {{ form.hidden_tag() }}
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Username</label>
+                                    {{ form.username(class='form-control form-control-lg') }}
+                                    {% for error in form.username.errors %}
+                                        <div class="text-danger small mt-1">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Email</label>
+                                    <div class="input-group input-group-lg">
+                                        {{ form.email(class='form-control', readonly=true) }}
+                                        <button type="button" class="btn btn-outline-success" id="sendEmailOtpBtn">Verify</button>
+                                    </div>
+                                    <div class="mt-2 d-flex gap-2 align-items-center">
+                                        <input type="text" id="profileEmailOtp" class="form-control form-control-sm" placeholder="Enter OTP" style="max-width: 190px;" disabled>
+                                        <button type="button" class="btn btn-success btn-sm" id="verifyEmailOtpBtn" disabled>Submit OTP</button>
+                                    </div>
+                                    <div id="profileEmailOtpMessage" class="small mt-2" role="status" aria-live="polite"></div>
+                                    {% for error in form.email.errors %}
+                                        <div class="text-danger small mt-1">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Full Name / Contact Person</label>
+                                    {{ form.full_name(class='form-control form-control-lg') }}
+                                    {% for error in form.full_name.errors %}
+                                        <div class="text-danger small mt-1">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Phone Number</label>
+                                    {{ form.phone(class='form-control form-control-lg') }}
+                                    {% for error in form.phone.errors %}
+                                        <div class="text-danger small mt-1">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label fw-semibold">Address</label>
+                                    {{ form.address(class='form-control form-control-lg') }}
+                                    {% for error in form.address.errors %}
+                                        <div class="text-danger small mt-1">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Profile Picture</label>
+                                    {{ form.profile_image(class='form-control') }}
+                                    {% for error in form.profile_image.errors %}
+                                        <div class="text-danger small mt-1">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Current Role</label>
+                                    {{ form.account_role(class='form-control', readonly=true) }}
+                                </div>
+                            </div>
+
+                            <div class="row g-3 mt-4">
+                                {% if current_user.role == 'donor' %}
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Company / Organization Name</label>
+                                        {{ form.company_name(class='form-control form-control-lg') }}
+                                        {% for error in form.company_name.errors %}
+                                            <div class="text-danger small mt-1">{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Organization Type</label>
+                                        {{ form.organization_type(class='form-select form-select-lg') }}
+                                        {% for error in form.organization_type.errors %}
+                                            <div class="text-danger small mt-1">{{ error }}</div>
+                                        {% endfor %}
+                                        <div class="mt-2" id="orgTypeOtherContainer" style="display: none;">
+                                            <label class="form-label fw-semibold">Specify Other Type</label>
+                                            {{ form.organization_type_other(class='form-control form-control-lg') }}
+                                            {% for error in form.organization_type_other.errors %}
+                                                <div class="text-danger small mt-1">{{ error }}</div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                {% elif current_user.role == 'ngo' %}
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">NGO / Organization Name</label>
+                                        {{ form.company_name(class='form-control form-control-lg') }}
+                                        {% for error in form.company_name.errors %}
+                                            <div class="text-danger small mt-1">{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Registration Number</label>
+                                        {{ form.registration_number(class='form-control form-control-lg') }}
+                                        {% for error in form.registration_number.errors %}
+                                            <div class="text-danger small mt-1">{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Organization Type</label>
+                                        {{ form.organization_type(class='form-select form-select-lg') }}
+                                        {% for error in form.organization_type.errors %}
+                                            <div class="text-danger small mt-1">{{ error }}</div>
+                                        {% endfor %}
+                                        <div class="mt-2" id="orgTypeOtherContainer" style="display: none;">
+                                            <label class="form-label fw-semibold">Specify Other Type</label>
+                                            {{ form.organization_type_other(class='form-control form-control-lg') }}
+                                            {% for error in form.organization_type_other.errors %}
+                                                <div class="text-danger small mt-1">{{ error }}</div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                {% elif current_user.role == 'volunteer' %}
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Name</label>
+                                        {{ form.company_name(class='form-control form-control-lg') }}
+                                        {% for error in form.company_name.errors %}
+                                            <div class="text-danger small mt-1">{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Transport Type</label>
+                                        {{ form.transport_type(class='form-select form-select-lg') }}
+                                        {% for error in form.transport_type.errors %}
+                                            <div class="text-danger small mt-1">{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="row g-3 mt-4">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Current Password</label>
+                                    {{ form.current_password(class='form-control form-control-lg') }}
+                                    {% for error in form.current_password.errors %}
+                                        <div class="text-danger small mt-1">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">New Password</label>
+                                    {{ form.new_password(class='form-control form-control-lg') }}
+                                    {% for error in form.new_password.errors %}
+                                        <div class="text-danger small mt-1">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Confirm New Password</label>
+                                    {{ form.confirm_new_password(class='form-control form-control-lg') }}
+                                    {% for error in form.confirm_new_password.errors %}
+                                        <div class="text-danger small mt-1">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-end mt-5">
+                                <button type="submit" class="btn btn-success btn-lg">Save Profile</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const organizationTypeSelect = document.getElementById('organization_type');
+    const orgTypeOtherContainer = document.getElementById('orgTypeOtherContainer');
+    const organizationTypeOtherInput = document.getElementById('organization_type_other');
+    if (organizationTypeSelect && orgTypeOtherContainer) {
+        function updateOtherField() {
+            if (organizationTypeSelect.value === 'Other') {
+                orgTypeOtherContainer.style.display = 'block';
+                organizationTypeOtherInput.required = true;
+            } else {
+                orgTypeOtherContainer.style.display = 'none';
+                organizationTypeOtherInput.required = false;
+            }
+        }
+        organizationTypeSelect.addEventListener('change', updateOtherField);
+        updateOtherField();
+    }
+
+    const sendOtpBtn = document.getElementById('sendEmailOtpBtn');
+    const verifyOtpBtn = document.getElementById('verifyEmailOtpBtn');
+    const otpInput = document.getElementById('profileEmailOtp');
+    const emailInput = document.getElementById('email');
+    const otpMessage = document.getElementById('profileEmailOtpMessage');
+    let emailVerified = false;
+
+    if (sendOtpBtn && otpInput && verifyOtpBtn && emailInput && otpMessage) {
+        const setOtpMessage = (message, type = 'success') => {
+            otpMessage.textContent = message;
+            otpMessage.className = `small mt-2 text-${type}`;
+        };
+
+        const resetEmailVerification = () => {
+            emailVerified = false;
+            sendOtpBtn.textContent = 'Verify';
+            verifyOtpBtn.textContent = 'Submit OTP';
+            otpInput.value = '';
+            otpInput.disabled = true;
+            verifyOtpBtn.disabled = true;
+            setOtpMessage('');
+        };
+
+        emailInput.addEventListener('input', resetEmailVerification);
+
+        sendOtpBtn.addEventListener('click', async () => {
+            const email = emailInput.value.trim();
+            if (!email) {
+                setOtpMessage('Please enter your registered email address.', 'danger');
+                return showToast('Please enter an email address first.', 'danger');
+            }
+            sendOtpBtn.disabled = true;
+            sendOtpBtn.textContent = 'Sending OTP...';
+            try {
+                const response = await fetch('{{ url_for('api_profile_send_email_otp') }}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    setOtpMessage('OTP sent successfully.', 'success');
+                    showToast(result.message, 'success');
+                    otpInput.disabled = false;
+                    verifyOtpBtn.disabled = false;
+                    verifyOtpBtn.textContent = 'Submit OTP';
+                } else {
+                    setOtpMessage(result.error || result.message || 'Unable to send verification OTP.', 'danger');
+                    showToast(result.error || result.message || 'Unable to send verification OTP.', 'danger');
+                }
+            } catch (error) {
+                setOtpMessage('Unable to contact the verification service. Please try again.', 'danger');
+                showToast('Unable to contact the verification service. Please try again.', 'danger');
+            } finally {
+                sendOtpBtn.disabled = false;
+                if (!emailVerified) {
+                    sendOtpBtn.textContent = 'Verify';
+                }
+            }
+        });
+
+        verifyOtpBtn.addEventListener('click', async () => {
+            const email = emailInput.value.trim();
+            const code = otpInput.value.trim();
+            if (!email || !code) {
+                setOtpMessage('Please enter the OTP sent to your registered email.', 'danger');
+                return showToast('Please enter both email and OTP code.', 'danger');
+            }
+            verifyOtpBtn.disabled = true;
+            verifyOtpBtn.textContent = 'Verifying...';
+            try {
+                const response = await fetch('{{ url_for('api_profile_verify_email_otp') }}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, code })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    setOtpMessage('OTP verified successfully.', 'success');
+                    showToast(result.message, 'success');
+                    emailVerified = true;
+                    otpInput.value = '';
+                    otpInput.disabled = true;
+                    verifyOtpBtn.disabled = true;
+                    verifyOtpBtn.textContent = '✓ Verified';
+                    sendOtpBtn.disabled = true;
+                    sendOtpBtn.textContent = '✓ Verified';
+                } else {
+                    setOtpMessage(result.error || result.message || 'OTP verification failed.', 'danger');
+                    showToast(result.error || result.message || 'OTP verification failed.', 'danger');
+                }
+            } catch (error) {
+                setOtpMessage('Unable to contact the verification service. Please try again.', 'danger');
+                showToast('Unable to contact the verification service. Please try again.', 'danger');
+            } finally {
+                if (!emailVerified) {
+                    verifyOtpBtn.disabled = false;
+                    verifyOtpBtn.textContent = 'Submit OTP';
+                }
+            }
+        });
+    }
+</script>
+{% endblock %}

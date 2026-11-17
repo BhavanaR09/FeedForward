@@ -1,0 +1,674 @@
+{% extends "base.html" %}
+
+{% block title %}Select Donation Type - FeedForward{% endblock %}
+
+{% block content %}
+<div class="donation-selector-page">
+    <div class="container">
+
+        <header class="donation-selector-header">
+            <h1>
+                Choose a Way to
+                <span class="highlight">Make a Difference</span>
+            </h1>
+
+            <p>
+                Your support can bring hope, comfort and happiness to those who need it most.
+            </p>
+
+            <div class="section-divider"></div>
+        </header>
+
+
+        <div class="donation-cards-row">
+
+            {% for choice in donation_choices %}
+
+            <a href="{{ choice.url }}"
+               class="donation-card-link donation-type-{{ choice.type }}">
+
+                <article class="donation-card donation-card-{{ choice.type }}">
+
+                    <!-- ========================= -->
+                    <!-- MAIN DONATION ILLUSTRATION -->
+                    <!-- ========================= -->
+
+                    <div class="donation-illustration-wrap">
+
+                        <div class="donation-illustration-badge">
+
+                            <!-- ================= FOOD ================= -->
+
+                            {% if choice.type == 'food' %}
+
+                            <svg class="donation-illustration"
+                                 viewBox="0 0 180 180"
+                                 aria-hidden="true">
+
+                                <defs>
+                                    <linearGradient id="foodBowl"
+                                                    x1="0"
+                                                    y1="0"
+                                                    x2="1"
+                                                    y2="1">
+
+                                        <stop offset="0"
+                                              stop-color="#ffffff"/>
+
+                                        <stop offset="1"
+                                              stop-color="#edf3eb"/>
+                                    </linearGradient>
+                                </defs>
+
+                                <!-- Shadow -->
+                                <ellipse cx="92"
+                                         cy="125"
+                                         rx="70"
+                                         ry="18"
+                                         fill="#dfece2"/>
+
+                                <!-- Bowl -->
+                                <ellipse cx="92"
+                                         cy="104"
+                                         rx="62"
+                                         ry="28"
+                                         fill="url(#foodBowl)"/>
+
+                                <path d="M36 104
+                                         C48 86 62 72 92 72
+                                         C122 72 138 86 146 104
+                                         C132 118 121 124 92 124
+                                         C63 124 49 118 36 104Z"
+                                      fill="#f7f3ea"/>
+
+                                <!-- Food -->
+                                <path d="M54 104
+                                         C62 94 74 90 93 90
+                                         C111 90 123 94 130 104"
+                                      fill="none"
+                                      stroke="#bbd8b5"
+                                      stroke-width="5"
+                                      stroke-linecap="round"/>
+
+                                <circle cx="62"
+                                        cy="90"
+                                        r="10"
+                                        fill="#efb75d"/>
+
+                                <circle cx="83"
+                                        cy="83"
+                                        r="12"
+                                        fill="#a8d26c"/>
+
+                                <circle cx="105"
+                                        cy="90"
+                                        r="11"
+                                        fill="#ea8a68"/>
+
+                                <circle cx="122"
+                                        cy="84"
+                                        r="10"
+                                        fill="#dba657"/>
+
+                                <path d="M68 82
+                                         C74 64 83 54 94 48
+                                         C103 60 108 70 108 84"
+                                      fill="#d9eb74"/>
+
+                                <path d="M72 64
+                                         C87 59 98 44 101 28"
+                                      stroke="#d9eb74"
+                                      stroke-width="6"
+                                      stroke-linecap="round"/>
+
+                                <path d="M82 57
+                                         C89 42 98 33 109 26"
+                                      stroke="#7acb6d"
+                                      stroke-width="5"
+                                      stroke-linecap="round"/>
+
+                                <path d="M50 118
+                                         C58 136 73 144 93 146
+                                         C113 144 127 136 135 118"
+                                      stroke="#b9c9b8"
+                                      stroke-width="6"
+                                      stroke-linecap="round"/>
+
+                            </svg>
+
+
+                            <!-- ================= CLOTHES ================= -->
+
+                            {% elif choice.type == 'clothes' %}
+
+                            <svg class="donation-illustration"
+                                 viewBox="0 0 180 180"
+                                 aria-hidden="true">
+
+                                <defs>
+
+                                    <linearGradient id="clothesMain"
+                                                    x1="0"
+                                                    y1="0"
+                                                    x2="1"
+                                                    y2="1">
+
+                                        <stop offset="0%"
+                                              stop-color="#8fc5ff"/>
+
+                                        <stop offset="45%"
+                                              stop-color="#4388e8"/>
+
+                                        <stop offset="100%"
+                                              stop-color="#245fc4"/>
+                                    </linearGradient>
+
+
+                                    <linearGradient id="clothesFold"
+                                                    x1="0"
+                                                    y1="0"
+                                                    x2="1"
+                                                    y2="1">
+
+                                        <stop offset="0%"
+                                              stop-color="#6fa9f2"/>
+
+                                        <stop offset="100%"
+                                              stop-color="#2b68c9"/>
+                                    </linearGradient>
+
+                                </defs>
+
+
+                                <!-- Soft shadow -->
+                                <ellipse cx="90"
+                                         cy="137"
+                                         rx="58"
+                                         ry="12"
+                                         fill="#d7e4f5"/>
+
+
+                                <!-- Bottom folded shirt -->
+                                <path d="M43 100
+                                         L65 88
+                                         L115 88
+                                         L137 100
+                                         L129 128
+                                         L51 128
+                                         Z"
+                                      fill="url(#clothesFold)"/>
+
+
+                                <!-- Middle folded shirt -->
+                                <path d="M48 82
+                                         L68 70
+                                         L112 70
+                                         L132 82
+                                         L125 109
+                                         L55 109
+                                         Z"
+                                      fill="#4b91ea"/>
+
+
+                                <!-- Top folded shirt -->
+                                <path d="M54 63
+                                         L73 51
+                                         L107 51
+                                         L126 63
+                                         L119 91
+                                         L61 91
+                                         Z"
+                                      fill="url(#clothesMain)"/>
+
+
+                                <!-- Collar -->
+                                <path d="M73 51
+                                         L90 63
+                                         L107 51"
+                                      fill="#dcecff"
+                                      stroke="#ffffff"
+                                      stroke-width="3"
+                                      stroke-linejoin="round"/>
+
+
+                                <!-- Fabric folds -->
+                                <path d="M63 72 H117"
+                                      stroke="#b9d9ff"
+                                      stroke-width="3"
+                                      stroke-linecap="round"
+                                      opacity=".8"/>
+
+                                <path d="M61 82 H119"
+                                      stroke="#d4e8ff"
+                                      stroke-width="3"
+                                      stroke-linecap="round"
+                                      opacity=".75"/>
+
+
+                                <!-- Small heart -->
+                                <path d="M90 72
+                                         C84 65 75 70 90 82
+                                         C105 70 96 65 90 72Z"
+                                      fill="#ffffff"
+                                      opacity=".9"/>
+
+
+                                <!-- Highlight -->
+                                <path d="M58 65
+                                         L72 57
+                                         L68 82"
+                                      fill="#ffffff"
+                                      opacity=".22"/>
+
+                            </svg>
+
+
+                            <!-- ================= BOOKS ================= -->
+
+                            {% elif choice.type == 'books' %}
+
+                            <svg class="donation-illustration"
+                                 viewBox="0 0 180 180"
+                                 aria-hidden="true">
+
+                                <defs>
+
+                                    <linearGradient id="bookGreen"
+                                                    x1="0"
+                                                    y1="0"
+                                                    x2="1"
+                                                    y2="1">
+
+                                        <stop offset="0%"
+                                              stop-color="#7bd49b"/>
+
+                                        <stop offset="100%"
+                                              stop-color="#24945c"/>
+                                    </linearGradient>
+
+
+                                    <linearGradient id="bookPurple"
+                                                    x1="0"
+                                                    y1="0"
+                                                    x2="1"
+                                                    y2="1">
+
+                                        <stop offset="0%"
+                                              stop-color="#b58aff"/>
+
+                                        <stop offset="100%"
+                                              stop-color="#7140c9"/>
+                                    </linearGradient>
+
+
+                                    <linearGradient id="bookBlue"
+                                                    x1="0"
+                                                    y1="0"
+                                                    x2="1"
+                                                    y2="1">
+
+                                        <stop offset="0%"
+                                              stop-color="#70b9ff"/>
+
+                                        <stop offset="100%"
+                                              stop-color="#3979ce"/>
+                                    </linearGradient>
+
+                                </defs>
+
+
+                                <!-- Shadow -->
+                                <ellipse cx="91"
+                                         cy="137"
+                                         rx="61"
+                                         ry="11"
+                                         fill="#e3d9ef"/>
+
+
+                                <!-- Bottom book -->
+                                <path d="M38 108
+                                         L119 108
+                                         L137 119
+                                         L55 132
+                                         L38 121
+                                         Z"
+                                      fill="#315f9c"/>
+
+
+                                <!-- Bottom pages -->
+                                <path d="M45 110
+                                         L120 110
+                                         L130 118
+                                         L54 128
+                                         L45 121
+                                         Z"
+                                      fill="#f7f3e8"/>
+
+
+                                <!-- Blue book -->
+                                <path d="M43 91
+                                         L117 91
+                                         L132 101
+                                         L57 114
+                                         L43 106
+                                         Z"
+                                      fill="url(#bookBlue)"/>
+
+                                <path d="M50 96
+                                         L116 96
+                                         L124 101
+                                         L57 109
+                                         L50 105
+                                         Z"
+                                      fill="#ffffff"
+                                      opacity=".7"/>
+
+
+                                <!-- Purple book -->
+                                <path d="M49 74
+                                         L119 74
+                                         L132 84
+                                         L61 98
+                                         L49 90
+                                         Z"
+                                      fill="url(#bookPurple)"/>
+
+                                <path d="M57 79
+                                         L116 79
+                                         L123 84
+                                         L61 92
+                                         L57 89
+                                         Z"
+                                      fill="#ffffff"
+                                      opacity=".65"/>
+
+
+                                <!-- Green top book -->
+                                <path d="M56 57
+                                         L111 57
+                                         L128 69
+                                         L70 83
+                                         L56 75
+                                         Z"
+                                      fill="url(#bookGreen)"/>
+
+
+                                <!-- Pages -->
+                                <path d="M63 62
+                                         L110 62
+                                         L119 69
+                                         L70 78
+                                         L63 73
+                                         Z"
+                                      fill="#fffdf5"/>
+
+
+                                <!-- Book spine -->
+                                <path d="M56 57
+                                         L56 75
+                                         L70 83
+                                         L70 65
+                                         Z"
+                                      fill="#218552"
+                                      opacity=".9"/>
+
+
+                                <!-- Bookmark -->
+                                <path d="M91 59
+                                         V75
+                                         L96 71
+                                         L101 75
+                                         V59"
+                                      fill="#f6c85f"/>
+
+
+                                <!-- Highlight -->
+                                <path d="M61 59
+                                         L69 61
+                                         L66 73"
+                                      fill="#ffffff"
+                                      opacity=".3"/>
+
+                            </svg>
+
+
+                            <!-- ================= MONEY ================= -->
+
+                            {% else %}
+
+                            <svg class="donation-illustration"
+                                 viewBox="0 0 180 180"
+                                 aria-hidden="true">
+
+                                <defs>
+
+                                    <linearGradient id="piggyPink"
+                                                    x1="0"
+                                                    y1="0"
+                                                    x2="1"
+                                                    y2="1">
+
+                                        <stop offset="0%"
+                                              stop-color="#ffd2d2"/>
+
+                                        <stop offset="45%"
+                                              stop-color="#f59a9a"/>
+
+                                        <stop offset="100%"
+                                              stop-color="#df7070"/>
+                                    </linearGradient>
+
+
+                                    <linearGradient id="coinGold"
+                                                    x1="0"
+                                                    y1="0"
+                                                    x2="1"
+                                                    y2="1">
+
+                                        <stop offset="0%"
+                                              stop-color="#ffe58a"/>
+
+                                        <stop offset="50%"
+                                              stop-color="#f4b82f"/>
+
+                                        <stop offset="100%"
+                                              stop-color="#d99116"/>
+                                    </linearGradient>
+
+                                </defs>
+
+
+                                <!-- Shadow -->
+                                <ellipse cx="91"
+                                         cy="137"
+                                         rx="58"
+                                         ry="12"
+                                         fill="#f1dfd2"/>
+
+
+                                <!-- Pig body -->
+                                <ellipse cx="91"
+                                         cy="96"
+                                         rx="48"
+                                         ry="37"
+                                         fill="url(#piggyPink)"/>
+
+
+                                <!-- Pig head -->
+                                <circle cx="125"
+                                        cy="91"
+                                        r="25"
+                                        fill="url(#piggyPink)"/>
+
+
+                                <!-- Ear -->
+                                <path d="M116 70
+                                         C108 57 116 52 126 64
+                                         L128 76 Z"
+                                      fill="#e98585"/>
+
+
+                                <!-- Snout -->
+                                <ellipse cx="145"
+                                         cy="96"
+                                         rx="12"
+                                         ry="9"
+                                         fill="#e57f7f"/>
+
+                                <circle cx="141"
+                                        cy="95"
+                                        r="2.5"
+                                        fill="#a94d4d"/>
+
+                                <circle cx="149"
+                                        cy="95"
+                                        r="2.5"
+                                        fill="#a94d4d"/>
+
+
+                                <!-- Eye -->
+                                <circle cx="130"
+                                        cy="84"
+                                        r="3.5"
+                                        fill="#493434"/>
+
+
+                                <!-- Coin slot -->
+                                <rect x="73"
+                                      y="62"
+                                      width="28"
+                                      height="6"
+                                      rx="3"
+                                      fill="#9f5656"/>
+
+
+                                <!-- Legs -->
+                                <rect x="57"
+                                      y="119"
+                                      width="12"
+                                      height="17"
+                                      rx="5"
+                                      fill="#d97676"/>
+
+                                <rect x="105"
+                                      y="119"
+                                      width="12"
+                                      height="17"
+                                      rx="5"
+                                      fill="#d97676"/>
+
+
+                                <!-- Tail -->
+                                <path d="M45 91
+                                         C31 82 30 100 42 99"
+                                      fill="none"
+                                      stroke="#df7777"
+                                      stroke-width="5"
+                                      stroke-linecap="round"/>
+
+
+                                <!-- Gold donation coin -->
+                                <circle cx="91"
+                                        cy="39"
+                                        r="18"
+                                        fill="url(#coinGold)"
+                                        stroke="#d9961e"
+                                        stroke-width="3"/>
+
+                                <circle cx="91"
+                                        cy="39"
+                                        r="12"
+                                        fill="none"
+                                        stroke="#ffe9a4"
+                                        stroke-width="2"/>
+
+
+                                <!-- Heart on coin -->
+                                <path d="M91 45
+                                         C84 39 84 34 88 33
+                                         C91 32 92 35 91 36
+                                         C91 35 93 32 96 33
+                                         C100 34 99 39 91 45Z"
+                                      fill="#fff4c7"/>
+
+
+                                <!-- Highlight -->
+                                <ellipse cx="76"
+                                         cy="82"
+                                         rx="12"
+                                         ry="8"
+                                         fill="#ffffff"
+                                         opacity=".25"/>
+
+                            </svg>
+
+                            {% endif %}
+
+                        </div>
+                    </div>
+
+
+                    <!-- ========================= -->
+                    <!-- SMALL CATEGORY ICON -->
+                    <!-- ========================= -->
+
+                    <div class="donation-card-icon donation-card-icon-{{ choice.type }}">
+                        <i class="fa-solid {{ choice.icon }}"></i>
+                    </div>
+
+
+                    <!-- ========================= -->
+                    <!-- TITLE -->
+                    <!-- ========================= -->
+
+                    <h3 class="donation-card-title">
+                        {{ choice.title|safe }}
+                    </h3>
+
+
+                    <!-- ========================= -->
+                    <!-- DESCRIPTION -->
+                    <!-- ========================= -->
+
+                    <p class="donation-card-description">
+                        {{ choice.description }}
+                    </p>
+
+
+                    <!-- Divider -->
+                    <div class="donation-card-divider"></div>
+
+
+                    <!-- Arrow button -->
+                    <div class="donation-card-button">
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </div>
+
+                </article>
+
+            </a>
+
+            {% endfor %}
+
+        </div>
+
+
+        <!-- ========================= -->
+        <!-- BOTTOM SIGNATURE -->
+        <!-- ========================= -->
+
+        <div class="donation-signature">
+
+            <span>
+                Small act, Big impact
+                <span class="heart">♡</span>
+            </span>
+
+            <div class="signature-divider"></div>
+
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

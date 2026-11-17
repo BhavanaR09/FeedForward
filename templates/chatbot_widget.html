@@ -1,0 +1,65 @@
+<button class="ff-chatbot-toggle" id="ffChatbotToggle" type="button" aria-label="Open FeedForward AI Assistant" aria-expanded="false" title="Ask FeedForward AI">
+    <i class="fa-solid fa-robot"></i>
+</button>
+
+<div class="ff-chatbot-panel" id="ffChatbotPanel" aria-live="polite" aria-label="FeedForward Assistant chat">
+    <div class="ff-chatbot-header">
+        <div class="ff-chatbot-brand">
+            <div class="ff-chatbot-brand-icon">
+                <i class="fa-solid fa-robot"></i>
+            </div>
+            <div>
+                <div class="ff-chatbot-brand-text">FeedForward AI Assistant</div>
+                <div class="ff-chatbot-brand-subtitle"><span class="ff-chatbot-online-dot"></span> Online · Your smart donation companion</div>
+            </div>
+        </div>
+        <div class="ff-chatbot-header-actions">
+            <button class="ff-chatbot-header-btn" id="ffChatbotClear" type="button" aria-label="Clear conversation" title="Clear conversation">
+                <i class="fa-solid fa-rotate-left"></i>
+            </button>
+            <button class="ff-chatbot-header-btn" id="ffChatbotMinimize" type="button" aria-label="Minimize chat" title="Minimize chat">
+                <i class="fa-solid fa-minus"></i>
+            </button>
+            <button class="ff-chatbot-header-btn" id="ffChatbotClose" type="button" aria-label="Close chat" title="Close chat">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="ff-chatbot-welcome">
+        <div class="ff-chatbot-welcome-title">Hello, I’m here to help.</div>
+        <div class="ff-chatbot-welcome-copy">Ask about donations, volunteers, NGOs, certificates, food safety, payments, notifications, and more.</div>
+    </div>
+
+    <div class="ff-chatbot-quick-actions" aria-label="Quick questions">
+        <button class="ff-chatbot-quick-action" type="button" data-message="I want to donate food" data-icon="fa-utensils"><i class="fa-solid fa-utensils"></i><span>Donate Food</span></button>
+        <button class="ff-chatbot-quick-action" type="button" data-message="I want to donate clothes" data-icon="fa-shirt"><i class="fa-solid fa-shirt"></i><span>Donate Clothes</span></button>
+        <button class="ff-chatbot-quick-action" type="button" data-message="I want to donate books" data-icon="fa-book"><i class="fa-solid fa-book"></i><span>Donate Books</span></button>
+        <button class="ff-chatbot-quick-action" type="button" data-message="How does money donation work?" data-icon="fa-credit-card"><i class="fa-solid fa-credit-card"></i><span>Donate Money</span></button>
+        <button class="ff-chatbot-quick-action" type="button" data-message="How can I become a volunteer?" data-icon="fa-users"><i class="fa-solid fa-users"></i><span>Volunteer</span></button>
+        <button class="ff-chatbot-quick-action" type="button" data-message="How can an NGO participate?" data-icon="fa-building"><i class="fa-solid fa-building"></i><span>NGO Info</span></button>
+
+        <button class="ff-chatbot-quick-action" type="button" data-message="Emergency donations" data-icon="fa-truck-medical"><i class="fa-solid fa-truck-medical"></i><span>Emergency</span></button>
+    </div>
+
+    <div class="ff-chatbot-messages" id="ffChatbotMessages">
+        <div class="ff-chatbot-message bot">
+            <div class="ff-chatbot-bubble">👋 Hello! I’m the FeedForward AI Assistant. How can I assist you today?</div>
+            <time class="ff-chatbot-time">Now</time>
+        </div>
+    </div>
+
+    <div class="ff-chatbot-typing" id="ffChatbotTyping" aria-live="polite">
+        <span class="ff-chatbot-typing-label">FeedForward AI is typing</span>
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <div class="ff-chatbot-input-wrap">
+        <textarea class="ff-chatbot-input" id="ffChatbotInput" rows="1" placeholder="Ask FeedForward AI..." aria-label="Message FeedForward AI Assistant"></textarea>
+        <button class="ff-chatbot-send" id="ffChatbotSend" type="button" aria-label="Send message" disabled>
+            <i class="fa-solid fa-paper-plane"></i>
+        </button>
+    </div>
+</div>

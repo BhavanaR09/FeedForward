@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Volunteer Feedback - FeedForward{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-5">
+    <div class="row">
+        <div class="col-lg-8">
+            <h1 class="fw-bold">Feedback About Your Deliveries</h1>
+            <p class="text-muted">See ratings and comments left by donors and NGOs about your pickup and delivery quality.</p>
+
+            <div class="row g-4 my-4">
+                <div class="col-md-6">
+                    <div class="card p-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="text-muted text-xs">Feedback Entries</div>
+                                <h3 class="fw-bold">{{ feedback_count }}</h3>
+                            </div>
+                            <div class="rounded-3 bg-success bg-opacity-10 p-2 text-success"><i class="fa-solid fa-clipboard-list fs-4"></i></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card p-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="text-muted text-xs">Average Rating</div>
+                                <h3 class="fw-bold">{% if avg_rating is not none %}{{ avg_rating }}/5{% else %}N/A{% endif %}</h3>
+                            </div>
+                            <div class="rounded-3 bg-warning bg-opacity-10 p-2 text-warning"><i class="fa-solid fa-star fs-4"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table mb-0">
+                            <thead class="bg-light text-muted">
+                                <tr>
+                                    <th>Reviewer</th>
+                                    <th>Donation</th>
+                                    <th>Rating</th>
+                                    <th>Comments</th>
+                                    <th>Submitted On</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for entry in feedback_entries %}
+                                    <tr>
+                                        <td>{{ entry.reviewer_name or 'Unknown' }}</td>
+                                        <td class="fw-semibold">{{ entry.food_name }}</td>
+                                        <td><span class="badge bg-success bg-opacity-10 text-success rounded-pill">{{ entry.rating }}/5</span></td>
+                                        <td class="text-muted">{{ entry.comments }}</td>
+                                        <td class="text-muted">{{ entry.created_at }}</td>
+                                    </tr>
+                                {% else %}
+                                    <tr><td colspan="5" class="text-center text-muted py-4">No feedback available.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="col-lg-4">
+            <div class="card p-4 mb-4">
+                <h6 class="fw-bold mb-2">Quick Actions</h6>
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('volunteer_dashboard') }}" class="btn btn-outline-secondary">Back to Dashboard</a>
+                    <a href="{{ url_for('volunteer_history') }}" class="btn btn-outline-primary">View Delivery History</a>
+                </div>
+            </div>
+            <div class="card p-4">
+                <h6 class="fw-bold mb-2">Tips to improve service</h6>
+                <p class="text-muted mb-0">Be punctual, verify items carefully, and communicate ETA to donors for better ratings.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

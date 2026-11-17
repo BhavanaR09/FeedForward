@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Submit Feedback - FeedForward{% endblock %}
+
+{% block content %}
+<div class="container py-5 my-auto">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg border-0 p-4 p-md-5 rounded-4 bg-white">
+                <div class="text-center mb-4">
+                    <div class="rounded-circle bg-success bg-opacity-10 d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 70px; height: 70px;">
+                        <i class="fa-regular fa-star-half-stroke fs-3 text-success"></i>
+                    </div>
+                    <h3 class="fw-bold mb-1">Feedback & Quality Review</h3>
+                    <p class="text-muted text-sm">Rate your experience for Donation #{{ donation_id }}</p>
+                </div>
+
+                <form method="POST" action="{{ url_for('ngo_feedback', donation_id=donation_id) }}">
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        <label for="food_rating" class="form-label fw-semibold">Food Quality Rating</label>
+                        {{ form.food_rating(class="form-select rounded-3 py-2.5") }}
+                        {% for error in form.food_rating.errors %}
+                            <div class="text-danger text-xs mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="delivery_rating" class="form-label fw-semibold">Delivery Rating</label>
+                        {{ form.delivery_rating(class="form-select rounded-3 py-2.5") }}
+                        {% for error in form.delivery_rating.errors %}
+                            <div class="text-danger text-xs mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="comments" class="form-label fw-semibold">Comments & Food Assessment</label>
+                        {{ form.comments(class="form-control rounded-3 py-2.5", rows="4", placeholder="Let us know about food quality, temperature, packaging, or the delivery volunteer's timeliness...") }}
+                        {% for error in form.comments.errors %}
+                            <div class="text-danger text-xs mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <a href="{{ url_for('ngo_history') }}" class="btn btn-outline-secondary w-100 py-2.5 rounded-3 fw-semibold">Cancel</a>
+                        <button type="submit" class="btn btn-success w-100 py-2.5 rounded-3 fw-semibold">
+                            Submit Feedback <i class="fa-regular fa-paper-plane ms-1"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,645 @@
+{% extends "base.html" %}
+
+{% block title %}FeedForward - Community Donation Platform{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --brand-green: #22c55e;
+        --brand-dark: #0f172a;
+        --brand-soft: #f8fafc;
+    }
+
+    .landing-hero {
+        position: relative;
+        background: linear-gradient(135deg, rgba(17, 24, 39, 0.92), rgba(15, 23, 42, 0.92)), url('/static/images/hero_community_food.jpg') center center / cover no-repeat;
+        padding: 8rem 0 5rem;
+        color: #ffffff;
+        overflow: hidden;
+    }
+
+    .landing-hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at top left, rgba(34, 197, 94, 0.22), transparent 35%), radial-gradient(circle at bottom right, rgba(16, 185, 129, 0.16), transparent 25%);
+        pointer-events: none;
+    }
+
+    .landing-hero .landing-hero-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .feature-card,
+    .testimonial-card,
+    .partner-logo {
+        transition: transform 0.28s ease, box-shadow 0.28s ease;
+    }
+
+    .feature-card:hover,
+    .testimonial-card:hover,
+    .partner-logo:hover,
+    .hover-lift:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 22px 40px rgba(15, 23, 42, 0.12);
+    }
+
+    .feature-card {
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        border-radius: 24px;
+        background: #ffffff;
+    }
+
+    .donation-category-card {
+        position: relative;
+        border-radius: 28px;
+        padding: 1.6rem;
+        height: 100%;
+        border: 1px solid rgba(15, 23, 42, 0.06);
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.10), rgba(255,255,255,0.96));
+        box-shadow: 0 18px 36px rgba(15, 23, 42, 0.08);
+        transition: transform 0.28s ease, box-shadow 0.28s ease;
+        transform-style: preserve-3d;
+    }
+
+    .donation-category-card:hover {
+        transform: rotateX(6deg) rotateY(-6deg) translateY(-8px);
+        box-shadow: 0 26px 48px rgba(15, 23, 42, 0.14);
+    }
+
+    .donation-category-icon {
+        width: 64px;
+        height: 64px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 18px;
+        background: rgba(34, 197, 94, 0.12);
+        color: #15803d;
+        font-size: 1.7rem;
+    }
+
+    .metric-card {
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        backdrop-filter: blur(12px);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .metric-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 16px 35px rgba(15, 23, 42, 0.18);
+    }
+
+    .testimonial-card {
+        border-radius: 24px;
+        border: 1px solid rgba(15, 23, 42, 0.06);
+        background: #ffffff;
+    }
+
+    .partner-logo {
+        border-radius: 18px;
+        background: #ffffff;
+        border: 1px solid rgba(15, 23, 42, 0.06);
+        min-height: 85px;
+        display: grid;
+        place-items: center;
+        font-weight: 600;
+        color: #334155;
+    }
+
+    .emergency-banner {
+        border-radius: 28px;
+        padding: 3.5rem;
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.12), rgba(15, 23, 42, 0.05));
+        border: 1px solid rgba(34, 197, 94, 0.12);
+    }
+
+    .btn-hero {
+        min-width: 220px;
+    }
+
+    .counter-value {
+        font-size: 2.75rem;
+        letter-spacing: -0.04em;
+    }
+
+    .how-it-works { padding: 5rem 0; background: #f8fafc; }
+    .how-it-works .section-heading { max-width: 720px; margin: 0 auto 3rem; text-align: center; }
+    .how-it-works .section-label { color: #16a34a; font-size: .8rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+    .how-it-works .section-heading h2 { margin: .75rem 0 1rem; font-weight: 700; }
+    .how-it-works .section-heading p { color: #64748b; margin-bottom: 0; }
+    .workflow-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem; }
+    .workflow-card { height: 100%; padding: 2rem 1.5rem; text-align: center; background: #fff; border: 1px solid rgba(15, 23, 42, .08); border-radius: 1.25rem; box-shadow: 0 12px 28px rgba(15, 23, 42, .06); transition: transform .25s ease, box-shadow .25s ease; }
+    .workflow-card:hover { transform: translateY(-6px); box-shadow: 0 20px 36px rgba(15, 23, 42, .12); }
+    .workflow-icon { width: 4.5rem; height: 4.5rem; margin: 0 auto 1.25rem; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 1.8rem; }
+    .donation-icon { color: #15803d; background: #dcfce7; }
+    .verification-icon { color: #2563eb; background: #dbeafe; }
+    .volunteer-icon { color: #9333ea; background: #f3e8ff; }
+    .pickup-icon { color: #ea580c; background: #ffedd5; }
+    .distribution-icon { color: #0891b2; background: #cffafe; }
+    .impact-icon { color: #db2777; background: #fce7f3; }
+    .workflow-card h3 { margin-bottom: .85rem; font-size: 1.15rem; font-weight: 700; }
+    .workflow-card p { margin-bottom: 0; color: #64748b; line-height: 1.7; }
+
+    .animate-up {
+        opacity: 0;
+        transform: translateY(24px);
+        transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .animate-up.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    @media (max-width: 991px) {
+        .landing-hero {
+            padding-top: 6rem;
+            padding-bottom: 4rem;
+        }
+        .workflow-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 575px) {
+        .how-it-works { padding: 3.5rem 0; }
+        .workflow-cards { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="landing-hero">
+    <div class="container landing-hero-content">
+        <div class="row align-items-center gx-5">
+            <div class="col-lg-7">
+                <div class="mb-3 d-inline-flex align-items-center gap-2 bg-success bg-opacity-15 border border-success border-opacity-25 rounded-pill px-3 py-2">
+                    <span class="rounded-circle bg-success" style="width: 10px; height: 10px;"></span>
+                    <span class="text-uppercase fw-semibold small text-light">Premium relief logistics</span>
+                </div>
+                <h1 class="display-5 fw-bold text-white mb-4">FeedForward makes giving food, clothes, books, and money simple and impactful.</h1>
+                <p class="lead text-white-75 mb-4" style="max-width: 650px;">One platform for donors, NGOs, and volunteers to coordinate real-time pickups, manage verified handoffs, and respond to urgent community needs with confidence.</p>
+                <div class="d-flex flex-wrap gap-3 mb-4">
+                    {% if not current_user.is_authenticated %}
+                        <a href="{{ url_for('login') }}" class="btn btn-success btn-lg btn-hero rounded-3 fw-semibold shadow hover-lift">Login to Continue</a>
+                        <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-lg btn-hero rounded-3 fw-semibold">Login as Partner</a>
+                    {% else %}
+                        <a href="{{ url_for('dashboard_router') }}" class="btn btn-success btn-lg btn-hero rounded-3 fw-semibold shadow hover-lift">Go to Dashboard</a>
+                    {% endif %}
+                </div>
+                <div class="d-flex flex-wrap gap-3 align-items-center text-white-75 small">
+                    <div><i class="fa-solid fa-circle-check text-success me-2"></i>Verified donation coordination</div>
+                    <div><i class="fa-solid fa-location-dot text-success me-2"></i>Localized NGO matching</div>
+                    <div><i class="fa-solid fa-clock text-success me-2"></i>Fast pickup coordination</div>
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <div class="card rounded-4 shadow-lg overflow-hidden border-0">
+                    <div class="ratio ratio-4x3">
+                        <img src="/static/images/hero_community_food.jpg" alt="Community donation support" class="object-fit-cover" referrerPolicy="no-referrer">
+                    </div>
+                    <div class="p-4 bg-white">
+                        <div class="d-flex gap-3 align-items-center">
+                            <div class="rounded-circle bg-success bg-opacity-15 text-success d-flex align-items-center justify-content-center" style="width: 52px; height: 52px;"><i class="fa-solid fa-heart-pulse"></i></div>
+                            <div>
+                                <p class="mb-1 text-success small text-uppercase fw-bold">Impact in action</p>
+                                <h5 class="mb-0 fw-bold">Empowering communities through every kind of donation</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 bg-dark text-white">
+    <div class="container">
+        <div class="row gy-4 text-center">
+            <div class="col-md-3 animate-up">
+                <div class="metric-card p-4 h-100">
+                    <div class="fw-semibold text-success mb-2">Total Donations</div>
+                    <div class="counter-value" data-target="{{ stats.total_donations }}">0</div>
+                </div>
+            </div>
+            <div class="col-md-3 animate-up">
+                <div class="metric-card p-4 h-100">
+                    <div class="fw-semibold text-success mb-2">Active Donors</div>
+                    <div class="counter-value" data-target="{{ stats.total_donors }}">0</div>
+                </div>
+            </div>
+            <div class="col-md-3 animate-up">
+                <div class="metric-card p-4 h-100">
+                    <div class="fw-semibold text-success mb-2">NGOs</div>
+                    <div class="counter-value" data-target="{{ stats.total_ngos }}">0</div>
+                </div>
+            </div>
+            <div class="col-md-3 animate-up">
+                <div class="metric-card p-4 h-100">
+                    <div class="fw-semibold text-success mb-2">Volunteers</div>
+                    <div class="counter-value" data-target="{{ stats.total_volunteers }}">0</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 bg-white">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="text-success fw-bold text-uppercase small tracking-wider">What makes FeedForward premium</span>
+            <h2 class="fw-bold mt-3">Built for speed, trust, and measurable community impact</h2>
+            <p class="text-muted mx-auto" style="max-width: 680px;">From intuitive donor uploads to secure QR handoffs and disaster-ready volunteer coordination, FeedForward makes every delivery count.</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6 col-xl-3 animate-up">
+                <div class="feature-card p-4 h-100">
+                    <div class="text-success fs-2 mb-3"><i class="fa-solid fa-shield-halved"></i></div>
+                    <h5 class="fw-bold">Verified Safety</h5>
+                    <p class="text-muted mb-0">Secure pickup validation and custody tracking ensure every handoff remains accountable.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-3 animate-up">
+                <div class="feature-card p-4 h-100">
+                    <div class="text-success fs-2 mb-3"><i class="fa-solid fa-bolt"></i></div>
+                    <h5 class="fw-bold">Instant Matching</h5>
+                    <p class="text-muted mb-0">Local NGOs can find available food, clothing, books, and financial support in one place.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-3 animate-up">
+                <div class="feature-card p-4 h-100">
+                    <div class="text-success fs-2 mb-3"><i class="fa-solid fa-truck-fast"></i></div>
+                    <h5 class="fw-bold">Volunteer Logistics</h5>
+                    <p class="text-muted mb-0">Organize drivers, route pickups, and confirm drop-offs without extra complexity.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-3 animate-up">
+                <div class="feature-card p-4 h-100">
+                    <div class="text-success fs-2 mb-3"><i class="fa-solid fa-chart-line"></i></div>
+                    <h5 class="fw-bold">Impact Insights</h5>
+                    <p class="text-muted mb-0">Track donation totals, participation, and community effect at a glance.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-6 animate-up">
+                <div class="emergency-banner">
+                    <span class="badge bg-success bg-opacity-10 text-success mb-3">Emergency Disaster Response</span>
+                    <h3 class="fw-bold mb-3">Activate emergency logistics at a moment's notice</h3>
+                    <p class="text-muted mb-4">When disaster strikes, FeedForward prioritizes urgent donations and mobilizes volunteers to coordinate essential community support.</p>
+                    <ul class="list-unstyled text-dark mb-0" style="font-size: 0.95rem;">
+                        <li class="mb-3"><i class="fa-solid fa-circle-check text-success me-3"></i>Rapid priority pickup routing</li>
+                        <li class="mb-3"><i class="fa-solid fa-circle-check text-success me-3"></i>Real-time incident awareness for donors and NGOs</li>
+                        <li><i class="fa-solid fa-circle-check text-success me-3"></i>Verified QR confirmations for rapid handoffs</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-lg-6 animate-up">
+                <div class="ratio ratio-16x9 rounded-4 overflow-hidden shadow-sm">
+                    <img src="/static/images/join_movement_hands.jpg" alt="Emergency community relief" class="object-fit-cover" referrerPolicy="no-referrer" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 bg-white">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="text-success fw-bold text-uppercase small tracking-wider">Donation Categories</span>
+            <h2 class="fw-bold mt-3">Choose the right giving flow for your support</h2>
+            <p class="text-muted mx-auto" style="max-width: 720px;">Choose from food, clothing, books, or financial support, with a dedicated donation flow for each.</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6 col-xl-3 animate-up">
+                <a href="{{ url_for('donor_donate') }}" class="text-decoration-none text-reset d-block h-100">
+                    <div class="donation-category-card h-100">
+                        <div class="donation-category-icon"><i class="fa-solid fa-bowl-food"></i></div>
+                        <div class="mt-4">
+                            <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 mb-3">Food Donation</span>
+                            <h4 class="fw-bold mb-2">Food Donation</h4>
+                            <p class="text-muted mb-0">List surplus meals and ingredients for urgent rescue and NGO pickup.</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-6 col-xl-3 animate-up">
+                <a href="{{ url_for('donor_donate_clothes') }}" class="text-decoration-none text-reset d-block h-100">
+                    <div class="donation-category-card h-100">
+                        <div class="donation-category-icon"><i class="fa-solid fa-shirt"></i></div>
+                        <div class="mt-4">
+                            <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 mb-3">Clothes</span>
+                            <h4 class="fw-bold mb-2">Clothes Donation</h4>
+                            <p class="text-muted mb-0">Share usable clothing, winter wear, and essentials for families in need.</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-6 col-xl-3 animate-up">
+                <a href="{{ url_for('donor_donate_books') }}" class="text-decoration-none text-reset d-block h-100">
+                    <div class="donation-category-card h-100">
+                        <div class="donation-category-icon"><i class="fa-solid fa-book"></i></div>
+                        <div class="mt-4">
+                            <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 mb-3">Books</span>
+                            <h4 class="fw-bold mb-2">Book Donation</h4>
+                            <p class="text-muted mb-0">Donate learning material, storybooks, and school resources to communities.</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-6 col-xl-3 animate-up">
+                <a href="{{ url_for('donor_donate_money') }}" class="text-decoration-none text-reset d-block h-100">
+                    <div class="donation-category-card h-100">
+                        <div class="donation-category-icon"><img src="{{ url_for('static', filename='images/money_image.png') }}" alt="Money donation" class="w-100 h-100 object-fit-cover rounded-3"></div>
+                        <div class="mt-4">
+                            <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 mb-3">Orphan Support</span>
+                            <h4 class="fw-bold mb-2">Money Donation for Orphans</h4>
+                            <p class="text-muted mb-0">Direct support toward education, meals, and care for orphan beneficiaries.</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ================= HOW IT WORKS ================= -->
+<section class="how-it-works" id="how-it-works">
+    <div class="container">
+        <div class="section-heading">
+            <div class="section-label">HOW FEEDFORWARD WORKS</div>
+            <h2>Innovative Handshake Workflow</h2>
+            <p>Our secure and transparent donation platform makes it easy to donate, verify, collect and deliver help to the people who need it most.</p>
+        </div>
+        <div class="workflow-cards">
+            <div class="workflow-card">
+                <div class="workflow-icon donation-icon"><i class="fa-solid fa-hand-holding-heart"></i></div>
+                <h3>1. Create a Donation</h3>
+                <p>Donors can choose what they want to contribute - food, clothes, books or money - and provide the required donation details.</p>
+            </div>
+            <div class="workflow-card">
+                <div class="workflow-icon verification-icon"><i class="fa-solid fa-circle-check"></i></div>
+                <h3>2. NGO Verification</h3>
+                <p>NGOs review the donation details, verify the contribution and approve suitable donations for people and communities in need.</p>
+            </div>
+            <div class="workflow-card">
+                <div class="workflow-icon volunteer-icon"><i class="fa-solid fa-person-running"></i></div>
+                <h3>3. Volunteer Assigned</h3>
+                <p>For physical donations, available volunteers are notified and assigned to collect the donation from the donor.</p>
+            </div>
+            <div class="workflow-card">
+                <div class="workflow-icon pickup-icon"><i class="fa-solid fa-truck"></i></div>
+                <h3>4. Pickup &amp; Delivery</h3>
+                <p>Volunteers safely collect physical donations and deliver them to the concerned NGO or distribution location.</p>
+            </div>
+            <div class="workflow-card">
+                <div class="workflow-icon distribution-icon"><i class="fa-solid fa-people-group"></i></div>
+                <h3>5. Distribution</h3>
+                <p>NGOs coordinate the distribution of food, clothes and books to the appropriate beneficiaries and communities.</p>
+            </div>
+            <div class="workflow-card">
+                <div class="workflow-icon impact-icon"><i class="fa-solid fa-heart-circle-check"></i></div>
+                <h3>6. Impact Created</h3>
+                <p>Every completed donation contributes to reducing waste, supporting communities and creating a positive social impact.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="marketplacePreview" class="py-5 bg-white">
+    <div class="container">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-5 gap-3">
+            <div>
+                <span class="text-success fw-bold text-uppercase small tracking-wider">Live Marketplace</span>
+                <h2 class="fw-bold mt-3">Recent surplus donations</h2>
+                <p class="text-muted mb-0">Browse the latest available donations across all supported categories.</p>
+            </div>
+            {% if not current_user.is_authenticated %}
+                <a href="{{ url_for('login') }}" class="btn btn-success px-4 py-2 rounded-3 fw-semibold shadow-sm hover-lift" style="background-color: #22c55e; border-color: #22c55e;">Login to view portal</a>
+            {% endif %}
+        </div>
+
+        <div class="row g-4">
+            {% if recent_listings|length == 0 %}
+                <div class="col-12">
+                    <div class="card rounded-4 border-0 shadow-sm p-5 text-center bg-white">
+                        <i class="fa-solid fa-circle-check fs-1 text-success mb-3"></i>
+                        <h5 class="fw-bold mb-2">No open donations right now</h5>
+                        <p class="text-muted mb-0">New food, clothing, book, and money donations will appear here as they are listed.</p>
+                    </div>
+                </div>
+            {% else %}
+                {% for item in recent_listings %}
+                    <div class="col-lg-4 col-md-6 animate-up">
+                        <div class="card rounded-4 border-0 shadow-sm overflow-hidden h-100 hover-lift">
+                            <div class="position-relative" style="height: 220px; overflow: hidden;">
+                                {% if item.image_path %}
+                                    <img src="{{ url_for('static', filename=item.image_path) }}" alt="{{ item.title }}" class="w-100 h-100" style="object-fit: cover;">
+                                {% else %}
+                                    <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-secondary bg-opacity-10">
+                                        {% if item.donation_type == 'food' %}
+                                            <i class="fa-solid fa-bowl-food fs-1 text-muted"></i>
+                                        {% elif item.donation_type == 'clothes' %}
+                                            <i class="fa-solid fa-shirt fs-1 text-muted"></i>
+                                        {% elif item.donation_type == 'books' %}
+                                            <i class="fa-solid fa-book fs-1 text-muted"></i>
+                                        {% else %}
+                                            <img src="{{ url_for('static', filename='images/money_image.png') }}" alt="Money donation" class="w-100 h-100 object-fit-cover">
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                                {% if item.donation_type == 'food' %}
+                                    <span class="badge position-absolute top-0 end-0 m-3 {% if item.veg_non_veg == 'Veg' %}badge-veg{% else %}badge-nonveg{% endif %} shadow-sm">{{ item.veg_non_veg }}</span>
+                                {% endif %}
+                            </div>
+                            <div class="card-body p-4">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <span class="badge bg-success bg-opacity-10 text-success text-xs px-2.5 py-1 fw-semibold">{{ item.donation_type|title }}{% if item.category %} &middot; {{ item.category }}{% endif %}</span>
+                                    <small class="text-muted"><i class="fa-regular fa-clock me-1"></i>{{ item.created_at|format_datetime }}</small>
+                                </div>
+                                <h5 class="fw-bold mb-2">{{ item.title }}</h5>
+                                <p class="text-muted mb-3">{{ item.address }}</p>
+                                <div class="row g-2 text-center text-muted small">
+                                    <div class="col-6 border-end border-light pe-0">
+                                        <div class="fw-semibold text-dark">{% if item.donation_type == 'money' %}₹{{ item.quantity }}{% else %}{{ item.quantity }}{% endif %}</div>
+                                        <div>{% if item.donation_type == 'money' %}Amount{% else %}Quantity{% endif %}</div>
+                                    </div>
+                                    <div class="col-6 ps-0">
+                                        {% if item.donation_type == 'food' %}
+                                            <div class="fw-semibold text-danger">{{ item.expiry_time }}</div>
+                                            <div>Expiry</div>
+                                        {% else %}
+                                            <div class="fw-semibold text-dark">{{ item.status }}</div>
+                                            <div>Status</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-white border-0 p-4 pt-0">
+                                {% if item.status == 'Expired' %}
+                                    <div class="text-center bg-danger bg-opacity-10 text-danger rounded-3 py-3 px-3 border border-danger-subtle fw-semibold">EXPIRED</div>
+                                {% elif current_user.is_authenticated and current_user.role == 'ngo' and item.donation_type != 'money' %}
+                                    <form action="{{ url_for('ngo_accept_donation', donation_id=item.id, donation_type=item.donation_type) }}" method="POST" class="m-0">
+                                        <button type="submit" class="btn btn-success w-100 rounded-3 py-2.5 fw-bold shadow-sm hover-lift" style="background-color: #22c55e; border-color: #22c55e;">Claim and reserve</button>
+                                    </form>
+                                {% elif current_user.is_authenticated and current_user.role == 'ngo' %}
+                                    <div class="text-center bg-light rounded-3 py-3 px-3 border border-light text-muted">Financial support follows the payment workflow.</div>
+                                {% else %}
+                                    <div class="text-center bg-light rounded-3 py-3 px-3 border border-light text-muted">NGO partners can claim this donation.</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="text-success fw-bold text-uppercase small tracking-wider">Testimonials</span>
+            <h2 class="fw-bold mt-3">Trusted by donors, volunteers, and NGO leaders</h2>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4 animate-up">
+                <div class="testimonial-card p-4 h-100">
+                    <p class="text-muted mb-4">“FeedForward makes it easier for our community to coordinate donations and get useful support to people who need it.”</p>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="rounded-circle bg-success bg-opacity-15 text-success d-flex align-items-center justify-content-center" style="width: 52px; height: 52px;"><i class="fa-solid fa-utensils"></i></div>
+                        <div>
+                            <strong>Priya S.</strong>
+                            <div class="text-muted small">NGO Coordinator</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 animate-up">
+                <div class="testimonial-card p-4 h-100">
+                    <p class="text-muted mb-4">“We can share useful items with local organizations and keep the donation process organized from listing to collection.”</p>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="rounded-circle bg-success bg-opacity-15 text-success d-flex align-items-center justify-content-center" style="width: 52px; height: 52px;"><i class="fa-solid fa-building"></i></div>
+                        <div>
+                            <strong>Anjali K.</strong>
+                            <div class="text-muted small">Donor Operations Lead</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 animate-up">
+                <div class="testimonial-card p-4 h-100">
+                    <p class="text-muted mb-4">“Clear donation details help me coordinate collections and focus on getting each contribution to the right place.”</p>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="rounded-circle bg-success bg-opacity-15 text-success d-flex align-items-center justify-content-center" style="width: 52px; height: 52px;"><i class="fa-solid fa-truck-fast"></i></div>
+                        <div>
+                            <strong>Ravi P.</strong>
+                            <div class="text-muted small">Volunteer Courier</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row align-items-center gy-4">
+            <div class="col-md-4 animate-up">
+                <span class="text-success fw-bold text-uppercase small tracking-wider">Partner Network</span>
+                <h3 class="fw-bold mt-3">Trusted by community organizations</h3>
+                <p class="text-muted">From shelters to food halls, FeedForward brings local impact partners together on one modern platform.</p>
+            </div>
+            <div class="col-md-8">
+                <div class="row row-cols-2 row-cols-sm-4 g-3">
+                    <div class="col animate-up"><div class="partner-logo">Community Kitchens</div></div>
+                    <div class="col animate-up"><div class="partner-logo">Local Shelters</div></div>
+                    <div class="col animate-up"><div class="partner-logo">College Cafeterias</div></div>
+                    <div class="col animate-up"><div class="partner-logo">Food Halls</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 bg-white">
+    <div class="container">
+        <div class="card rounded-4 border-0 shadow-sm p-5 text-center animate-up">
+            <h2 class="fw-bold mb-3">Ready to turn surplus into support?</h2>
+            <p class="text-muted mb-4">Join FeedForward to reduce waste and connect food, clothing, books, and financial support with community needs.</p>
+            <div class="d-flex flex-wrap justify-content-center gap-3">
+                {% if not current_user.is_authenticated %}
+                    <a href="{{ url_for('login') }}" class="btn btn-success btn-lg rounded-3 px-5 py-3 fw-semibold" style="background-color: #22c55e; border-color: #22c55e;">Login to Continue</a>
+                    <a href="{{ url_for('login') }}" class="btn btn-outline-success btn-lg rounded-3 px-5 py-3 fw-semibold">Login as Partner</a>
+                {% else %}
+                    <a href="{{ url_for('dashboard_router') }}" class="btn btn-success btn-lg rounded-3 px-5 py-3 fw-semibold" style="background-color: #22c55e; border-color: #22c55e;">Go to Dashboard</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function animateWhenVisible(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }
+
+    function animateCounters() {
+        const counters = document.querySelectorAll('.counter-value');
+        counters.forEach(counter => {
+            const target = parseInt(counter.dataset.target, 10) || 0;
+            const duration = 1500;
+            const step = Math.max(1, Math.ceil(target / (duration / 30)));
+            let current = 0;
+
+            const update = () => {
+                current += step;
+                if (current >= target) {
+                    counter.textContent = target.toLocaleString();
+                } else {
+                    counter.textContent = current.toLocaleString();
+                    window.requestAnimationFrame(update);
+                }
+            };
+            update();
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const animatedItems = document.querySelectorAll('.animate-up');
+        if ('IntersectionObserver' in window) {
+            const observer = new IntersectionObserver(animateWhenVisible, { threshold: 0.18 });
+            animatedItems.forEach(item => observer.observe(item));
+        } else {
+            animatedItems.forEach(item => item.classList.add('visible'));
+        }
+
+        const counterSection = document.querySelector('.counter-value');
+        if (counterSection) {
+            const counterObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        animateCounters();
+                        observer.disconnect();
+                    }
+                });
+            }, { threshold: 0.4 });
+            counterObserver.observe(counterSection);
+        }
+    });
+</script>
+{% endblock %}
